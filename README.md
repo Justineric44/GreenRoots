@@ -16,26 +16,26 @@ Born from the urgency to take concrete action against deforestation and climate 
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | Next.js (App Router) |
-| API | Node.js + Express |
-| Admin | EJS (server-side rendering) |
-| Database | PostgreSQL |
-| Dev environment | Docker |
+| Layer           | Technology                  |
+| --------------- | --------------------------- |
+| Frontend        | Next.js (App Router)        |
+| API             | Node.js + Express           |
+| Admin           | EJS (server-side rendering) |
+| Database        | PostgreSQL                  |
+| Dev environment | Docker                      |
 
 ## Project Structure
 
 ```
 greenroots/
 ├── frontend/     # Next.js application
-├── api/          # Express REST API + EJS admin views
+├── backend/      # Express REST API + EJS admin views
 └── docs/         # Project documentation
 ```
 
 ## Installation
 
-*Coming soon.*
+_Coming soon._
 
 ---
 

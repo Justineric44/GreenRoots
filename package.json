@@ -1,0 +1,29 @@
+{
+  "name": "projet-cda-greenroots",
+  "version": "1.0.0",
+  "description": "GreenRoots is an e-commerce platform dedicated to reforestation. It allows individuals, companies, and associations to purchase trees that will be planted through reforestation projects around the world.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "install:all": "npm install && npm install --prefix frontend && npm install --prefix backend",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/O-clock-Helsinki/projet-cda-GreenRoots.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/O-clock-Helsinki/projet-cda-GreenRoots/issues"
+  },
+  "homepage": "https://github.com/O-clock-Helsinki/projet-cda-GreenRoots#readme",
+  "devDependencies": {
+    "@commitlint/config-conventional": "^21.0.1",
+    "commitlint": "^21.0.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.5",
+    "prettier": "^3.8.3"
+  }
+}
