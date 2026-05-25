@@ -1,0 +1,66 @@
+# ===========================
+# Dependencies
+# ===========================
+node_modules/
+.pnp
+.pnp.js
+
+# ===========================
+# Environment
+# ===========================
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+!.env.example
+
+# ===========================
+# Next.js
+# ===========================
+frontend/.next/
+frontend/out/
+frontend/.vercel
+
+# ===========================
+# Build
+# ===========================
+backend/dist/
+frontend/.next/
+frontend/out/
+
+# ===========================
+# Logs
+# ===========================
+logs/
+*.log
+npm-debug.log*
+
+# ===========================
+# Prisma
+# ===========================
+backend/prisma/migrations/**/migration_lock.toml
+
+# ===========================
+# Docker
+# ===========================
+postgres_data/
+
+# ===========================
+# OS
+# ===========================
+.DS_Store
+Thumbs.db
+
+# ===========================
+# IDE
+# ===========================
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+
+# ===========================
+# Tests
+# ===========================
+/coverage
