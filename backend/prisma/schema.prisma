@@ -22,7 +22,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // =========================================================
@@ -241,11 +240,7 @@ model ProjectHasTree {
   // → empêche la suppression d’un arbre s’il est encore
   // associé à un projet afin d’éviter des incohérences
   // dans les stocks et les relations métier.
-  tree      Tree    @relation(
-    fields: [treeId],
-    references: [id],
-    onDelete: Restrict
-  )
+  tree      Tree    @relation(fields: [treeId],references: [id],onDelete: Restrict)
 
 
   // Relation vers le projet associé.
@@ -255,11 +250,7 @@ model ProjectHasTree {
   // → si un projet est supprimé, toutes les associations
   // entre ce projet et ses arbres sont automatiquement
   // supprimées également.
-  project   Project @relation(
-    fields: [projectId],
-    references: [id],
-    onDelete: Cascade
-  )
+  project   Project @relation(fields: [projectId],references: [id],onDelete: Cascade)
 
   // -------------------------
   // Dates
@@ -298,11 +289,7 @@ model Cart {
   // Relations
   // -------------------------
 
-  user      User       @relation(
-    fields: [userId],
-    references: [id],
-    onDelete: Cascade
-  )
+  user      User       @relation(fields: [userId],references: [id],onDelete: Cascade)
 
   items     CartItem[]
 
@@ -348,23 +335,11 @@ model CartItem {
   // Relations
   // -------------------------
 
-  tree      Tree    @relation(
-    fields: [treeId],
-    references: [id],
-    onDelete: Restrict
-  )
+  tree      Tree    @relation(fields: [treeId],references: [id],onDelete: Restrict)
 
-  project   Project @relation(
-    fields: [projectId],
-    references: [id],
-    onDelete: Restrict
-  )
+  project   Project @relation(fields: [projectId],references: [id],onDelete: Restrict)
 
-  cart      Cart    @relation(
-    fields: [cartId],
-    references: [id],
-    onDelete: Cascade
-  )
+  cart      Cart    @relation(fields: [cartId],references: [id],onDelete: Cascade)
 
   // -------------------------
   // Dates
@@ -403,17 +378,9 @@ model Order {
   // Relations
   // -------------------------
 
-  user      User        @relation(
-    fields: [userId],
-    references: [id],
-    onDelete: Restrict
-  )
+  user      User        @relation(fields: [userId],references: [id],onDelete: Restrict)
 
-  cart      Cart?       @relation(
-    fields: [cartId],
-    references: [id],
-    onDelete: SetNull
-  )
+  cart      Cart?       @relation(fields: [cartId],references: [id],onDelete: SetNull)
 
 // Ensemble des lignes de commande associées.
 // Une commande peut contenir plusieurs arbres
@@ -458,23 +425,11 @@ model OrderItem {
   // Relations
   // -------------------------
 
-  tree           Tree    @relation(
-    fields: [treeId],
-    references: [id],
-    onDelete: Restrict
-  )
+  tree           Tree    @relation(fields: [treeId],references: [id],onDelete: Restrict)
 
-  project        Project @relation(
-    fields: [projectId],
-    references: [id],
-    onDelete: Restrict
-  )
+  project        Project @relation(fields: [projectId],references: [id],onDelete: Restrict)
 
-  order          Order   @relation(
-    fields: [orderId],
-    references: [id],
-    onDelete: Cascade
-  )
+  order          Order   @relation(fields: [orderId],references: [id],onDelete: Cascade)
 
   // -------------------------
   // Dates
