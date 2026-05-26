@@ -184,7 +184,7 @@ model Tree {
   origin           String?
 
   // Prix de l’arbre
- price       Decimal  @db.Decimal(10, 2)
+  price            Decimal  @db.Numeric(10, 2)
 
   picture          String
 
@@ -367,7 +367,7 @@ model Order {
   status    OrderStatus @default(validated)
 
   // Montant total de la commande
-  amount      Decimal  @default(0) @db.Decimal(10, 2)
+  amount    Decimal     @default(0) @db.Numeric(10, 2)
 
   userId    Int         @map("user_id")
 
@@ -415,7 +415,7 @@ model OrderItem {
 
   quantity       Int     @default(1)
 
-  unitPrice   Decimal  @map("unit_price") @db.Decimal(10, 2)
+  unitPrice      Decimal @map("unit_price") @db.Numeric(10, 2)
 
   treeId         Int     @map("tree_id")
   projectId      Int     @map("project_id")
