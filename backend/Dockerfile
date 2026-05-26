@@ -1,4 +1,3 @@
-FORM : node 
 # Image de developpement du backend GreenRoots
 FROM node:24-alpine
 
