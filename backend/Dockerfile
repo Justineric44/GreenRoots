@@ -1,4 +1,4 @@
-FORM : node 
+
 # Image de developpement du backend GreenRoots
 FROM node:24-alpine
 
@@ -11,7 +11,7 @@ RUN npm install --ignore-scripts
 # Code source
 COPY . .
 
-EXPOSE 4000
+EXPOSE 3001
 
 # Au demarrage : generer le client Prisma puis lancer le serveur en mode dev.
 # (la generation se fait ici pour fonctionner avec le volume monte par docker-compose)
