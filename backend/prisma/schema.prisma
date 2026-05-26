@@ -3,11 +3,443 @@
 
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
+// =========================================================
+// GENERATOR
+// =========================================================
+// Permet à Prisma de générer automatiquement le client Prisma
+// utilisé dans l’application Node.js / Express.
+
 generator client {
   provider = "prisma-client"
-  output   = "../generated/prisma"
+  output   = "./generated"
 }
+
+// =========================================================
+// DATASOURCE
+// =========================================================
+// Configuration de la connexion à PostgreSQL.
+// DATABASE_URL sera récupérée depuis le fichier .env
 
 datasource db {
   provider = "postgresql"
+}
+
+// =========================================================
+// ENUMS
+// =========================================================
+// Types ENUM PostgreSQL utilisés dans plusieurs tables.
+
+// Rôles utilisateurs
+enum UserRole {
+  user
+  admin
+}
+
+// Types d’utilisateurs
+enum UserType {
+  particulier
+  entreprise
+  association
+}
+
+// Statuts possibles d’un panier
+enum CartStatus {
+  active
+  converted
+}
+
+// Statuts possibles d’une commande
+enum OrderStatus {
+  validated
+  canceled
+}
+
+// =========================================================
+// MODEL USER
+// =========================================================
+// Représente les utilisateurs du site.
+// Un utilisateur peut avoir plusieurs paniers et commandes.
+
+model User {
+
+  // -------------------------
+  // Colonnes simples
+  // -------------------------
+
+  id          Int      @id @default(autoincrement())
+
+  lastName    String   @map("last_name")
+  firstName   String   @map("first_name")
+
+  email       String   @unique
+  password    String
+
+  role        UserRole @default(user)
+
+  address     String
+  postalCode  String   @map("postal_code")
+  city        String
+
+  type        UserType @default(particulier)
+
+  siret       String?  @unique
+  companyName String?  @map("company_name")
+
+  phone       String?
+
+  // -------------------------
+  // Relations
+  // -------------------------
+
+  carts       Cart[]
+  orders      Order[]
+
+  // -------------------------
+  // Dates
+  // -------------------------
+
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // -------------------------
+  // Nom réel de la table SQL
+  // -------------------------
+
+  @@map("users")
+}
+
+// =========================================================
+// MODEL PROJECT
+// =========================================================
+// Représente les projets de reforestation.
+// Un projet peut contenir plusieurs arbres.
+
+model Project {
+
+  id               Int      @id @default(autoincrement())
+
+  name             String
+
+  // Slug utilisé dans les URLs
+  // Exemple :
+  // /projects/reforestation-amazonie
+  slug             String   @unique
+
+  shortDescription String   @map("short_description")
+  longDescription  String?  @map("long_description")
+
+  localisation     String
+
+  // URLs/images du projet
+  picture          String
+
+  // Pourcentage d’avancement du projet
+  progress         Int      @default(0)
+
+  // -------------------------
+  // Relations
+  // -------------------------
+
+  projectHasTrees     ProjectHasTree[]
+
+  cartItems        CartItem[] 
+  //un Project peut par exemple être lié à plusieurs lignes de panier (CartItem)
+
+  orderItems       OrderItem[]
+
+  // -------------------------
+  // Dates
+  // -------------------------
+
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("project")
+}
+
+// =========================================================
+// MODEL TREE
+// =========================================================
+// Représente les arbres disponibles.
+// Un même arbre peut être utilisé dans plusieurs projets.
+
+model Tree {
+
+  id               Int      @id @default(autoincrement())
+
+  commonName       String   @map("common_name")
+
+  // Slug utilisé dans les URLs
+  // Exemple :
+  // /trees/pin-sylvestre
+  slug             String   @unique
+
+  scientificName   String   @map("scientific_name")
+
+  family           String
+
+  shortDescription String   @map("short_description")
+  longDescription  String?  @map("long_description")
+
+  origin           String?
+
+  // Prix de l’arbre
+ price       Decimal  @db.Decimal(10, 2)
+
+  picture          String
+
+  // -------------------------
+  // Relations
+  // -------------------------
+
+  projectHasTrees     ProjectHasTree[]
+
+  cartItems        CartItem[]
+  orderItems       OrderItem[]
+
+  // -------------------------
+  // Dates
+  // -------------------------
+
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("tree")
+}
+
+// =========================================================
+// MODEL PROJECT_HAS_TREE
+// =========================================================
+// Table de liaison entre Project et Tree.
+//
+// Cette table permet :
+// - qu’un projet possède plusieurs arbres
+// - qu’un arbre soit utilisé dans plusieurs projets
+//
+// On y stocke également le stock spécifique
+// d’un arbre dans un projet donné.
+
+model ProjectHasTree {
+
+  id        Int     @id @default(autoincrement())
+
+  treeId    Int     @map("tree_id")
+  projectId Int     @map("project_id")
+
+  // Stock disponible pour cet arbre dans ce projet
+  stock     Int     @default(0)
+
+  // -------------------------
+  // Relations
+  // -------------------------
+
+  // Relation vers l’arbre associé.
+  // treeId contient la clé étrangère vers la table tree.
+  // Une ligne ProjectHasTree est obligatoirement liée à un arbre.
+  // onDelete: Restrict
+  // → empêche la suppression d’un arbre s’il est encore
+  // associé à un projet afin d’éviter des incohérences
+  // dans les stocks et les relations métier.
+  tree      Tree    @relation(fields: [treeId],references: [id],onDelete: Restrict)
+
+
+  // Relation vers le projet associé.
+  // projectId contient la clé étrangère vers la table project.
+  // Une ligne ProjectHasTree est obligatoirement liée à un projet.
+  // onDelete: Cascade
+  // → si un projet est supprimé, toutes les associations
+  // entre ce projet et ses arbres sont automatiquement
+  // supprimées également.
+  project   Project @relation(fields: [projectId],references: [id],onDelete: Cascade)
+
+  // -------------------------
+  // Dates
+  // -------------------------
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+// Empêche d’associer plusieurs fois le même arbre
+// au même projet.
+// Chaque couple (projet + arbre) doit être unique
+// afin de garantir un stock unique par arbre
+// dans un projet donné.
+  @@unique([projectId, treeId])
+
+  @@map("project_has_trees")
+}
+
+// =========================================================
+// MODEL CART
+// =========================================================
+// Représente le panier d’un utilisateur.
+//
+// Un utilisateur peut avoir plusieurs paniers,
+// mais un seul panier actif à la fois.
+
+model Cart {
+
+  id        Int        @id @default(autoincrement())
+
+  status    CartStatus @default(active)
+
+  userId    Int        @map("user_id")
+
+  // -------------------------
+  // Relations
+  // -------------------------
+
+  user      User       @relation(fields: [userId],references: [id],onDelete: Cascade)
+
+  items     CartItem[]
+
+// Relation optionnelle vers la commande générée
+// à partir du panier.
+// Un panier peut :
+// - soit rester actif sans commande,
+// - soit être converti en une unique commande.
+
+  order     Order?
+
+  // -------------------------
+  // Dates
+  // -------------------------
+
+  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime   @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("cart")
+}
+
+// =========================================================
+// MODEL CART_ITEM
+// =========================================================
+// Représente une ligne du panier.
+//
+// Une ligne contient :
+// - un arbre
+// - un projet
+// - une quantité
+
+model CartItem {
+
+  id        Int     @id @default(autoincrement())
+
+  quantity  Int     @default(1)
+
+  treeId    Int     @map("tree_id")
+  projectId Int     @map("project_id")
+  cartId    Int     @map("cart_id")
+
+  // -------------------------
+  // Relations
+  // -------------------------
+
+  tree      Tree    @relation(fields: [treeId],references: [id],onDelete: Restrict)
+
+  project   Project @relation(fields: [projectId],references: [id],onDelete: Restrict)
+
+  cart      Cart    @relation(fields: [cartId],references: [id],onDelete: Cascade)
+
+  // -------------------------
+  // Dates
+  // -------------------------
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Empêche d’avoir deux fois le même arbre/projet
+  // dans le même panier.
+  @@unique([cartId, treeId, projectId])
+
+  @@map("cart_item")
+}
+
+// =========================================================
+// MODEL ORDER
+// =========================================================
+// Représente une commande validée.
+
+model Order {
+
+  id        Int         @id @default(autoincrement())
+
+  status    OrderStatus @default(validated)
+
+  // Montant total de la commande
+  amount      Decimal  @default(0) @db.Decimal(10, 2)
+
+  userId    Int         @map("user_id")
+
+  // Référence facultative au panier d’origine
+  cartId    Int?        @unique @map("cart_id")
+
+  // -------------------------
+  // Relations
+  // -------------------------
+
+  user      User        @relation(fields: [userId],references: [id],onDelete: Restrict)
+
+  cart      Cart?       @relation(fields: [cartId],references: [id],onDelete: SetNull)
+
+// Ensemble des lignes de commande associées.
+// Une commande peut contenir plusieurs arbres
+// différents avec leurs quantités et prix au
+// moment de l’achat.
+  items     OrderItem[]
+
+  // -------------------------
+  // Dates
+  // -------------------------
+
+  createdAt DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("orders")
+}
+
+// =========================================================
+// MODEL ORDER_ITEM
+// =========================================================
+// Représente une ligne de commande.
+//
+// On stocke le nom de l’arbre et le prix
+// au moment de la commande afin de garder
+// un historique même si les données changent plus tard.
+
+model OrderItem {
+
+  id             Int     @id @default(autoincrement())
+
+  treeCommonName String  @map("tree_common_name")
+
+  quantity       Int     @default(1)
+
+  unitPrice   Decimal  @map("unit_price") @db.Decimal(10, 2)
+
+  treeId         Int     @map("tree_id")
+  projectId      Int     @map("project_id")
+  orderId        Int     @map("order_id")
+
+  // -------------------------
+  // Relations
+  // -------------------------
+
+  tree           Tree    @relation(fields: [treeId],references: [id],onDelete: Restrict)
+
+  project        Project @relation(fields: [projectId],references: [id],onDelete: Restrict)
+
+  order          Order   @relation(fields: [orderId],references: [id],onDelete: Cascade)
+
+  // -------------------------
+  // Dates
+  // -------------------------
+
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Empêche les doublons
+  @@unique([orderId, treeId, projectId])
+
+  @@map("order_item")
 }
