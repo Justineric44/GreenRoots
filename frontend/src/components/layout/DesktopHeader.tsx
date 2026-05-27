@@ -8,12 +8,13 @@ import { Search, ShoppingCart, User } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
-export default function Header() {
+interface DesktopHeaderProps {
+  menu: { label: string; href: string }[];
+}
+
+export default function DesktopHeader({ menu }: DesktopHeaderProps) {
   return (
-    <nav
-      className="flex items-center justify-between px-4 py-4 absolute top-0 left-0 right-0 z-50 font-heading"
-      style={{ backgroundColor: 'rgba(33, 42, 37, 0.5)' }}
-    >
+    <nav className="flex items-center justify-between px-4 py-4 absolute top-0 left-0 right-0 z-50 font-heading bg-brand-dark/70">
       {/* Logo */}
       <Link href="/">
         <div className="w-17 h-17 border-white/60 overflow-hidden flex items-center justify-center">
@@ -34,35 +35,16 @@ export default function Header() {
           className="flex items-center gap-8 font-medium text-white"
           style={{ fontSize: '18px' }}
         >
-          <li>
-            <Link
-              href="/a-propos"
-              className="hover:text-[#88B75D] transition-colors"
-            >
-              A propos
-            </Link>
-          </li>
-          <li>
-            <Link href="/" className="hover:text-[#88B75D] transition-colors">
-              Accueil
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/projets"
-              className="hover:text-[#88B75D] transition-colors"
-            >
-              Projets
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/contact"
-              className="hover:text-[#88B75D] transition-colors"
-            >
-              Contact
-            </Link>
-          </li>
+          {menu.map((item) => (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                className="hover:text-[#88B75D] transition-colors"
+              >
+                {item.label}
+              </Link>
+            </li>
+          ))}
         </ul>
 
         {/* Recherche */}
