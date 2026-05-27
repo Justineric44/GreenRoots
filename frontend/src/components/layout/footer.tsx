@@ -15,8 +15,12 @@ const legalLinks = [
 
 export default function Footer() {
   return (
-    <footer>
+    <footer className="flex flex-row items-center justify-between p-4 bg-green-100">
       <Link href="/">GreenRoots</Link>
+      <div>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua.
+      </div>
       <nav>
         <div>
           <ul>
