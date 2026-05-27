@@ -29,7 +29,6 @@ export default function RootLayout({
   return (
     <html lang="fr" className={`${inter.variable} ${montserrat.variable}`}>
       <body className="min-h-full flex flex-col">
-        {/* <Header /> */}
         {children}
         <Footer />
       </body>
