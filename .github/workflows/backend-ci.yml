@@ -41,6 +41,9 @@ jobs:
       - name: Build and start Docker services
         run: docker compose -f docker-compose.dev.yml up -d --build
 
+      - name: List Docker containers
+        run: docker ps -a
+
       # Réinitialise la base de test pour garantir un état propre.
       - name: Reset test database
         run: docker exec greenroots-backend-test npx prisma migrate reset --force --skip-seed
