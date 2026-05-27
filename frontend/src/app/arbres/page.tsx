@@ -1,4 +1,4 @@
-import Title from '@/components/layout/title';
+import Title from '@/components/layout/Title';
 
 export default function TreesPage() {
   return (
