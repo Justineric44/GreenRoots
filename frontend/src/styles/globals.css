@@ -6,24 +6,36 @@
 
 :root {
   color-scheme: light;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+
+  /* Charte graphique */
+  --brand-bg: #f2efe9;
+  --brand-dark: #212a25;
+  --brand-dark-50: rgba(33, 42, 37, 0.5);
+  --brand-accent: #88b75d;
+  --brand-muted: #9f9e93;
+  --brand-white: #ffffff;
+
+  /* Tokens shadcn — surchargés avec la charte */
+  --background: oklch(0.95 0.008 92);
+  --foreground: oklch(0.19 0.018 155);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.19 0.018 155);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.19 0.018 155);
+  --primary: oklch(0.19 0.018 155);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.95 0.008 92);
+  --secondary-foreground: oklch(0.19 0.018 155);
+  --muted: oklch(0.95 0.008 92);
+  --muted-foreground: oklch(0.63 0.008 90);
+  --accent: oklch(0.68 0.13 128);
+  --accent-foreground: oklch(1 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: oklch(0.88 0.008 92);
+  --input: oklch(0.88 0.008 92);
+  --ring: oklch(0.68 0.13 128);
+  --radius: 0.625rem;
+
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -47,9 +59,7 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top, rgba(166, 213, 161, 0.35), transparent 42%),
-    linear-gradient(180deg, #fbfaf6 0%, #f3efe6 100%);
+  background-color: var(--background);
 }
 
 a {
@@ -58,6 +68,12 @@ a {
 }
 
 @theme inline {
+  --color-brand-bg: var(--brand-bg);
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-dark-50: var(--brand-dark-50);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-muted: var(--brand-muted);
+  --color-brand-white: var(--brand-white);
   --font-heading: var(--font-heading);
   --font-sans: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
