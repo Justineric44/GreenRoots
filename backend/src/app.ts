@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import { router } from './routers/index.router';
 
 const app = express();
 app.use(cors()); // Permet de gérer les requêtes cross-origin (CORS)
@@ -15,5 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/', (_req, res) => {
   res.json({ message: 'GreenRoots API is running' });
 });
+
+app.use(router);
 
 export default app;
