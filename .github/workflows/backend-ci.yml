@@ -1,8 +1,8 @@
 # Pipeline CI du backend GreenRoots.
 # Ce workflow GitHub Actions démarre l’environnement Docker de test,
 # réinitialise la base PostgreSQL dédiée aux tests automatisés,
-# applique les migrations Prisma puis exécute les tests du backend dans le conteneur `greenroots-backend-test`.
-
+# vérifie le code avec ESLint et TypeScript,
+# puis exécute les tests du backend dans le service Docker `backend-test`.
 
 name: Backend CI
 
@@ -37,17 +37,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Démarre les services Docker nécessaires aux tests.
+      # Démarre les services Docker nécessaires à la CI.
       - name: Build and start Docker services
         run: docker compose -f docker-compose.dev.yml up -d --build
 
-      - name: List Docker containers
-        run: docker ps -a
-
       # Réinitialise la base de test pour garantir un état propre.
       - name: Reset test database
-        run: docker exec greenroots-backend-test npx prisma migrate reset --force --skip-seed
+        run: docker compose -f docker-compose.dev.yml exec -T backend-test npx prisma migrate reset --force
+
+      # Vérifie la qualité du code backend avec ESLint.
+      - name: Run backend lint
+        run: docker compose -f docker-compose.dev.yml exec -T backend-test npm run lint
+
+      # Vérifie que le code TypeScript compile sans erreur.
+      - name: Run backend typecheck
+        run: docker compose -f docker-compose.dev.yml exec -T backend-test npm run typecheck
 
       # Lance les tests automatisés du backend.
       - name: Run backend tests
-        run: docker exec greenroots-backend-test npm test
+        run: docker compose -f docker-compose.dev.yml exec -T backend-test npm test
