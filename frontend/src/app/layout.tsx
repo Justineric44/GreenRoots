@@ -1,9 +1,21 @@
 import type { Metadata } from 'next';
-import './globals.css';
+import { Inter, Montserrat } from 'next/font/google';
+import '@/styles/globals.css';
+import Footer from '../components/layout/footer';
 
 // import des Header et Footer
 //import Header from "@/components/Header";
 //import Footer from "@/components/Footer";
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-heading',
+});
+
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  variable: '--font-sans',
+});
 
 export const metadata: Metadata = {
   title: 'GreenRoots - Votre boutique pour la reforestation ',
@@ -15,11 +27,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="fr">
+    <html lang="fr" className={`${inter.variable} ${montserrat.variable}`}>
       <body className="min-h-full flex flex-col">
         {/* <Header /> */}
         {children}
-        {/* <Footer /> */}
+        <Footer />
       </body>
     </html>
   );
