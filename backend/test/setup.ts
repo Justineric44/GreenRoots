@@ -6,7 +6,7 @@
 
 // Prépare et nettoie l’environnement avant et après les tests automatisés.
 
-import { PrismaClient } from '../prisma/generated/client';
+import { PrismaClient } from '../prisma/generated/client.js';
 
 export const prisma = new PrismaClient();
 
