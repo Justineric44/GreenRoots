@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter, Montserrat } from 'next/font/google';
 import '@/styles/globals.css';
 import Footer from '../components/layout/footer';
+import Header from '../components/layout/header';
 
 // import des Header et Footer
 //import Header from "@/components/Header";
@@ -29,6 +30,7 @@ export default function RootLayout({
   return (
     <html lang="fr" className={`${inter.variable} ${montserrat.variable}`}>
       <body className="min-h-full flex flex-col">
+        <Header />
         {children}
         <Footer />
       </body>
