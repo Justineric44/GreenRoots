@@ -1,6 +1,10 @@
 import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
 
 const app = express();
+app.use(cors()); // Permet de gérer les requêtes cross-origin (CORS)
+app.use(helmet()); // Aide à sécuriser l'application en définissant divers en-têtes HTTP
 
 // Middlewares globaux
 app.use(express.json());
