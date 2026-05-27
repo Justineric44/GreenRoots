@@ -209,7 +209,7 @@ Hooks configurés dans `.husky/` :
 Les messages doivent suivre [Conventional Commits](https://www.conventionalcommits.org/) :
 
 ```
-<type>(<scope>): <description>
+<type> :<description>
 ```
 
 Exemples :
