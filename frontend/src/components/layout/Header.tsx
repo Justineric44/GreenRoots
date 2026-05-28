@@ -19,7 +19,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50">
       <div className="md:hidden">
-        <MobileHeader onOpen={() => setMobileOpen((v) => !v)} />
+        <MobileHeader onOpen={() => setMobileOpen((prev) => !prev)} />
 
         <div
           className={`overflow-hidden bg-brand-dark/70 transition-all duration-300 ${
