@@ -1,8 +1,6 @@
 import type { Request, Response } from 'express';
 import { prisma } from '../lib/prisma.js';
-// import z from "zod";
-// import { ConflictError, NotFoundError } from "../lib/errors.js";
-// import { parseIdFromParams } from "./utils.js";
+import { NotFoundError } from '../lib/errors.js';
 
 // ─────────────────────────────────────────────
 // GET /api/trees
@@ -35,9 +33,7 @@ export async function getAllTrees(req: Request, res: Response) {
 // GET /api/trees/:slug
 // ─────────────────────────────────────────────
 export async function getOneTree(req: Request, res: Response) {
-  // On récupère le slug dans l'URL
-  // ex: GET /api/trees/pin-sylvestre
-  const { slug } = req.params;
+  const slug = req.params.slug as string;
 
   const tree = await prisma.tree.findUnique({ where: { slug } });
   if (!tree) throw new NotFoundError('Tree not found');

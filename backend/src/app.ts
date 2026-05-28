@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { router } from './routers/index.router';
+import { router } from './routers/index.router.js';
 
 const app = express();
 app.use(cors()); // Permet de gérer les requêtes cross-origin (CORS)
