@@ -11,7 +11,9 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "prisma:seed": "prisma db seed",
-    "prisma:reset": "prisma migrate reset"
+    "prisma:reset": "prisma migrate reset",
+    "test": "node --import tsx --test --test-concurrency=1 test/**/*.test.ts",
+    "test:watch": "node --import tsx --test --watch test/**/*.test.ts"
   },
   "keywords": [],
   "author": "",
