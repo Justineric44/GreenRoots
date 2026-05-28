@@ -5,5 +5,5 @@ import { router as projectRouter } from './project.router.js';
 export const router = Router();
 
 // Utilisation des routers
-router.use('/api/auth', authRouter);
-router.use('/api/projects', projectRouter);
+router.use('/auth', authRouter);
+router.use('/projects', projectRouter);
