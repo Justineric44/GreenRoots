@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 const companyLinks = [
   { label: 'À propos', href: '/a-propos' },
@@ -15,13 +16,23 @@ const legalLinks = [
 
 export default function Footer() {
   return (
-    <footer className="flex flex-row items-center justify-between p-4 bg-green-100">
-      <Link href="/">GreenRoots</Link>
+    <footer className="flex flex-col gap-4 items-center justify-between p-4 bg-brand-dark text-brand-white md:flex-row">
+      <Link href="/">
+        <div className="w-30 h-30 border-white/60 overflow-hidden flex items-center justify-center">
+          <Image
+            src="/images/Logo_blanc_transparent.svg"
+            alt="GreenRoots Logo"
+            width={100}
+            height={100}
+            className="object-cover"
+          />
+        </div>
+      </Link>
       <div>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
         tempor incididunt ut labore et dolore magna aliqua.
       </div>
-      <nav>
+      <nav className="w-100 flex flex-row items-top justify-center gap-10">
         <div>
           <ul>
             {companyLinks.map((link) => (
