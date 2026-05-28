@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import argon2 from 'argon2';
-import jwt from 'jsonwebtoken';
+import jwt, { type Secret, type SignOptions } from 'jsonwebtoken';
 import { prisma } from '../lib/prisma.js';
 import { ConflictError, UnauthorizedError } from '../lib/errors.js';
 import {
@@ -82,12 +82,16 @@ export async function loginUser(req: Request, res: Response) {
     throw new Error('JWT_SECRET is not defined in environment variables');
   }
 
-  //Génération du token JWT
-  const token = jwt.sign(
-    { userId: user.id, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN || '1d' }
-  );
+  // Génération du token JWT
+  const jwtSecret = process.env.JWT_SECRET as Secret;
+
+  const jwtExpiresIn = (process.env.JWT_EXPIRES_IN || '1d') as NonNullable<
+    SignOptions['expiresIn']
+  >;
+
+  const token = jwt.sign({ userId: user.id, role: user.role }, jwtSecret, {
+    expiresIn: jwtExpiresIn,
+  });
 
   return res.status(200).json({
     message: 'Login successful',
