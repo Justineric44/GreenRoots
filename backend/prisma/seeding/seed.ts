@@ -1,10 +1,7 @@
+import { UserRole, UserType, CartStatus, OrderStatus } from '@prisma/client';
+
 import { prisma } from '../../src/lib/prisma.js';
-import {
-  UserRole,
-  UserType,
-  CartStatus,
-  OrderStatus,
-} from '../generated/enums.js';
+
 import argon2 from 'argon2';
 
 async function main() {

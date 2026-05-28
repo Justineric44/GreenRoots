@@ -4,4 +4,4 @@ import { router as authRouter } from './auth.router.js';
 export const router = Router();
 
 // Utilisation des routers
-router.use('/api/auth', authRouter);
+router.use('/auth', authRouter);

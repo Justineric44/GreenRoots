@@ -10,8 +10,7 @@
 // utilisé dans l’application Node.js / Express.
 
 generator client {
-  provider = "prisma-client"
-  output   = "./generated"
+  provider = "prisma-client-js"
 }
 
 // =========================================================
@@ -140,7 +139,7 @@ model Project {
   // Relations
   // -------------------------
 
-  projectHasTrees     ProjectHasTree[]
+  trees     ProjectHasTree[]
 
   cartItems        CartItem[] 
   //un Project peut par exemple être lié à plusieurs lignes de panier (CartItem)
@@ -192,7 +191,7 @@ model Tree {
   // Relations
   // -------------------------
 
-  projectHasTrees     ProjectHasTree[]
+  projects     ProjectHasTree[]
 
   cartItems        CartItem[]
   orderItems       OrderItem[]
