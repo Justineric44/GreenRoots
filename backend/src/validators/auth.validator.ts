@@ -8,7 +8,7 @@ export const registerBodySchema = z
   .object({
     lastName: z.string().trim().min(1).max(80),
     firstName: z.string().trim().min(1).max(80),
-    email: z.string().email().toLowerCase().trim(),
+    email: z.email().toLowerCase().trim(),
     // 8 caractères minimum. argon2 plafonne à 72 octets.
     password: z
       .string()
