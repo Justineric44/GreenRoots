@@ -10,7 +10,6 @@ on:
   push:
     branches:
       - DEV
-      - ci/setup-github-actions
 
   pull_request:
     branches:
