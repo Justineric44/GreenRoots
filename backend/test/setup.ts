@@ -1,13 +1,14 @@
-// Ce fichier prépare l’environnement global utilisé avant et après les tests automatisés.
-// Il servira plus tard à :
+// Ce fichier prépare l’environnement global des tests automatisés.
+// Il permettra notamment de :
 // - réinitialiser la base de données de test ;
-// - nettoyer les données entre les tests ;
-// - fermer proprement Prisma après l’exécution.
+// - nettoyer les données entre les scénarios ;
+// - fermer proprement la connexion Prisma après l’exécution des tests.
 
-// Prépare et nettoie l’environnement avant et après les tests automatisés.
+import { after } from 'node:test';
 
-import { PrismaClient } from '../prisma/generated/client.js';
+import { prisma } from '../src/lib/prisma.js';
 
-export const prisma = new PrismaClient();
-
-console.log('Test environment initialized');
+// Ferme proprement la connexion Prisma une fois tous les tests terminés.
+after(async () => {
+  await prisma.$disconnect();
+});
