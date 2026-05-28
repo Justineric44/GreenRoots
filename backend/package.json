@@ -5,18 +5,18 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-  "dev": "tsx watch src/server.ts",
-  "start": "tsx src/server.ts",
-  "db:generate": "prisma generate",
-  "db:migrate": "prisma migrate dev",
-  "db:studio": "prisma studio",
-  "db:seed": "prisma db seed",
-  "db:reset": "prisma migrate reset",
-  "test": "node --import tsx --test --test-concurrency=1 test/**/*.test.ts",
-  "test:watch": "node --import tsx --test --watch test/**/*.test.ts",
-  "lint": "eslint .",
-  "typecheck": "tsc --noEmit"
-},
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "db:seed": "prisma db seed",
+    "db:reset": "prisma migrate reset",
+    "test": "node --import tsx --test --test-concurrency=1 test/**/*.test.ts",
+    "test:watch": "node --import tsx --test --watch test/**/*.test.ts",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -29,7 +29,8 @@
     "ejs": "^5.0.2",
     "express": "^5.2.1",
     "helmet": "^8.2.0",
-    "pg": "^8.21.0"
+    "pg": "^8.21.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
