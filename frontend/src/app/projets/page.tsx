@@ -1,4 +1,5 @@
 import Title from '@/components/layout/Title';
+/* import { projects } from '@/data/projects'; */
 
 export default function ProjectsPage() {
   return (
