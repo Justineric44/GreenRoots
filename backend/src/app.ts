@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import { errorHandler } from './middlewares/errorHandler.js';
 import { router } from './routers/index.router.js';
 
 const app = express();
@@ -17,6 +18,8 @@ app.get('/', (_req, res) => {
   res.json({ message: 'GreenRoots API is running' });
 });
 
-app.use(router);
+app.use('/api', router);
+
+app.use(errorHandler);
 
 export default app;
