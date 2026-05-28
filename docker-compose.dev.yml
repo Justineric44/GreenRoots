@@ -30,7 +30,11 @@ services:
     volumes:
       - greenroots-test-data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_TEST_USER}']
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${POSTGRES_TEST_USER} -d ${POSTGRES_TEST_DB}',
+        ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -64,6 +68,7 @@ services:
       PORT: 3002
     ports:
       - '3002:3002'
+      - '5556:5556'
     volumes:
       - ./backend:/app
       - /app/node_modules
