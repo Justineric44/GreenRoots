@@ -54,13 +54,17 @@ export function authenticateToken(
     throw new Error('JWT_SECRET is not defined in environment variables');
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET) as JwtPayload;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET) as JwtPayload;
 
-  // Ajoute les informations utilisateur
-  // dans la requête Express.
-  // Elles seront accessibles dans les contrôleurs
-  // via req.user.
-  req.user = decoded;
+    // Ajoute les informations utilisateur
+    // dans la requête Express.
+    // Elles seront accessibles dans les contrôleurs
+    // via req.user.
+    req.user = decoded;
 
-  next();
+    next();
+  } catch {
+    throw new UnauthorizedError('Invalid or expired token');
+  }
 }
