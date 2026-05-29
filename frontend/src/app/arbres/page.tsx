@@ -1,5 +1,3 @@
-'use client';
-
 import Title from '@/components/layout/Title';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,40 +15,41 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
-import { useState } from 'react';
+import { notFound } from 'next/navigation';
 
-const trees = [
-  { id: 1, name: 'Chêne pédonculé', family: 'Fagacées', price: 29.9 },
-  { id: 2, name: 'Hêtre commun', family: 'Fagacées', price: 24.9 },
-  { id: 3, name: 'Pin sylvestre', family: 'Pinacées', price: 19.9 },
-  { id: 4, name: 'Bouleau blanc', family: 'Bétulacées', price: 22.5 },
-  { id: 5, name: 'Érable sycomore', family: 'Sapindacées', price: 27.9 },
-  { id: 6, name: 'Frêne élevé', family: 'Oléacées', price: 21.0 },
-  {
-    id: 7,
-    name: 'Tilleul à grandes feuilles',
-    family: 'Malvacées',
-    price: 26.5,
-  },
-  { id: 8, name: 'Châtaignier', family: 'Fagacées', price: 23.9 },
-  { id: 9, name: 'Sapin pectiné', family: 'Pinacées', price: 18.5 },
-  { id: 10, name: 'Orme champêtre', family: 'Ulmacées', price: 20.9 },
-  { id: 11, name: 'Charme commun', family: 'Bétulacées', price: 17.9 },
-  { id: 12, name: 'Noyer commun', family: 'Juglandacées', price: 32.0 },
-  { id: 13, name: 'Merisier', family: 'Rosacées', price: 25.0 },
-  { id: 14, name: 'Aulne glutineux', family: 'Bétulacées', price: 19.0 },
-  { id: 15, name: 'Épicéa commun', family: 'Pinacées', price: 16.5 },
-  { id: 16, name: 'Robinier faux-acacia', family: 'Fabacées', price: 18.0 },
-  { id: 17, name: 'Platane commun', family: 'Platanacées', price: 28.0 },
-  { id: 18, name: 'Cèdre de l&apos;Atlas', family: 'Pinacées', price: 35.0 },
-];
+type Tree = {
+  id: number;
+  commonName: string;
+  family: string;
+  origin: string;
+  slug: string;
+  picture: string;
+};
 
-const ITEMS_PER_PAGE = 9;
+const ITEMS_PER_PAGE = 6;
 
-export default function TreesPage() {
-  const [currentPage, setCurrentPage] = useState(1);
+export default async function TreesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const { page } = await searchParams;
 
-  const totalPages = Math.ceil(trees.length / ITEMS_PER_PAGE);
+  const requestedPage = Number(page) || 1;
+
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/trees`);
+
+  if (!res.ok) notFound();
+
+  const data = await res.json();
+  const trees: Tree[] = data.trees || [];
+
+  if (trees.length === 0) notFound();
+
+  const totalPages = Math.max(1, Math.ceil(trees.length / ITEMS_PER_PAGE));
+
+  const currentPage = Math.min(requestedPage, totalPages);
+
   const paginated = trees.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
@@ -66,18 +65,22 @@ export default function TreesPage() {
             {paginated.map((tree) => (
               <Card
                 key={tree.id}
-                className="flex flex-col w-full pt-0 overflow-hidden"
+                className="flex w-full flex-col overflow-hidden pt-0"
               >
                 <div className="h-48 w-full shrink-0 bg-muted" />
-                <CardHeader className="text-center flex-1">
-                  <CardTitle>{tree.name}</CardTitle>
-                  <CardDescription className="text-center italic">
+
+                <CardHeader className="flex-1 text-center">
+                  <CardTitle>{tree.commonName}</CardTitle>
+
+                  <CardDescription className="italic">
                     {tree.family}
                   </CardDescription>
-                  <p className="text-center font-semibold text-lg pt-1">
-                    {tree.price.toFixed(2)} €
+
+                  <p className="pt-1 text-sm text-muted-foreground">
+                    {tree.origin}
                   </p>
                 </CardHeader>
+
                 <CardFooter>
                   <Button className="w-full">Voir l&apos;arbre</Button>
                 </CardFooter>
@@ -90,24 +93,21 @@ export default function TreesPage() {
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious
-                    onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                    href={currentPage > 1 ? `?page=${currentPage - 1}` : '#'}
                     className={
-                      currentPage === 1
-                        ? 'pointer-events-none opacity-50'
-                        : 'cursor-pointer'
+                      currentPage === 1 ? 'pointer-events-none opacity-50' : ''
                     }
                   />
                 </PaginationItem>
 
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (page) => (
-                    <PaginationItem key={page}>
+                  (p) => (
+                    <PaginationItem key={p}>
                       <PaginationLink
-                        isActive={page === currentPage}
-                        onClick={() => setCurrentPage(page)}
-                        className="cursor-pointer"
+                        href={`?page=${p}`}
+                        isActive={p === currentPage}
                       >
-                        {page}
+                        {p}
                       </PaginationLink>
                     </PaginationItem>
                   )
@@ -115,13 +115,15 @@ export default function TreesPage() {
 
                 <PaginationItem>
                   <PaginationNext
-                    onClick={() =>
-                      setCurrentPage((p) => Math.min(p + 1, totalPages))
+                    href={
+                      currentPage < totalPages
+                        ? `?page=${currentPage + 1}`
+                        : '#'
                     }
                     className={
                       currentPage === totalPages
                         ? 'pointer-events-none opacity-50'
-                        : 'cursor-pointer'
+                        : ''
                     }
                   />
                 </PaginationItem>
