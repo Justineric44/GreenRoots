@@ -125,5 +125,14 @@ export async function loginUser(req: Request, res: Response) {
 export async function logoutUser(_req: Request, res: Response) {
   // Comme nous utilisons des tokens JWT, il n’y a pas de session à détruire côté serveur.
   // Le frontend doit simplement supprimer le token stocké (ex: localStorage).
+  // COOKIE HTTP ONLY
   return res.status(200).json({ message: 'Logout successful' });
+}
+
+//route temporaire pour tester le middleware d'authentification et récupérer les infos
+// de l'utilisateur connecté
+export async function getCurrentUser(req: Request, res: Response) {
+  return res.status(200).json({
+    user: req.user,
+  });
 }
