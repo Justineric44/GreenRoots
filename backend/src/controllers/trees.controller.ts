@@ -8,6 +8,7 @@ import { NotFoundError } from '../lib/errors.js';
 export async function getAllTrees(req: Request, res: Response) {
   const page = Number(req.query.page) || 1;
   const limit = 9;
+
   const [trees, total] = await prisma.$transaction([
     prisma.tree.findMany({
       take: limit,
@@ -19,14 +20,24 @@ export async function getAllTrees(req: Request, res: Response) {
         origin: true,
         slug: true,
         picture: true,
+        price: true,
       },
     }),
     prisma.tree.count(),
   ]);
+
   if (trees.length === 0) {
     throw new NotFoundError();
   }
-  res.json({ trees, total });
+
+  return res.json({
+    trees: trees.map((t) => ({
+      ...t,
+
+      price: t.price.toNumber(),
+    })),
+    total,
+  });
 }
 
 // ─────────────────────────────────────────────
@@ -35,8 +46,17 @@ export async function getAllTrees(req: Request, res: Response) {
 export async function getOneTree(req: Request, res: Response) {
   const slug = req.params.slug as string;
 
-  const tree = await prisma.tree.findUnique({ where: { slug } });
-  if (!tree) throw new NotFoundError('Tree not found');
+  const tree = await prisma.tree.findUnique({
+    where: { slug },
+  });
 
-  res.json(tree);
+  if (!tree) {
+    throw new NotFoundError('Tree not found');
+  }
+
+  return res.json({
+    ...tree,
+
+    price: tree.price.toNumber(),
+  });
 }

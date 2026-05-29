@@ -24,6 +24,7 @@ type Tree = {
   origin: string;
   slug: string;
   picture: string;
+  price: number;
 };
 
 const ITEMS_PER_PAGE = 6;
@@ -76,13 +77,19 @@ export default async function TreesPage({
                     {tree.family}
                   </CardDescription>
 
-                  <p className="pt-1 text-sm text-muted-foreground">
-                    {tree.origin}
+                  {/* 💰 PRICE CLEAN */}
+                  <p className="pt-1 text-sm font-semibold text-muted-foreground">
+                    {new Intl.NumberFormat('fr-FR', {
+                      style: 'currency',
+                      currency: 'EUR',
+                    }).format(tree.price)}
                   </p>
                 </CardHeader>
 
                 <CardFooter>
-                  <Button className="w-full">Voir l&apos;arbre</Button>
+                  <Button className="w-full bg-[#88B75D] hover:bg-[#76a54f] text-white">
+                    Voir l&apos;arbre
+                  </Button>
                 </CardFooter>
               </Card>
             ))}
