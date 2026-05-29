@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Title from '@/components/layout/Title';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,6 +18,8 @@ import {
 } from '@/components/ui/pagination';
 import { notFound } from 'next/navigation';
 
+const ITEMS_PER_PAGE = 6;
+
 type Tree = {
   id: number;
   commonName: string;
@@ -27,7 +30,26 @@ type Tree = {
   price: number;
 };
 
-const ITEMS_PER_PAGE = 6;
+async function getTrees(): Promise<Tree[]> {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/trees`, {
+      cache: 'no-store',
+    });
+
+    if (!res.ok) {
+      console.error(
+        `[TreesPage] fetch failed: ${res.status} ${res.statusText}`
+      );
+      return [];
+    }
+
+    const data = await res.json();
+    return data.trees ?? [];
+  } catch (err) {
+    console.error('[TreesPage] fetch error:', err);
+    return [];
+  }
+}
 
 export default async function TreesPage({
   searchParams,
@@ -35,22 +57,13 @@ export default async function TreesPage({
   searchParams: Promise<{ page?: string }>;
 }) {
   const { page } = await searchParams;
+  const currentPage = Math.max(1, Number(page) || 1);
 
-  const requestedPage = Number(page) || 1;
-
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/trees`);
-
-  if (!res.ok) notFound();
-
-  const data = await res.json();
-  const trees: Tree[] = data.trees || [];
+  const trees = await getTrees();
 
   if (trees.length === 0) notFound();
 
-  const totalPages = Math.max(1, Math.ceil(trees.length / ITEMS_PER_PAGE));
-
-  const currentPage = Math.min(requestedPage, totalPages);
-
+  const totalPages = Math.ceil(trees.length / ITEMS_PER_PAGE);
   const paginated = trees.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
@@ -68,16 +81,20 @@ export default async function TreesPage({
                 key={tree.id}
                 className="flex w-full flex-col overflow-hidden pt-0"
               >
-                <div className="h-48 w-full shrink-0 bg-muted" />
+                <div className="relative h-48 w-full shrink-0 overflow-hidden">
+                  <Image
+                    src={tree.picture}
+                    alt={tree.commonName}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
 
                 <CardHeader className="flex-1 text-center">
                   <CardTitle>{tree.commonName}</CardTitle>
-
                   <CardDescription className="italic">
                     {tree.family}
                   </CardDescription>
-
-                  {/* 💰 PRICE CLEAN */}
                   <p className="pt-1 text-sm font-semibold text-muted-foreground">
                     {new Intl.NumberFormat('fr-FR', {
                       style: 'currency',
