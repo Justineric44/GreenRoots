@@ -31,7 +31,7 @@ export default async function ProjectsPage({
   const currentPage = Number(page) || 1;
   const limit = 6;
   const data = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/projects?page=${currentPage}`
+    `${process.env.NEXT_PUBLIC_API_URL}/api/projects?page=${currentPage}`
   );
 
   const { projects, total } = await data.json();
