@@ -37,6 +37,16 @@ Born from the urgency to take concrete action against deforestation and climate 
     - [Hooks Git — Husky](#hooks-git--husky)
     - [Convention de commits](#convention-de-commits)
   - [Workflow Git](#workflow-git)
+  - [Tests automatisés et CI](#tests-automatisés-et-ci)
+    - [Architecture des conteneurs](#architecture-des-conteneurs)
+    - [Démarrer l'environnement](#démarrer-lenvironnement)
+    - [Lancer les tests en local](#lancer-les-tests-en-local)
+    - [Lint et typecheck](#lint-et-typecheck)
+- [ESLint](#eslint)
+- [TypeScript (vérification sans build)](#typescript-vérification-sans-build)
+  - [Accéder au conteneur de test](#accéder-au-conteneur-de-test)
+  - [Intégration continue](#intégration-continue)
+  - [À venir](#à-venir)
 
 ## Stack technique
 
@@ -232,6 +242,83 @@ Le workflow type :
 2. Travailler et committer (les hooks valident automatiquement)
 3. Pousser : `git push -u origin feat/ma-feature`
 4. Ouvrir une Pull Request vers `DEV`
+
+## Tests automatisés et CI
+
+Le backend dispose d'un environnement Docker dédié aux tests, totalement isolé de l'environnement de développement. Cette séparation garantit que les tests ne touchent jamais à ta base de dev et restent reproductibles, en local comme en CI.
+
+### Architecture des conteneurs
+
+| Conteneur                 | Rôle                                | Connecté à           |
+| ------------------------- | ----------------------------------- | -------------------- |
+| `greenroots-db`           | PostgreSQL de **développement**     | —                    |
+| `greenroots-backend`      | API de développement                | `greenroots-db`      |
+| `greenroots-db-test`      | PostgreSQL **dédié aux tests**      | —                    |
+| `greenroots-backend-test` | API utilisée par les tests et la CI | `greenroots-db-test` |
+
+### Démarrer l'environnement
+
+Depuis la racine du projet :
+
+\`\`\`bash
+docker compose -f docker-compose.dev.yml up -d --build
+\`\`\`
+
+Vérifier que tout tourne :
+
+\`\`\`bash
+docker ps
+\`\`\`
+
+### Lancer les tests en local
+
+Réinitialiser la base de test (supprime les données, rejoue les migrations) :
+
+\`\`\`bash
+docker compose -f docker-compose.dev.yml exec -T backend-test \\
+npx prisma migrate reset --force
+\`\`\`
+
+> ⚠️ Cette commande n'affecte **que** la base de test (`greenroots-db-test`).
+
+Exécuter les tests :
+
+\`\`\`bash
+docker compose -f docker-compose.dev.yml exec -T backend-test npm test
+\`\`\`
+
+### Lint et typecheck
+
+\`\`\`bash
+
+# ESLint
+
+docker compose -f docker-compose.dev.yml exec -T backend-test npm run lint
+
+# TypeScript (vérification sans build)
+
+docker compose -f docker-compose.dev.yml exec -T backend-test npm run typecheck
+\`\`\`
+
+### Accéder au conteneur de test
+
+\`\`\`bash
+docker exec -it greenroots-backend-test sh
+\`\`\`
+
+### Intégration continue
+
+À chaque `push` et à chaque Pull Request vers `DEV`, GitHub Actions exécute automatiquement :
+
+- démarrage des conteneurs Docker
+- migrations Prisma sur la base de test
+- vérification ESLint
+- vérification TypeScript
+- exécution de la suite de tests
+
+### À venir
+
+L'intégration de **SuperTest** est prévue pour couvrir les routes HTTP de bout en bout : middlewares, codes de statut, validation des payloads, authentification JWT et gestion des permissions.
 
 ---
 
