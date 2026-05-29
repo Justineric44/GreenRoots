@@ -1,45 +1,132 @@
 import Title from '@/components/layout/Title';
-import { projects } from '@/data/projects';
+import Image from 'next/image';
+import { notFound } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+// import { Progress } from '@/components/ui/progress';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import {
   Card,
-  CardAction,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import Link from 'next/link';
+import { Metadata } from 'next';
+import type { Project } from '@/types/index';
 
-export default function ProjectsPage() {
+export const metadata: Metadata = {
+  title: 'Projets de reforestation - GreenRoots',
+  description:
+    "Découvrez nos projets de reforestation à travers le monde. Participez à la lutte contre le changement climatique en soutenant nos initiatives de plantation d'arbres.",
+};
+
+export default async function ProjectsPage() {
+  const data = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`);
+  // const { projects, total } = await data.json(); ==> TODO: rajouter total pour la pagination, pour l'instant on s'en sert pas
+  const { projects } = await data.json();
+  if (!projects || projects.length === 0) {
+    return notFound();
+  }
+
   return (
     <main>
       <Title title="Nos projets" />
+      <section className="bg-brand-bg px-4 py-4 sm:px-4 lg:px-4 lg:py-4">
+        <div className="mx-auto max-w-7xl p-8 text-brand-dark">
+          <p className="pb-4">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+            culpa qui officia deserunt mollit anim id est laborum.
+          </p>
+          <p className="pb-4">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat. Duis aute irure dolor in
+            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+            culpa qui officia deserunt mollit anim id est laborum.
+          </p>
+        </div>
+      </section>
       <section className="bg-brand-bg px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
         <div className="mx-auto max-w-7xl p-8 text-brand-dark flex flex-row flex-wrap gap-4">
-          {projects.map((project) => (
+          {projects.map((project: Project) => (
             <Card
               key={project.id}
               className="relative mx-auto w-full max-w-sm pt-0"
             >
-              <div className="absolute inset-0 z-30 aspect-video bg-black/35" />
-              <img
+              <div className="absolute inset-0 z-30 aspect-video" />
+              <Badge
+                variant="secondary"
+                className="absolute top-2 right-2 z-40"
+              >
+                {project.localisation}
+              </Badge>
+              <Image
                 src={project.picture}
-                alt="Event cover"
-                className="relative z-20 aspect-video w-full object-cover brightness-60 grayscale dark:brightness-40"
+                alt={project.name}
+                width={300}
+                height={200}
+                priority
+                className="relative z-20 aspect-video w-full object-cover"
               />
+
               <CardHeader>
-                <CardAction>
-                  <Badge variant="secondary">Featured</Badge>
-                </CardAction>
                 <CardTitle>{project.name}</CardTitle>
-                <CardDescription>{project.shortDescription}</CardDescription>
+                <CardDescription className="min-h-[3rem]">
+                  {project.shortDescription}
+                </CardDescription>
               </CardHeader>
               <CardFooter>
-                <Button className="w-full">View Event</Button>
+                <Button className="w-full bg-accent">
+                  <Link href={`/projets/${project.slug}`} className="w-full">
+                    Voir le projet
+                  </Link>
+                </Button>
               </CardFooter>
             </Card>
           ))}
+
+          {/* TODO: Pagination à implémenter, pour l'instant en dur */}
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious href="#" />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href="#" isActive>
+                  1
+                </PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href="#">2</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href="#">3</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext href="#" />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       </section>
     </main>
