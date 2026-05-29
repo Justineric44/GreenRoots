@@ -1,0 +1,117 @@
+### ============================================================
+###  user.api.http — Tests manuels des routes /api/users/me
+###  Extension VSCode requise : "REST Client" (humao.rest-client)
+###  Workflow :
+###    1. Lance le backend (docker compose -f docker-compose.dev.yml up -d)
+###    2. Clique "Send Request" sur "Register" puis "Login"
+###    3. Le token est stocké dans @token et réutilisé automatiquement
+### ============================================================
+
+@baseUrl = http://localhost:3001/api
+@contentType = application/json
+
+
+### ------------------------------------------------------------
+###  1. Register — crée un nouvel utilisateur
+### ------------------------------------------------------------
+# @name register
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "lastName": "Doe",
+  "firstName": "John",
+  "email": "john.doe@example.com",
+  "password": "Password123!",
+  "address": "10 rue des Lilas",
+  "postalCode": "75001",
+  "city": "Paris",
+  "type": "particulier"
+}
+
+
+### ------------------------------------------------------------
+###  2. Login — récupère un JWT (stocké dans @token)
+### ------------------------------------------------------------
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "john.doe@example.com",
+  "password": "Password123!"
+}
+
+###
+@token = {{login.response.body.token}}
+
+
+### ------------------------------------------------------------
+###  3. GET /api/users/me — profil de l'utilisateur connecté
+### ------------------------------------------------------------
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{token}}
+
+
+### ------------------------------------------------------------
+###  4. PUT /api/users/me — mise à jour partielle du profil
+### ------------------------------------------------------------
+PUT {{baseUrl}}/users/me
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "city": "Lyon",
+  "postalCode": "69000",
+  "phone": "0612345678"
+}
+
+
+### ------------------------------------------------------------
+###  5. PUT /api/users/me — cas KO : email invalide (400 attendu)
+### ------------------------------------------------------------
+PUT {{baseUrl}}/users/me
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "email": "pas-un-email"
+}
+
+
+### ------------------------------------------------------------
+###  6. PUT /api/users/me — cas KO : corps vide (400 attendu)
+### ------------------------------------------------------------
+PUT {{baseUrl}}/users/me
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{}
+
+
+### ------------------------------------------------------------
+###  7. GET /api/users/me — cas KO : sans token (401 attendu)
+### ------------------------------------------------------------
+GET {{baseUrl}}/users/me
+
+
+### ------------------------------------------------------------
+###  8. GET /api/users/me — cas KO : token invalide (401 attendu)
+### ------------------------------------------------------------
+GET {{baseUrl}}/users/me
+Authorization: Bearer un.token.invalide
+
+
+### ------------------------------------------------------------
+###  9. DELETE /api/users/me — suppression du compte (204 attendu)
+###  ⚠️ Après cette requête, le token devient inutilisable.
+### ------------------------------------------------------------
+DELETE {{baseUrl}}/users/me
+Authorization: Bearer {{token}}
+
+
+### ------------------------------------------------------------
+### 10. GET /api/users/me — après suppression (401 attendu)
+### ------------------------------------------------------------
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{token}}
