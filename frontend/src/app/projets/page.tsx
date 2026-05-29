@@ -3,16 +3,8 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-// import { Progress } from '@/components/ui/progress';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination';
+import ProjectsPagination from '@/components/layout/ProjectsPagination';
+
 import {
   Card,
   CardDescription,
@@ -30,14 +22,25 @@ export const metadata: Metadata = {
     "Découvrez nos projets de reforestation à travers le monde. Participez à la lutte contre le changement climatique en soutenant nos initiatives de plantation d'arbres.",
 };
 
-export default async function ProjectsPage() {
-  const data = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`);
-  // const { projects, total } = await data.json(); ==> TODO: rajouter total pour la pagination, pour l'instant on s'en sert pas
-  const { projects } = await data.json();
+export default async function ProjectsPage({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}) {
+  const { page } = await searchParams;
+  const currentPage = Number(page) || 1;
+  const limit = 6;
+  const data = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/projects?page=${currentPage}`
+  );
+
+  const { projects, total } = await data.json();
   if (!projects || projects.length === 0) {
     return notFound();
   }
 
+  const totalPages = Math.ceil(total / limit);
+  console.log(totalPages);
   return (
     <main>
       <Title title="Nos projets" />
@@ -102,31 +105,10 @@ export default async function ProjectsPage() {
             </Card>
           ))}
 
-          {/* TODO: Pagination à implémenter, pour l'instant en dur */}
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious href="#" />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#" isActive>
-                  1
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#">2</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#">3</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationEllipsis />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext href="#" />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+          <ProjectsPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+          />
         </div>
       </section>
     </main>
