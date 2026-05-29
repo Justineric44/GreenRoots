@@ -99,8 +99,10 @@ async function main() {
   console.log('👤 Utilisateurs créés');
 
   // =========================================================
-  // TREES
+  // TREES (26 au total : 6 existants + 20 ajoutés)
   // =========================================================
+
+  // --- Arbres d'origine ---
 
   const chene = await prisma.tree.create({
     data: {
@@ -196,11 +198,321 @@ async function main() {
     },
   });
 
-  console.log('🌳 Arbres créés');
+  // --- Nouveaux arbres (Europe tempérée) ---
+
+  const hetre = await prisma.tree.create({
+    data: {
+      commonName: 'Hêtre commun',
+      slug: 'hetre-commun',
+      scientificName: 'Fagus sylvatica',
+      family: 'Fagaceae',
+      shortDescription: 'Grand arbre des forêts européennes tempérées.',
+      longDescription:
+        'Le hêtre commun forme des forêts denses et joue un rôle clé dans l’équilibre des écosystèmes forestiers européens.',
+      origin: 'Europe',
+      price: 11.5,
+      picture: '/images/trees/hetre-commun.jpg',
+    },
+  });
+
+  const erable = await prisma.tree.create({
+    data: {
+      commonName: 'Érable sycomore',
+      slug: 'erable-sycomore',
+      scientificName: 'Acer pseudoplatanus',
+      family: 'Sapindaceae',
+      shortDescription: 'Arbre ornemental à croissance rapide.',
+      longDescription:
+        'L’érable sycomore s’adapte à de nombreux sols et offre un excellent couvert forestier en milieu tempéré.',
+      origin: 'Europe',
+      price: 10.5,
+      picture: '/images/trees/erable-sycomore.jpg',
+    },
+  });
+
+  const frene = await prisma.tree.create({
+    data: {
+      commonName: 'Frêne commun',
+      slug: 'frene-commun',
+      scientificName: 'Fraxinus excelsior',
+      family: 'Oleaceae',
+      shortDescription: 'Essence forestière au bois précieux.',
+      longDescription:
+        'Le frêne commun se développe rapidement et constitue une essence importante des forêts mixtes européennes.',
+      origin: 'Europe',
+      price: 9.5,
+      picture: '/images/trees/frene-commun.jpg',
+    },
+  });
+
+  const chataignier = await prisma.tree.create({
+    data: {
+      commonName: 'Châtaignier',
+      slug: 'chataignier',
+      scientificName: 'Castanea sativa',
+      family: 'Fagaceae',
+      shortDescription: 'Arbre fruitier des forêts méridionales.',
+      longDescription:
+        'Le châtaignier produit des fruits comestibles et joue un rôle écologique et patrimonial fort en Europe du Sud.',
+      origin: 'Europe méridionale',
+      price: 11,
+      picture: '/images/trees/chataignier.jpg',
+    },
+  });
+
+  const tilleul = await prisma.tree.create({
+    data: {
+      commonName: 'Tilleul à grandes feuilles',
+      slug: 'tilleul-grandes-feuilles',
+      scientificName: 'Tilia platyphyllos',
+      family: 'Malvaceae',
+      shortDescription: 'Arbre mellifère apprécié en milieu urbain et rural.',
+      longDescription:
+        'Le tilleul à grandes feuilles est très favorable aux pollinisateurs et offre un bel ombrage en zone tempérée.',
+      origin: 'Europe',
+      price: 10,
+      picture: '/images/trees/tilleul-grandes-feuilles.jpg',
+    },
+  });
+
+  const charme = await prisma.tree.create({
+    data: {
+      commonName: 'Charme commun',
+      slug: 'charme-commun',
+      scientificName: 'Carpinus betulus',
+      family: 'Betulaceae',
+      shortDescription: 'Arbre compagnon classique des chênaies européennes.',
+      longDescription:
+        'Le charme commun accompagne souvent les chênes et forme des sous-bois denses propices à la biodiversité.',
+      origin: 'Europe',
+      price: 8.5,
+      picture: '/images/trees/charme-commun.jpg',
+    },
+  });
+
+  const aulne = await prisma.tree.create({
+    data: {
+      commonName: 'Aulne glutineux',
+      slug: 'aulne-glutineux',
+      scientificName: 'Alnus glutinosa',
+      family: 'Betulaceae',
+      shortDescription: 'Essence des zones humides et bords de cours d’eau.',
+      longDescription:
+        'L’aulne glutineux fixe l’azote et stabilise les berges, ce qui en fait un allié des écosystèmes ripariens.',
+      origin: 'Europe',
+      price: 7,
+      picture: '/images/trees/aulne-glutineux.jpg',
+    },
+  });
+
+  const saule = await prisma.tree.create({
+    data: {
+      commonName: 'Saule blanc',
+      slug: 'saule-blanc',
+      scientificName: 'Salix alba',
+      family: 'Salicaceae',
+      shortDescription: 'Essence des berges, utile pour stabiliser les sols.',
+      longDescription:
+        'Le saule blanc se développe en bord de rivière et limite l’érosion grâce à son système racinaire dense.',
+      origin: 'Europe',
+      price: 6.5,
+      picture: '/images/trees/saule-blanc.jpg',
+    },
+  });
+
+  // --- Nouveaux arbres (Conifères et montagne) ---
+
+  const sapin = await prisma.tree.create({
+    data: {
+      commonName: 'Sapin pectiné',
+      slug: 'sapin-pectine',
+      scientificName: 'Abies alba',
+      family: 'Pinaceae',
+      shortDescription: 'Conifère majestueux des forêts d’altitude.',
+      longDescription:
+        'Le sapin pectiné est une essence emblématique des forêts de montagne européennes, à fort intérêt écologique.',
+      origin: 'Europe',
+      price: 13.5,
+      picture: '/images/trees/sapin-pectine.jpg',
+    },
+  });
+
+  const epicea = await prisma.tree.create({
+    data: {
+      commonName: 'Épicéa commun',
+      slug: 'epicea-commun',
+      scientificName: 'Picea abies',
+      family: 'Pinaceae',
+      shortDescription: 'Conifère répandu en Europe du Nord et en altitude.',
+      longDescription:
+        'L’épicéa commun forme de vastes forêts boréales et constitue une essence importante pour la sylviculture.',
+      origin: 'Europe du Nord',
+      price: 9.9,
+      picture: '/images/trees/epicea-commun.jpg',
+    },
+  });
+
+  const meleze = await prisma.tree.create({
+    data: {
+      commonName: 'Mélèze d’Europe',
+      slug: 'meleze-europe',
+      scientificName: 'Larix decidua',
+      family: 'Pinaceae',
+      shortDescription: 'Conifère caducifolié des Alpes.',
+      longDescription:
+        'Le mélèze d’Europe est l’un des rares conifères à perdre ses aiguilles en hiver, adapté à la haute montagne.',
+      origin: 'Alpes',
+      price: 14,
+      picture: '/images/trees/meleze-europe.jpg',
+    },
+  });
+
+  const cedre = await prisma.tree.create({
+    data: {
+      commonName: 'Cèdre du Liban',
+      slug: 'cedre-liban',
+      scientificName: 'Cedrus libani',
+      family: 'Pinaceae',
+      shortDescription: 'Conifère emblématique du bassin méditerranéen.',
+      longDescription:
+        'Le cèdre du Liban est apprécié pour sa longévité et son adaptation aux climats secs méditerranéens.',
+      origin: 'Méditerranée',
+      price: 22,
+      picture: '/images/trees/cedre-liban.jpg',
+    },
+  });
+
+  // --- Nouveaux arbres (Méditerranée) ---
+
+  const olivier = await prisma.tree.create({
+    data: {
+      commonName: 'Olivier',
+      slug: 'olivier',
+      scientificName: 'Olea europaea',
+      family: 'Oleaceae',
+      shortDescription: 'Arbre emblématique des paysages méditerranéens.',
+      longDescription:
+        'L’olivier est cultivé depuis des millénaires et constitue un symbole fort des écosystèmes méditerranéens.',
+      origin: 'Méditerranée',
+      price: 16,
+      picture: '/images/trees/olivier.jpg',
+    },
+  });
+
+  const cypres = await prisma.tree.create({
+    data: {
+      commonName: 'Cyprès de Provence',
+      slug: 'cypres-provence',
+      scientificName: 'Cupressus sempervirens',
+      family: 'Cupressaceae',
+      shortDescription: 'Conifère élancé typique des paysages provençaux.',
+      longDescription:
+        'Le cyprès de Provence sert de brise-vent et marque les paysages méditerranéens depuis l’Antiquité.',
+      origin: 'Méditerranée',
+      price: 13,
+      picture: '/images/trees/cypres-provence.jpg',
+    },
+  });
+
+  // --- Nouveaux arbres (Tropical et exotique) ---
+
+  const eucalyptus = await prisma.tree.create({
+    data: {
+      commonName: 'Eucalyptus bleu',
+      slug: 'eucalyptus-bleu',
+      scientificName: 'Eucalyptus globulus',
+      family: 'Myrtaceae',
+      shortDescription: 'Arbre à croissance rapide originaire d’Australie.',
+      longDescription:
+        'L’eucalyptus bleu est utilisé dans plusieurs projets de reforestation pour sa rapidité de croissance.',
+      origin: 'Australie',
+      price: 14.5,
+      picture: '/images/trees/eucalyptus-bleu.jpg',
+    },
+  });
+
+  const baobab = await prisma.tree.create({
+    data: {
+      commonName: 'Baobab africain',
+      slug: 'baobab-africain',
+      scientificName: 'Adansonia digitata',
+      family: 'Malvaceae',
+      shortDescription: 'Arbre iconique des savanes africaines.',
+      longDescription:
+        'Le baobab africain est un arbre de longévité exceptionnelle, essentiel à la vie des communautés et de la faune locale.',
+      origin: 'Afrique',
+      price: 28,
+      picture: '/images/trees/baobab-africain.jpg',
+    },
+  });
+
+  const teck = await prisma.tree.create({
+    data: {
+      commonName: 'Teck',
+      slug: 'teck',
+      scientificName: 'Tectona grandis',
+      family: 'Lamiaceae',
+      shortDescription: 'Essence tropicale au bois imputrescible.',
+      longDescription:
+        'Le teck est apprécié pour la qualité de son bois et fait l’objet de plantations dans plusieurs projets tropicaux.',
+      origin: 'Asie du Sud-Est',
+      price: 24,
+      picture: '/images/trees/teck.jpg',
+    },
+  });
+
+  const bambou = await prisma.tree.create({
+    data: {
+      commonName: 'Bambou géant',
+      slug: 'bambou-geant',
+      scientificName: 'Phyllostachys edulis',
+      family: 'Poaceae',
+      shortDescription: 'Plante ligneuse à croissance extrêmement rapide.',
+      longDescription:
+        'Le bambou géant capte rapidement le CO₂ et est utilisé dans plusieurs projets de restauration en Asie.',
+      origin: 'Asie',
+      price: 9,
+      picture: '/images/trees/bambou-geant.jpg',
+    },
+  });
+
+  const cocotier = await prisma.tree.create({
+    data: {
+      commonName: 'Cocotier',
+      slug: 'cocotier',
+      scientificName: 'Cocos nucifera',
+      family: 'Arecaceae',
+      shortDescription: 'Palmier emblématique des littoraux tropicaux.',
+      longDescription:
+        'Le cocotier joue un rôle écologique et économique majeur dans les zones côtières tropicales.',
+      origin: 'Zones tropicales',
+      price: 17,
+      picture: '/images/trees/cocotier.jpg',
+    },
+  });
+
+  const manguier = await prisma.tree.create({
+    data: {
+      commonName: 'Manguier',
+      slug: 'manguier',
+      scientificName: 'Mangifera indica',
+      family: 'Anacardiaceae',
+      shortDescription: 'Arbre fruitier tropical à forte valeur sociale.',
+      longDescription:
+        'Le manguier offre une ombre précieuse et des fruits importants pour les populations des zones tropicales.',
+      origin: 'Asie tropicale',
+      price: 16.5,
+      picture: '/images/trees/manguier.jpg',
+    },
+  });
+
+  console.log('🌳 Arbres créés (26 au total)');
 
   // =========================================================
-  // PROJECTS
+  // PROJECTS (18 au total : 5 existants + 13 ajoutés)
   // =========================================================
+
+  // --- Projets d'origine ---
 
   const projetBretagne = await prisma.project.create({
     data: {
@@ -268,7 +580,191 @@ async function main() {
     },
   });
 
-  console.log('🌍 Projets créés');
+  // --- Nouveaux projets (France métropolitaine) ---
+
+  const projetProvence = await prisma.project.create({
+    data: {
+      name: 'Forêt méditerranéenne en Provence',
+      slug: 'foret-mediterraneenne-provence',
+      shortDescription:
+        'Projet de plantation d’essences méditerranéennes en Provence.',
+      longDescription:
+        'Ce projet renforce les écosystèmes méditerranéens en plantant des essences locales résistantes à la sécheresse.',
+      localisation: 'Provence, France',
+      picture: '/images/projects/foret-mediterraneenne-provence.jpg',
+      progress: 55,
+    },
+  });
+
+  const projetAuvergne = await prisma.project.create({
+    data: {
+      name: 'Restauration de la forêt d’Auvergne',
+      slug: 'restauration-foret-auvergne',
+      shortDescription:
+        'Projet de restauration des forêts feuillues auvergnates.',
+      longDescription:
+        'Ce projet vise à restaurer les forêts feuillues d’Auvergne en favorisant les essences locales et la biodiversité.',
+      localisation: 'Auvergne, France',
+      picture: '/images/projects/restauration-foret-auvergne.jpg',
+      progress: 40,
+    },
+  });
+
+  const projetPyrenees = await prisma.project.create({
+    data: {
+      name: 'Reforestation des Pyrénées',
+      slug: 'reforestation-pyrenees',
+      shortDescription:
+        'Projet de reforestation en zone montagneuse pyrénéenne.',
+      longDescription:
+        'Ce projet contribue à la préservation des écosystèmes pyrénéens grâce à la plantation d’essences adaptées à l’altitude.',
+      localisation: 'Pyrénées, France',
+      picture: '/images/projects/reforestation-pyrenees.jpg',
+      progress: 35,
+    },
+  });
+
+  const projetLandes = await prisma.project.create({
+    data: {
+      name: 'Restauration de la forêt landaise',
+      slug: 'restauration-foret-landaise',
+      shortDescription: 'Projet de restauration du massif forestier landais.',
+      longDescription:
+        'Ce projet vise à restaurer le massif landais après les épisodes climatiques en diversifiant les essences plantées.',
+      localisation: 'Landes, France',
+      picture: '/images/projects/restauration-foret-landaise.jpg',
+      progress: 50,
+    },
+  });
+
+  const projetNormandie = await prisma.project.create({
+    data: {
+      name: 'Projet écologique en Normandie',
+      slug: 'projet-ecologique-normandie',
+      shortDescription:
+        'Projet de plantation pour renforcer les haies bocagères normandes.',
+      longDescription:
+        'Ce projet soutient la replantation de haies bocagères en Normandie pour favoriser la biodiversité locale.',
+      localisation: 'Normandie, France',
+      picture: '/images/projects/projet-ecologique-normandie.jpg',
+      progress: 65,
+    },
+  });
+
+  const projetCorse = await prisma.project.create({
+    data: {
+      name: 'Reboisement en Corse',
+      slug: 'reboisement-corse',
+      shortDescription:
+        'Projet de reboisement des zones impactées par les incendies.',
+      longDescription:
+        'Ce projet contribue à la régénération des massifs corses touchés par les incendies grâce à des essences locales.',
+      localisation: 'Corse, France',
+      picture: '/images/projects/reboisement-corse.jpg',
+      progress: 28,
+    },
+  });
+
+  const projetBourgogne = await prisma.project.create({
+    data: {
+      name: 'Forêt mixte en Bourgogne',
+      slug: 'foret-mixte-bourgogne',
+      shortDescription: 'Projet de plantation d’une forêt mixte en Bourgogne.',
+      longDescription:
+        'Ce projet vise à créer une forêt mixte résiliente face au changement climatique sur les terres bourguignonnes.',
+      localisation: 'Bourgogne, France',
+      picture: '/images/projects/foret-mixte-bourgogne.jpg',
+      progress: 42,
+    },
+  });
+
+  const projetVosges = await prisma.project.create({
+    data: {
+      name: 'Projet en forêt vosgienne',
+      slug: 'projet-foret-vosgienne',
+      shortDescription:
+        'Projet de restauration des forêts de conifères vosgiennes.',
+      longDescription:
+        'Ce projet soutient la restauration des forêts vosgiennes touchées par les scolytes et la sécheresse.',
+      localisation: 'Vosges, France',
+      picture: '/images/projects/projet-foret-vosgienne.jpg',
+      progress: 38,
+    },
+  });
+
+  // --- Nouveaux projets (International) ---
+
+  const projetMadagascar = await prisma.project.create({
+    data: {
+      name: 'Reforestation à Madagascar',
+      slug: 'reforestation-madagascar',
+      shortDescription:
+        'Projet de reforestation des zones dégradées de Madagascar.',
+      longDescription:
+        'Ce projet contribue à la restauration des forêts malgaches en collaboration avec les communautés locales.',
+      localisation: 'Madagascar',
+      picture: '/images/projects/reforestation-madagascar.jpg',
+      progress: 22,
+    },
+  });
+
+  const projetKenya = await prisma.project.create({
+    data: {
+      name: 'Restauration des savanes au Kenya',
+      slug: 'restauration-savanes-kenya',
+      shortDescription:
+        'Projet de restauration écologique des savanes kényanes.',
+      longDescription:
+        'Ce projet aide à restaurer les paysages dégradés du Kenya tout en soutenant la faune et les communautés.',
+      localisation: 'Kenya',
+      picture: '/images/projects/restauration-savanes-kenya.jpg',
+      progress: 33,
+    },
+  });
+
+  const projetBorneo = await prisma.project.create({
+    data: {
+      name: 'Préservation à Bornéo',
+      slug: 'preservation-borneo',
+      shortDescription:
+        'Projet de préservation des forêts tropicales de Bornéo.',
+      longDescription:
+        'Ce projet contribue à la protection des forêts primaires de Bornéo et à la replantation des zones déforestées.',
+      localisation: 'Bornéo, Indonésie',
+      picture: '/images/projects/preservation-borneo.jpg',
+      progress: 18,
+    },
+  });
+
+  const projetCostaRica = await prisma.project.create({
+    data: {
+      name: 'Reboisement au Costa Rica',
+      slug: 'reboisement-costa-rica',
+      shortDescription:
+        'Projet de reboisement et de corridors écologiques au Costa Rica.',
+      longDescription:
+        'Ce projet recrée des corridors écologiques entre les parcs nationaux costariciens pour faciliter la migration des espèces.',
+      localisation: 'Costa Rica',
+      picture: '/images/projects/reboisement-costa-rica.jpg',
+      progress: 75,
+    },
+  });
+
+  const projetMataAtlantica = await prisma.project.create({
+    data: {
+      name: 'Restauration de la Mata Atlantica',
+      slug: 'restauration-mata-atlantica',
+      shortDescription:
+        'Projet de restauration de la forêt atlantique brésilienne.',
+      longDescription:
+        'Ce projet contribue à la restauration de la Mata Atlantica, l’une des forêts les plus menacées au monde.',
+      localisation: 'Brésil',
+      picture: '/images/projects/restauration-mata-atlantica.jpg',
+      progress: 47,
+    },
+  });
+
+  console.log('🌍 Projets créés (18 au total)');
 
   // =========================================================
   // PROJECT_HAS_TREE
@@ -276,6 +772,7 @@ async function main() {
 
   await prisma.projectHasTree.createMany({
     data: [
+      // --- Associations d'origine ---
       { projectId: projetBretagne.id, treeId: chene.id, stock: 500 },
       { projectId: projetBretagne.id, treeId: bouleau.id, stock: 300 },
       { projectId: projetBretagne.id, treeId: pin.id, stock: 200 },
@@ -291,6 +788,86 @@ async function main() {
       { projectId: projetAmazonie.id, treeId: sequoia.id, stock: 50 },
 
       { projectId: projetMangrove.id, treeId: mangrove.id, stock: 3000 },
+
+      // --- Nouvelles associations sur les projets d'origine ---
+      { projectId: projetBretagne.id, treeId: hetre.id, stock: 400 },
+      { projectId: projetBretagne.id, treeId: aulne.id, stock: 250 },
+      { projectId: projetBretagne.id, treeId: saule.id, stock: 200 },
+      { projectId: projetBretagne.id, treeId: charme.id, stock: 300 },
+
+      { projectId: projetSahel.id, treeId: baobab.id, stock: 500 },
+      { projectId: projetSahel.id, treeId: eucalyptus.id, stock: 700 },
+
+      { projectId: projetAlpes.id, treeId: sapin.id, stock: 600 },
+      { projectId: projetAlpes.id, treeId: epicea.id, stock: 500 },
+      { projectId: projetAlpes.id, treeId: meleze.id, stock: 300 },
+      { projectId: projetAlpes.id, treeId: cedre.id, stock: 100 },
+
+      { projectId: projetAmazonie.id, treeId: teck.id, stock: 800 },
+      { projectId: projetAmazonie.id, treeId: manguier.id, stock: 400 },
+      { projectId: projetAmazonie.id, treeId: bambou.id, stock: 600 },
+
+      { projectId: projetMangrove.id, treeId: cocotier.id, stock: 800 },
+
+      // --- Associations des nouveaux projets ---
+      { projectId: projetProvence.id, treeId: olivier.id, stock: 400 },
+      { projectId: projetProvence.id, treeId: cypres.id, stock: 300 },
+      { projectId: projetProvence.id, treeId: pin.id, stock: 500 },
+      { projectId: projetProvence.id, treeId: chene.id, stock: 350 },
+
+      { projectId: projetAuvergne.id, treeId: hetre.id, stock: 400 },
+      { projectId: projetAuvergne.id, treeId: chataignier.id, stock: 350 },
+      { projectId: projetAuvergne.id, treeId: erable.id, stock: 300 },
+      { projectId: projetAuvergne.id, treeId: frene.id, stock: 250 },
+
+      { projectId: projetPyrenees.id, treeId: hetre.id, stock: 500 },
+      { projectId: projetPyrenees.id, treeId: sapin.id, stock: 450 },
+      { projectId: projetPyrenees.id, treeId: pin.id, stock: 400 },
+      { projectId: projetPyrenees.id, treeId: chene.id, stock: 300 },
+
+      { projectId: projetLandes.id, treeId: pin.id, stock: 800 },
+      { projectId: projetLandes.id, treeId: chene.id, stock: 400 },
+      { projectId: projetLandes.id, treeId: bouleau.id, stock: 350 },
+
+      { projectId: projetNormandie.id, treeId: hetre.id, stock: 500 },
+      { projectId: projetNormandie.id, treeId: chene.id, stock: 400 },
+      { projectId: projetNormandie.id, treeId: frene.id, stock: 300 },
+      { projectId: projetNormandie.id, treeId: charme.id, stock: 250 },
+
+      { projectId: projetCorse.id, treeId: pin.id, stock: 450 },
+      { projectId: projetCorse.id, treeId: olivier.id, stock: 350 },
+      { projectId: projetCorse.id, treeId: chataignier.id, stock: 400 },
+      { projectId: projetCorse.id, treeId: chene.id, stock: 300 },
+
+      { projectId: projetBourgogne.id, treeId: chene.id, stock: 450 },
+      { projectId: projetBourgogne.id, treeId: charme.id, stock: 300 },
+      { projectId: projetBourgogne.id, treeId: tilleul.id, stock: 250 },
+      { projectId: projetBourgogne.id, treeId: erable.id, stock: 350 },
+
+      { projectId: projetVosges.id, treeId: sapin.id, stock: 500 },
+      { projectId: projetVosges.id, treeId: epicea.id, stock: 450 },
+      { projectId: projetVosges.id, treeId: hetre.id, stock: 400 },
+      { projectId: projetVosges.id, treeId: meleze.id, stock: 300 },
+
+      { projectId: projetMadagascar.id, treeId: baobab.id, stock: 800 },
+      { projectId: projetMadagascar.id, treeId: manguier.id, stock: 600 },
+      { projectId: projetMadagascar.id, treeId: eucalyptus.id, stock: 500 },
+
+      { projectId: projetKenya.id, treeId: baobab.id, stock: 700 },
+      { projectId: projetKenya.id, treeId: acajou.id, stock: 800 },
+      { projectId: projetKenya.id, treeId: eucalyptus.id, stock: 600 },
+
+      { projectId: projetBorneo.id, treeId: teck.id, stock: 900 },
+      { projectId: projetBorneo.id, treeId: bambou.id, stock: 1000 },
+      { projectId: projetBorneo.id, treeId: cocotier.id, stock: 700 },
+
+      { projectId: projetCostaRica.id, treeId: manguier.id, stock: 800 },
+      { projectId: projetCostaRica.id, treeId: cocotier.id, stock: 600 },
+      { projectId: projetCostaRica.id, treeId: mangrove.id, stock: 700 },
+
+      { projectId: projetMataAtlantica.id, treeId: acajou.id, stock: 800 },
+      { projectId: projetMataAtlantica.id, treeId: manguier.id, stock: 700 },
+      { projectId: projetMataAtlantica.id, treeId: teck.id, stock: 600 },
     ],
   });
 
