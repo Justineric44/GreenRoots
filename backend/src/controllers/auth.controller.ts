@@ -36,7 +36,7 @@ export async function registerUser(req: Request, res: Response) {
       city: data.city,
       type: data.type,
 
-      // Ajoute les champs optionnels uniquement s'ils sont définis.
+      // Ajoute les champs optionnels uniquement s'ils sont définis (&&).
       // Cela évite d'envoyer des valeurs undefined à Prisma.
       ...(data.siret && { siret: data.siret }),
       ...(data.companyName && { companyName: data.companyName }),
@@ -83,12 +83,27 @@ export async function loginUser(req: Request, res: Response) {
   }
 
   // Génération du token JWT
+
+  // Récupère la clé secrète utilisée pour signer les JWT.
+  // "as Secret" permet d'indiquer à TypeScript que la variable
+  // correspond bien au type attendu par jsonwebtoken.
   const jwtSecret = process.env.JWT_SECRET as Secret;
 
+  // Récupère la durée d'expiration du token depuis les variables
+  // d'environnement. Si aucune valeur n'est définie,
+  // le token expirera après 1 jour par défaut.
+  //
+  // Le typage "NonNullable<SignOptions['expiresIn']>"
+  // permet d'utiliser un format compatible avec jsonwebtoken
+  // comme "1d", "15m" ou un nombre en secondes.
   const jwtExpiresIn = (process.env.JWT_EXPIRES_IN || '1d') as NonNullable<
     SignOptions['expiresIn']
   >;
 
+  // Génération du token JWT.
+  // Le payload contient les informations utilisateur
+  // qui seront accessibles après vérification du token
+  // dans le middleware d'authentification.
   const token = jwt.sign({ userId: user.id, role: user.role }, jwtSecret, {
     expiresIn: jwtExpiresIn,
   });
