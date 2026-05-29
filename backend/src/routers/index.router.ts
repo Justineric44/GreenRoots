@@ -5,5 +5,5 @@ import { router as treesRouter } from './trees.router.js';
 export const router = Router();
 
 // Utilisation des routers
-router.use('/api/auth', authRouter);
-router.use('/api', treesRouter);
+router.use('/auth', authRouter);
+router.use('/trees', treesRouter);
