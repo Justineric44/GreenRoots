@@ -1,7 +1,6 @@
 import type { Request, Response } from 'express';
 import { NotFoundError } from '../lib/errors.js';
 import { prisma } from '../lib/prisma.js';
-import { parseSlugFromParams } from '../validators/slug.validator.js';
 
 export async function getAllProjects(req: Request, res: Response) {
   const page = Number(req.query.page) || 1;
@@ -29,7 +28,7 @@ export async function getAllProjects(req: Request, res: Response) {
 }
 
 export async function getOneProject(req: Request, res: Response) {
-  const slug = parseSlugFromParams(req.params.slug);
+  const slug = req.params.slug;
   const project = await prisma.project.findUnique({
     where: { slug },
   });
@@ -42,7 +41,7 @@ export async function getOneProject(req: Request, res: Response) {
 export async function getAllTreesByProjectSlug(req: Request, res: Response) {
   const page = Number(req.query.page) || 1;
   const limit = 6;
-  const slug = parseSlugFromParams(req.params.slug);
+  const slug = req.params.slug;
   const [trees, total] = await prisma.$transaction([
     prisma.projectHasTree.findMany({
       where: { project: { slug } },
