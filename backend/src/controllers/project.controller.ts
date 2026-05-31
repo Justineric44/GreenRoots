@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import { NotFoundError } from '../lib/errors.js';
 import { prisma } from '../lib/prisma.js';
 import { parseSlugFromParams } from '../validators/slug.validator.js';
+import type { Prisma } from '@prisma/client';
 
 export async function getAllProjects(req: Request, res: Response) {
   const page = Number(req.query.page) || 1;
@@ -62,10 +63,14 @@ export async function getAllTreesByProjectSlug(req: Request, res: Response) {
     // Returns trees with their available stock for this project
     {
       total,
-      trees: trees.map(({ tree, stock }) => ({
-        ...tree,
-        stock,
-      })),
+      trees: trees.map(
+        (
+          item: Prisma.ProjectHasTreeGetPayload<{ include: { tree: true } }>
+        ) => ({
+          ...item.tree,
+          stock: item.stock,
+        })
+      ),
     }
   );
 }
