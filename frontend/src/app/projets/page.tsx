@@ -15,6 +15,7 @@ import {
 import Link from 'next/link';
 import { Metadata } from 'next';
 import type { Project } from '@/types/index';
+import { getProjects } from '@/lib/api';
 
 export const metadata: Metadata = {
   title: 'Projets de reforestation - GreenRoots',
@@ -27,14 +28,11 @@ export default async function ProjectsPage({
 }: {
   searchParams: { page?: string };
 }) {
+  // Récupérer le numéro de page à partir des paramètres de recherche avec await pour s'assurer que les données sont disponibles avant de continuer
   const { page } = await searchParams;
   const currentPage = Number(page) || 1;
   const limit = 6;
-  const data = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/projects?page=${currentPage}`
-  );
-
-  const { projects, total } = await data.json();
+  const { projects, total } = await getProjects(currentPage);
   if (!projects || projects.length === 0) {
     return notFound();
   }
