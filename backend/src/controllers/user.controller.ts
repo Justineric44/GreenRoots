@@ -56,11 +56,37 @@ export const userController = {
     res.status(200).json({ data: user });
   },
 
-  /** DELETE /api/users/me — suppression du compte. */
+  /**
+   * DELETE /api/users/me — suppression du compte (soft-delete + anonymisation).
+   *
+   * On ne fait pas un vrai DELETE : les commandes du user doivent rester
+   * en base (traçabilité comptable + onDelete: Restrict sur Order.user).
+   * À la place, on anonymise les données perso et on marque deletedAt.
+   * L'auth.controller refusera ensuite tout login sur ce compte.
+   */
   async remove(req: Request, res: Response): Promise<void> {
-    await prisma.user.delete({ where: { id: req.user!.userId } });
+    const userId = req.user!.userId;
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        email: `deleted-${userId}@anonymized.local`,
+        lastName: 'Anonyme',
+        firstName: 'Utilisateur',
+        address: '',
+        postalCode: '',
+        city: '',
+        phone: null,
+        siret: null,
+        companyName: null,
+        password: '',
+        deletedAt: new Date(),
+      },
+    });
+
     res.status(204).end();
   },
+
   /** GET /api/users/me/orders — historique des commandes. */
   async listOrders(req: Request, res: Response): Promise<void> {
     const orders = await prisma.order.findMany({
