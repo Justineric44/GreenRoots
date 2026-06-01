@@ -1,6 +1,6 @@
 ### Test du controller Projects
 @baseUrl = http://localhost:3002/api
-@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzgwMzE4MjM0LCJleHAiOjE3ODA0MDQ2MzR9.Zbbkl92_KZkReDdvSvC8bQgoIOjX98e2yBWcaYkFZrQ
+@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjUsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzgwMzIxNTI1LCJleHAiOjE3ODA0MDc5MjV9.syRHkkQpb-euTC_FtP8Gz0XlTkS6DnsUdI6dKhOb9cU
 
 
 
@@ -9,11 +9,21 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "email": "thomas.martin@email.fr",
-  "password": "Password123@"
+  "email": "register.test@email.fr",
+  "password": "Password123!"
 }
 
 ###
 GET {{baseUrl}}/carts
 Authorization: Bearer {{userToken}}
 
+### Ajouter un item au panier
+POST {{baseUrl}}/carts/items
+Authorization: Bearer {{userToken}}
+Content-Type: application/json  
+
+{
+  "treeId": 1,
+  "projectId": 1,
+  "quantity": 2
+}
