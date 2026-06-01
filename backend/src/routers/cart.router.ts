@@ -5,3 +5,4 @@ import * as cartController from '../controllers/cart.controller.js';
 export const router = Router();
 
 router.get('/', authenticateToken, cartController.getActiveCart);
+router.post('/items', authenticateToken, cartController.addItemToCart);
