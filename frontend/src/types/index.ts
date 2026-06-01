@@ -15,6 +15,19 @@ export interface Project extends ProjectSummary {
   trees?: []; // TODO: Ajouter le type arbre (voir Justine)
 }
 
+export interface Tree {
+  id: number;
+  commonName: string;
+  scientificName?: string;
+  family: string;
+  origin: string;
+  slug: string;
+  picture: string;
+  price: number;
+  shortDescription?: string;
+  longDescription?: string;
+}
+
 // ============================================================
 // USER
 // ============================================================
