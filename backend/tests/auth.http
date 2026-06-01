@@ -1,0 +1,141 @@
+#
+---------------------------------------------
+## LOGIN
+---------------------------------------------
+
+### Login - admin seedé
+POST http://localhost:3002/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@greenroots.fr",
+  "password": "password123"
+}
+
+### Login - utilisateur particulier seedé Thomas
+POST http://localhost:3002/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "thomas.martin@email.fr",
+  "password": "password123"
+}
+
+### Login - utilisateur particulier seedé Sophie
+POST http://localhost:3002/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "sophie.bernard@email.fr",
+  "password": "password123"
+}
+
+### Login - entreprise seedée
+POST http://localhost:3002/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "contact@ecoentreprise.fr",
+  "password": "password123"
+}
+
+### Login - mauvais mot de passe
+POST http://localhost:3002/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "thomas.martin@email.fr",
+  "password": "WrongPassword123!"
+}
+
+---------------------------------------------
+## JWT MIDDLEWARE
+---------------------------------------------
+
+### Route protégée - sans token
+GET http://localhost:3002/api/auth/me
+
+### Route protégée - token invalide
+GET http://localhost:3002/api/auth/me
+Authorization: Bearer mauvais_token
+
+### Route protégée - token valide utilisateur
+GET http://localhost:3002/api/auth/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzgwMDUyMzAwLCJleHAiOjE3ODAxMzg3MDB9.Nr9pIxvfSY4qFUCTtx4KA8n2TM4bF5ivZNi7NOVJ_7A
+
+### Route protégée - token valide admin
+GET http://localhost:3002/api/auth/me
+Authorization: Bearer 4258
+
+---------------------------------------------
+## REGISTER
+---------------------------------------------
+
+### Register - particulier
+POST http://localhost:3002/api/auth/register
+Content-Type: application/json
+
+{
+  "lastName": "Test",
+  "firstName": "Register",
+  "email": "register.test@email.fr",
+  "password": "Password123!",
+  "address": "1 rue test",
+  "postalCode": "01000",
+  "city": "Bourg-en-Bresse",
+  "type": "particulier"
+}
+
+### Register - email déjà utilisé
+POST http://localhost:3002/api/auth/register
+Content-Type: application/json
+
+{
+  "lastName": "Test",
+  "firstName": "Register",
+  "email": "register.test@email.fr",
+  "password": "Password123!",
+  "address": "1 rue test",
+  "postalCode": "01000",
+  "city": "Bourg-en-Bresse",
+  "type": "particulier"
+}
+
+### Register - entreprise sans SIRET
+POST http://localhost:3002/api/auth/register
+Content-Type: application/json
+
+{
+  "lastName": "Test",
+  "firstName": "Entreprise",
+  "email": "entreprise.sans.siret@email.fr",
+  "password": "Password123!",
+  "address": "1 rue entreprise",
+  "postalCode": "01000",
+  "city": "Bourg-en-Bresse",
+  "type": "entreprise"
+}
+
+### Register - entreprise valide
+POST http://localhost:3002/api/auth/register
+Content-Type: application/json
+
+{
+  "lastName": "Test",
+  "firstName": "Entreprise",
+  "email": "entreprise.valide@email.fr",
+  "password": "Password123!",
+  "address": "1 rue entreprise",
+  "postalCode": "01000",
+  "city": "Bourg-en-Bresse",
+  "type": "entreprise",
+  "siret": "98765432109876",
+  "companyName": "Entreprise Test"
+}
+
+---------------------------------------------
+## LOGOUT
+---------------------------------------------
+
+### Logout
+POST http://localhost:3002/api/auth/logout
