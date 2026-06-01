@@ -1,7 +1,6 @@
 import type { Request, Response } from 'express';
 import { NotFoundError } from '../lib/errors.js';
 import { prisma } from '../lib/prisma.js';
-import { parseSlugFromParams } from '../validators/slug.validator.js';
 
 export async function getAllProjects(req: Request, res: Response) {
   const page = Number(req.query.page) || 1;
@@ -25,11 +24,11 @@ export async function getAllProjects(req: Request, res: Response) {
   if (projects.length === 0) {
     throw new NotFoundError();
   }
-  res.json({ projects, total });
+  res.json({ projects, total, limit });
 }
 
 export async function getOneProject(req: Request, res: Response) {
-  const slug = parseSlugFromParams(req.params.slug);
+  const slug = req.params.slug as string;
   const project = await prisma.project.findUnique({
     where: { slug },
   });
@@ -42,7 +41,7 @@ export async function getOneProject(req: Request, res: Response) {
 export async function getAllTreesByProjectSlug(req: Request, res: Response) {
   const page = Number(req.query.page) || 1;
   const limit = 6;
-  const slug = parseSlugFromParams(req.params.slug);
+  const slug = req.params.slug as string;
   const [trees, total] = await prisma.$transaction([
     prisma.projectHasTree.findMany({
       where: { project: { slug } },
@@ -62,6 +61,7 @@ export async function getAllTreesByProjectSlug(req: Request, res: Response) {
     // Returns trees with their available stock for this project
     {
       total,
+      limit,
       trees: trees.map(({ tree, stock }) => ({
         ...tree,
         stock,
