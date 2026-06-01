@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback } from 'react';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -30,30 +31,42 @@ export default function TreesFilters() {
   );
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+    <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
       {/* Filtres à gauche */}
       <div className="flex flex-wrap gap-4">
-        <Input
-          type="text"
-          placeholder="Rechercher par nom..."
-          defaultValue={searchParams.get('search') ?? ''}
-          onChange={(e) => updateFilter('search', e.target.value)}
-          className="w-60"
-        />
-        <Input
-          type="number"
-          placeholder="Prix min (€)"
-          defaultValue={searchParams.get('minPrice') ?? ''}
-          onChange={(e) => updateFilter('minPrice', e.target.value)}
-          className="w-36"
-        />
-        <Input
-          type="number"
-          placeholder="Prix max (€)"
-          defaultValue={searchParams.get('maxPrice') ?? ''}
-          onChange={(e) => updateFilter('maxPrice', e.target.value)}
-          className="w-36"
-        />
+        <div className="flex flex-col gap-1">
+          <Label htmlFor="search">Nom</Label>
+          <Input
+            id="search"
+            type="text"
+            placeholder="Rechercher par nom..."
+            defaultValue={searchParams.get('search') ?? ''}
+            onChange={(e) => updateFilter('search', e.target.value)}
+            className="w-60"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <Label htmlFor="minPrice">Prix min (€)</Label>
+          <Input
+            id="minPrice"
+            type="number"
+            placeholder="0"
+            defaultValue={searchParams.get('minPrice') ?? ''}
+            onChange={(e) => updateFilter('minPrice', e.target.value)}
+            className="w-36"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <Label htmlFor="maxPrice">Prix max (€)</Label>
+          <Input
+            id="maxPrice"
+            type="number"
+            placeholder="100"
+            defaultValue={searchParams.get('maxPrice') ?? ''}
+            onChange={(e) => updateFilter('maxPrice', e.target.value)}
+            className="w-36"
+          />
+        </div>
       </div>
 
       {/* Tri à droite */}
