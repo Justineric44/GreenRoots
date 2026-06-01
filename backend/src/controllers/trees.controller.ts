@@ -40,3 +40,29 @@ export async function getOneTree(req: Request, res: Response) {
 
   res.json(tree);
 }
+
+// ─────────────────────────────────────────────
+// GET /api/trees/:slug/projects
+// ─────────────────────────────────────────────
+export async function getAllProjectsByTreeSlug(req: Request, res: Response) {
+  const { slug } = req.params;
+
+  const tree = await prisma.tree.findUnique({
+    where: { slug },
+    include: {
+      projects: {
+        include: {
+          project: true,
+        },
+      },
+    },
+  });
+
+  if (!tree) {
+    throw new NotFoundError('Tree not found');
+  }
+
+  const projects = tree.projects.map((link: any) => link.project);
+
+  res.json(projects);
+}
