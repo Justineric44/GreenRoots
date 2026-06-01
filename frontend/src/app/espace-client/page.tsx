@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 
 import Title from '@/components/layout/Title';
+import LogoutButton from '@/components/layout/LogoutButton';
 
 // ============================================================
 //  Espace client — version statique (non branchée au backend).
@@ -63,11 +64,18 @@ export default function CustomerAreaPage() {
 
       <section className="bg-brand-bg px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
         <div className="mx-auto max-w-4xl space-y-10 text-brand-dark">
-          <header>
-            <h2 className="text-3xl font-bold">Bonjour {user.firstName} 👋</h2>
-            <p className="text-muted-foreground mt-1">
-              Votre espace personnel GreenRoots.
-            </p>
+          <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-3xl font-bold">
+                Bonjour {user.firstName} 👋
+              </h2>
+
+              <p className="text-muted-foreground mt-1">
+                Votre espace personnel GreenRoots.
+              </p>
+            </div>
+
+            <LogoutButton />
           </header>
 
           <section className="space-y-4">
