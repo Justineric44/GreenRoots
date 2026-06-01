@@ -30,5 +30,10 @@ export const updateUserBodySchema = z
   .refine((data) => Object.keys(data).length > 0, {
     message: 'Au moins un champ doit être fourni',
   });
+/** Paramètre d'URL : l'identifiant d'une commande (entier). */
+export const orderIdParamSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
 
 export type UpdateUserBody = z.infer<typeof updateUserBodySchema>;
+export type OrderIdParam = z.infer<typeof orderIdParamSchema>;
