@@ -31,8 +31,7 @@ export default async function ProjectsPage({
   // Récupérer le numéro de page à partir des paramètres de recherche avec await pour s'assurer que les données sont disponibles avant de continuer
   const { page } = await searchParams;
   const currentPage = Number(page) || 1;
-  const limit = 6;
-  const { projects, total } = await getProjects(currentPage);
+  const { projects, total, limit } = await getProjects(currentPage);
   if (!projects || projects.length === 0) {
     return notFound();
   }
