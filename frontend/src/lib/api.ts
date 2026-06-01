@@ -52,7 +52,7 @@ export async function apiFetchPrivate(endpoint: string, options?: RequestInit) {
 }
 
 // ================================================================
-// ROUTES PUBLIQUES - À COMPLÉTER
+// ROUTES PUBLIQUES
 // ================================================================
 
 /**
@@ -83,9 +83,39 @@ export async function getProjectTrees(slug: string, currentPage: number) {
   return apiFetch(`/api/projects/${slug}/trees?page=${currentPage}`);
 }
 
-// Ajouter les fonctions pour les appels des arbres
-// - GET /api/trees                      → liste des arbres + filtres + pagination
-// - GET /api/trees/:slug                → détail d'un arbre
+/**
+ * Récupère la liste paginée des arbres.
+ * @param currentPage - Numéro de la page
+ * @returns Liste des arbres de la page demandée
+ */
+export async function getTrees(
+  currentPage: number = 1,
+  filters?: {
+    search?: string;
+    minPrice?: string;
+    maxPrice?: string;
+    sortBy?: string;
+    sortOrder?: string;
+  }
+) {
+  const params = new URLSearchParams();
+  params.set('page', String(currentPage));
+  if (filters?.search) params.set('search', filters.search);
+  if (filters?.minPrice) params.set('minPrice', filters.minPrice);
+  if (filters?.maxPrice) params.set('maxPrice', filters.maxPrice);
+  if (filters?.sortBy) params.set('sortBy', filters.sortBy);
+  if (filters?.sortOrder) params.set('sortOrder', filters.sortOrder);
+  return apiFetch(`/api/trees?${params.toString()}`);
+}
+
+/**
+ * Récupère les détails d'un arbre spécifique.
+ * @param slug - Identifiant/slug de l'arbre
+ * @returns Données de l'arbre
+ */
+export async function getOneTree(slug: string) {
+  return apiFetch(`/api/trees/${slug}`);
+}
 
 // ================================================================
 // ROUTES PRIVÉES - À IMPLÉMENTER
@@ -112,5 +142,5 @@ export async function getProjectTrees(slug: string, currentPage: number) {
 // - POST   /api/carts/items             → ajouter un arbre au panier
 // - PATCH  /api/carts/items/:id         → modifier la quantité d'un arbre
 // - DELETE /api/carts/items/:id         → supprimer un arbre du panier
-// - ??? DELETE /api/carts                   → supprimer le panier
+// - ??? DELETE /api/carts               → supprimer le panier
 // ================================================================
