@@ -1,10 +1,14 @@
-#
----------------------------------------------
+@baseUrl = http://localhost:3002/api
+@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzgwMDY0MDEyLCJleHAiOjE3ODAxNTA0MTJ9.3cyS5q1q5XAlR2dePCLAEPWAVXwGHeecW-_Csoa-7jk
+
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc4MDA2NDA5MiwiZXhwIjoxNzgwMTUwNDkyfQ.s6K29qT-QaH7TrejhaojUpf_dYMSW8LseGQZA4rO4yc
+
+#############################################
 ## LOGIN
----------------------------------------------
+#############################################
 
 ### Login - admin seedé
-POST http://localhost:3002/api/auth/login
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
@@ -13,7 +17,7 @@ Content-Type: application/json
 }
 
 ### Login - utilisateur particulier seedé Thomas
-POST http://localhost:3002/api/auth/login
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
@@ -22,7 +26,7 @@ Content-Type: application/json
 }
 
 ### Login - utilisateur particulier seedé Sophie
-POST http://localhost:3002/api/auth/login
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
@@ -31,7 +35,7 @@ Content-Type: application/json
 }
 
 ### Login - entreprise seedée
-POST http://localhost:3002/api/auth/login
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
@@ -40,7 +44,7 @@ Content-Type: application/json
 }
 
 ### Login - mauvais mot de passe
-POST http://localhost:3002/api/auth/login
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
@@ -48,31 +52,31 @@ Content-Type: application/json
   "password": "WrongPassword123!"
 }
 
----------------------------------------------
+#############################################
 ## JWT MIDDLEWARE
----------------------------------------------
+#############################################
 
 ### Route protégée - sans token
-GET http://localhost:3002/api/auth/me
+GET {{baseUrl}}/auth/me
 
 ### Route protégée - token invalide
-GET http://localhost:3002/api/auth/me
+GET {{baseUrl}}/auth/me
 Authorization: Bearer mauvais_token
 
 ### Route protégée - token valide utilisateur
-GET http://localhost:3002/api/auth/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzgwMDUyMzAwLCJleHAiOjE3ODAxMzg3MDB9.Nr9pIxvfSY4qFUCTtx4KA8n2TM4bF5ivZNi7NOVJ_7A
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{userToken}}
 
 ### Route protégée - token valide admin
-GET http://localhost:3002/api/auth/me
-Authorization: Bearer 4258
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{adminToken}}
 
----------------------------------------------
+#############################################
 ## REGISTER
----------------------------------------------
+#############################################
 
 ### Register - particulier
-POST http://localhost:3002/api/auth/register
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
@@ -87,7 +91,7 @@ Content-Type: application/json
 }
 
 ### Register - email déjà utilisé
-POST http://localhost:3002/api/auth/register
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
@@ -102,7 +106,7 @@ Content-Type: application/json
 }
 
 ### Register - entreprise sans SIRET
-POST http://localhost:3002/api/auth/register
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
@@ -117,7 +121,7 @@ Content-Type: application/json
 }
 
 ### Register - entreprise valide
-POST http://localhost:3002/api/auth/register
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
@@ -133,9 +137,9 @@ Content-Type: application/json
   "companyName": "Entreprise Test"
 }
 
----------------------------------------------
+#############################################
 ## LOGOUT
----------------------------------------------
+#############################################
 
 ### Logout
-POST http://localhost:3002/api/auth/logout
+POST {{baseUrl}}/auth/logout
