@@ -4,11 +4,9 @@ import { prisma } from '../lib/prisma.js';
 
 export async function getAllProjects(req: Request, res: Response) {
   const page = Number(req.query.page) || 1;
-  const limit = 6;
-  const [projects, total] = await prisma.$transaction([
-    prisma.project.findMany({
-      take: limit,
-      skip: limit * (page - 1),
+  // Si pas de params page, on renvoit tous les projets (par exemple sur la page d'accueil)
+  if (!req.query.page) {
+    const projects = await prisma.project.findMany({
       select: {
         id: true,
         name: true,
@@ -18,13 +16,36 @@ export async function getAllProjects(req: Request, res: Response) {
         picture: true,
         progress: true,
       },
-    }),
-    prisma.project.count(),
-  ]);
-  if (projects.length === 0) {
-    throw new NotFoundError();
+    });
+    if (projects.length === 0) {
+      throw new NotFoundError();
+    }
+    res.json({ projects });
+    return;
+  } else {
+    // Si params page, on renvoi les projets
+    const limit = 6;
+    const [projects, total] = await prisma.$transaction([
+      prisma.project.findMany({
+        take: limit,
+        skip: limit * (page - 1),
+        select: {
+          id: true,
+          name: true,
+          shortDescription: true,
+          slug: true,
+          localisation: true,
+          picture: true,
+          progress: true,
+        },
+      }),
+      prisma.project.count(),
+    ]);
+    if (projects.length === 0) {
+      throw new NotFoundError();
+    }
+    res.json({ projects, total, limit });
   }
-  res.json({ projects, total, limit });
 }
 
 export async function getOneProject(req: Request, res: Response) {

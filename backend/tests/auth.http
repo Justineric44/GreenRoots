@@ -1,8 +1,7 @@
 @baseUrl = http://localhost:3002/api
-@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzgwMDY0MDEyLCJleHAiOjE3ODAxNTA0MTJ9.3cyS5q1q5XAlR2dePCLAEPWAVXwGHeecW-_Csoa-7jk
+@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjgsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzgwMzg4Mzg0LCJleHAiOjE3ODA0NzQ3ODR9.fvfFSW0fNfsXnH8PiKOhaKbOamZftvj-6uO7ma1ljvQ
 
-@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc4MDA2NDA5MiwiZXhwIjoxNzgwMTUwNDkyfQ.s6K29qT-QaH7TrejhaojUpf_dYMSW8LseGQZA4rO4yc
-
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc4MDM4ODQwNCwiZXhwIjoxNzgwNDc0ODA0fQ.KinWq--P6j6l-pFSTeu3VZ8CgyXmNJCa4qYpNNBVBYU
 #############################################
 ## LOGIN
 #############################################
@@ -13,7 +12,7 @@ Content-Type: application/json
 
 {
   "email": "admin@greenroots.fr",
-  "password": "password123"
+  "password": "Password123@"
 }
 
 ### Login - utilisateur particulier seedé Thomas
@@ -22,7 +21,7 @@ Content-Type: application/json
 
 {
   "email": "thomas.martin@email.fr",
-  "password": "password123"
+  "password": "Password123@"
 }
 
 ### Login - utilisateur particulier seedé Sophie
@@ -31,7 +30,7 @@ Content-Type: application/json
 
 {
   "email": "sophie.bernard@email.fr",
-  "password": "password123"
+  "password": "Password123@"
 }
 
 ### Login - entreprise seedée
@@ -40,7 +39,7 @@ Content-Type: application/json
 
 {
   "email": "contact@ecoentreprise.fr",
-  "password": "password123"
+  "password": "Password123@"
 }
 
 ### Login - mauvais mot de passe
@@ -56,20 +55,24 @@ Content-Type: application/json
 ## JWT MIDDLEWARE
 #############################################
 
-### Route protégée - sans token
-GET {{baseUrl}}/auth/me
+### Profil utilisateur - sans token
+GET {{baseUrl}}/users/me
 
-### Route protégée - token invalide
-GET {{baseUrl}}/auth/me
+### Profil utilisateur - token invalide
+GET {{baseUrl}}/users/me
 Authorization: Bearer mauvais_token
 
-### Route protégée - token valide utilisateur
-GET {{baseUrl}}/auth/me
+### Profil utilisateur - token valide utilisateur
+GET {{baseUrl}}/users/me
 Authorization: Bearer {{userToken}}
 
-### Route protégée - token valide admin
-GET {{baseUrl}}/auth/me
+### Profil utilisateur - token valide admin
+GET {{baseUrl}}/users/me
 Authorization: Bearer {{adminToken}}
+
+### Commandes utilisateur - token valide utilisateur
+GET {{baseUrl}}/users/me/orders
+Authorization: Bearer {{userToken}}
 
 #############################################
 ## REGISTER
