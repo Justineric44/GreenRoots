@@ -11,11 +11,7 @@ export default function ImpactSection() {
   ];
 
   return (
-    <section className="relative overflow-hidden bg-brand-dark px-4 py-16 text-brand-white sm:px-6 lg:px-8 lg:py-20">
-      {/* Blobs lumineux décoratifs, cohérents avec la section projets */}
-      <div className="pointer-events-none absolute -left-50 top-25 h-90 w-65 rounded-full bg-brand-accent/30 blur-3xl" />
-      <div className="pointer-events-none absolute -right-32 bottom-5 h-72 w-65 rounded-full bg-brand-accent/30 blur-3xl" />
-
+    <section className="bg-brand-bg px-4 py-16 text-brand-dark sm:px-6 lg:px-8">
       <div className="relative mx-auto grid max-w-7xl gap-8 lg:grid-cols-2 lg:items-stretch">
         {/* Bloc texte : explique l'impact concret de l'achat d'un arbre */}
         <div className="rounded-[28px] border border-brand-dark/10 bg-brand-white p-12 shadow-[0_20px_50px_rgba(33,42,37,0.08)]">
@@ -56,7 +52,7 @@ export default function ImpactSection() {
           {[1, 2, 3, 4, 5].map((imageNumber) => (
             <div key={imageNumber} className="relative overflow-hidden">
               <Image
-                src={`/images/impact/impact-${imageNumber}.jpg`}
+                src={`/images/home/impact/impact-${imageNumber}.jpg`}
                 alt={`Impact GreenRoots ${imageNumber}`}
                 fill
                 sizes="20vw"

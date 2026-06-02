@@ -4,6 +4,8 @@ import { getProjects, getTrees } from '@/lib/api';
 import ProjectsCarousel from '@/components/home/ProjectsCarousel';
 import TopTreesSection from '@/components/home/TopTreesSection';
 import ImpactSection from '@/components/home/ImpactSection';
+import MissionSection from '@/components/home/MissionSection';
+import CompletedProjectsSection from '@/components/home/CompletedProjectsSection';
 
 export default async function HomePage() {
   // Récupération des projets depuis l'API backend.
@@ -40,7 +42,9 @@ export default async function HomePage() {
       </section>
 
       <ProjectsCarousel projects={projects} />
+      <MissionSection />
       <TopTreesSection trees={topTrees} />
+      <CompletedProjectsSection />
       <ImpactSection />
     </main>
   );

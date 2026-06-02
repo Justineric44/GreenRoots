@@ -1,18 +1,11 @@
 // Section de la page d'accueil dédiée aux arbres les plus vendus.
-// Elle reçoit une liste d'arbres depuis la page d'accueil et les affichera sous forme de cartes.
+// Elle affiche 3 arbres dynamiques et une carte fixe orientée entreprise.
 
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { Badge } from '@/components/ui/badge';
+import TreeCard from '@/components/home/TreeCard';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 
 type TopTreesSectionProps = {
   trees: {
@@ -30,50 +23,59 @@ export default function TopTreesSection({ trees }: TopTreesSectionProps) {
   return (
     <section className="bg-brand-bg px-4 py-16 text-brand-dark sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        {/* Titre de la section arbres */}
         <h2 className="text-center text-2xl font-bold sm:text-3xl">
           Les arbres les plus vendus
         </h2>
 
-        {/* Cartes compactes des arbres les plus vendus */}
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
-          {trees.map((tree) => (
-            <Card key={tree.id} className="bg-brand-white text-brand-dark">
-              <div className="relative h-52 w-full">
-                <Image
-                  src={tree.picture}
-                  alt={tree.commonName}
-                  fill
-                  sizes="(min-width: 768px) 33vw, 100vw"
-                  className="object-cover"
-                />
-              </div>
+        <div className="mt-10 grid justify-center gap-6 sm:grid-cols-[repeat(2,18rem)] lg:grid-cols-[repeat(4,18rem)]">
+          {trees[0] && <TreeCard tree={trees[0]} />}
+          {trees[1] && <TreeCard tree={trees[1]} />}
 
-              <CardHeader>
-                <CardTitle>{tree.commonName}</CardTitle>
-              </CardHeader>
+          {/* Carte fixe dédiée aux entreprises */}
+          <div className="relative flex h-[470px] w-72 flex-col justify-between overflow-hidden rounded-xl bg-brand-dark p-6 text-brand-white shadow-lg transition-shadow hover:shadow-xl">
+            <Image
+              src="/images/impact/impact-6.jpg"
+              alt="Forêt"
+              fill
+              className="object-cover opacity-30"
+            />
 
-              <CardContent className="space-y-3">
-                <p className="text-sm text-brand-muted">
-                  Famille : {tree.family}
-                </p>
+            <div className="relative z-10">
+              <h3 className="text-lg font-bold">
+                Plantez au nom de votre entreprise
+              </h3>
 
-                <p className="text-sm text-brand-muted">
-                  Origine : {tree.origin}
-                </p>
+              <p className="mt-6 text-sm">
+                Soutenez la reforestation et réduisez votre impact carbone.
+              </p>
 
-                <Badge className="bg-brand-accent text-brand-dark">
-                  {tree.price} €
-                </Badge>
-              </CardContent>
+              <p className="mt-6 text-sm">
+                Financez des arbres pour soutenir des projets concrets de
+                reforestation.
+              </p>
 
-              <CardFooter>
-                <Button asChild className="w-full">
-                  <Link href={`/arbres/${tree.slug}`}>Voir l&aposarbre</Link>
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
+              <p className="mt-4 text-sm">
+                Transformez votre engagement en actions.
+              </p>
+            </div>
+
+            <Button
+              asChild
+              className="relative z-10 w-full bg-brand-accent text-brand-dark hover:bg-brand-accent/90"
+            >
+              <Link href="/trees" className="!text-brand-white/80">
+                Voir tous les arbres
+              </Link>
+            </Button>
+          </div>
+
+          {trees[2] && <TreeCard tree={trees[2]} />}
+        </div>
+        <div className="mt-12 text-center">
+          <p className="mx-auto max-w-2xl text-lg text-brand-darck">
+            Chaque arbre financé contribue à restaurer des écosystèmes, soutenir
+            les communautés locales et construire un avenir plus durable.
+          </p>
         </div>
       </div>
     </section>
