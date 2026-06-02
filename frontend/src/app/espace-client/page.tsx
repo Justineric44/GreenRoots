@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import {
   CalendarDays,
   Mail,
@@ -7,43 +8,13 @@ import {
 } from 'lucide-react';
 
 import Title from '@/components/layout/Title';
+import { apiFetchPrivate } from '@/lib/api';
+import type { Order, User } from '@/types';
 
 // ============================================================
-//  Espace client — version statique (non branchée au backend).
-//  Les données ci-dessous sont des mocks et seront remplacées
-//  par des appels API quand les endpoints /api/users/me et
-//  /api/users/me/orders seront disponibles.
+//  Espace client — données récupérées via /api/users/me
+//  et /api/users/me/orders (token JWT injecté par apiFetchPrivate).
 // ============================================================
-
-const mockUser = {
-  firstName: 'Thomas',
-  lastName: 'Martin',
-  email: 'thomas.martin@email.fr',
-  type: 'particulier',
-  address: '45 avenue des Chênes',
-  postalCode: '69001',
-  city: 'Lyon',
-  phone: '0612345678',
-  companyName: null as string | null,
-  siret: null as string | null,
-};
-
-const mockOrders = [
-  {
-    id: 1042,
-    status: 'validated' as const,
-    amount: 89.5,
-    createdAt: '2026-04-12T10:00:00.000Z',
-    items: [{ id: 1 }, { id: 2 }, { id: 3 }],
-  },
-  {
-    id: 1018,
-    status: 'canceled' as const,
-    amount: 24.0,
-    createdAt: '2026-03-02T15:30:00.000Z',
-    items: [{ id: 4 }],
-  },
-];
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('fr-FR', {
@@ -53,9 +24,23 @@ function formatDate(iso: string): string {
   });
 }
 
-export default function CustomerAreaPage() {
-  const user = mockUser;
-  const orders = mockOrders;
+export default async function CustomerAreaPage() {
+  let user: User;
+  let orders: Order[];
+
+  try {
+    // Appels parallèles : profil + commandes
+    const [meRes, ordersRes] = await Promise.all([
+      apiFetchPrivate('/api/users/me'),
+      apiFetchPrivate('/api/users/me/orders'),
+    ]);
+    user = meRes.data;
+    orders = ordersRes.data;
+  } catch (err) {
+    // 401 / 403 / réseau → on renvoie vers la page de connexion
+    console.error('[espace-client] API call failed:', err);
+    redirect('/authentification');
+  }
 
   return (
     <main>
@@ -173,7 +158,7 @@ export default function CustomerAreaPage() {
                       {order.status === 'validated' ? 'Validée' : 'Annulée'}
                     </span>
                     <span className="font-semibold">
-                      {order.amount.toFixed(2)} €
+                      {Number(order.amount).toFixed(2)} €
                     </span>
                   </div>
                 </li>
