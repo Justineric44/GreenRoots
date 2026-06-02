@@ -5,8 +5,8 @@ const API_URL = 'http://localhost:3002';
 
 // Utilisateur seedé utilisé pour l'authentification.
 const TEST_USER = {
-  email: 'register.test@email.fr',
-  password: 'Password123!',
+  email: 'thomas.martin@email.fr',
+  password: 'Password123@',
 };
 
 // État partagé, rempli dans le hook `before`.
