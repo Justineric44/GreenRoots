@@ -58,8 +58,8 @@ export default function DesktopHeader({ menu }: DesktopHeaderProps) {
           </InputGroupAddon>
         </InputGroup>
 
-        {/* Connexion */}
-        <Link href="/connexion">
+        {/* Authentification */}
+        <Link href="/authentification">
           <button className="text-white hover:text-[#88B75D] p-2">
             <User size={25} />
           </button>
