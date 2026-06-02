@@ -9,8 +9,8 @@ import CompletedProjectsSection from '@/components/home/CompletedProjectsSection
 
 export default async function HomePage() {
   // Récupération des projets depuis l'API backend.
-  // La page d'accueil affiche les premiers projets disponibles.
-  const { projects } = await getProjects(1);
+  // La page d'accueil les utilise dans le carrousel des projets.
+  const { projects } = await getProjects();
   // Récupération des arbres depuis l'API backend.
   // On gardera les 3 premiers pour la section "arbres les plus vendus".
   const { trees } = await getTrees(1);

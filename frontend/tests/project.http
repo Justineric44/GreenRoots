@@ -1,7 +1,5 @@
 ### Obtenir tous les projets
-GET http://localhost:3001/api/projects?page=1
-
-###
+GET http://localhost:3001/api/projects
 
 ### Obtenir tous les arbres
 GET http://localhost:3001/api/trees?page=1
@@ -18,3 +16,4 @@ GET http://localhost:3001/projects?page=1
 
 ### test de l'api
 GET http://localhost:3001/
+
