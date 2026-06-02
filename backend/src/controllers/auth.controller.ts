@@ -21,6 +21,16 @@ export async function registerUser(req: Request, res: Response) {
     throw new ConflictError('User already exists');
   }
 
+  if (data.siret) {
+    const existingSiret = await prisma.user.findUnique({
+      where: { siret: data.siret },
+    });
+
+    if (existingSiret) {
+      throw new ConflictError('SIRET already exists');
+    }
+  }
+
   // Hashage du mot de passe
   const hashedPassword = await argon2.hash(data.password);
 
@@ -123,16 +133,5 @@ export async function loginUser(req: Request, res: Response) {
 }
 
 export async function logoutUser(_req: Request, res: Response) {
-  // Comme nous utilisons des tokens JWT, il n’y a pas de session à détruire côté serveur.
-  // Le frontend doit simplement supprimer le token stocké (ex: localStorage).
-  // COOKIE HTTP ONLY
   return res.status(200).json({ message: 'Logout successful' });
-}
-
-//route temporaire pour tester le middleware d'authentification et récupérer les infos
-// de l'utilisateur connecté
-export async function getCurrentUser(req: Request, res: Response) {
-  return res.status(200).json({
-    user: req.user,
-  });
 }
