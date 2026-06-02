@@ -24,7 +24,7 @@ export default function MobileHeader({ onOpen }: MobileHeaderProps) {
       </Link>
 
       <div className="flex items-center gap-2">
-        <Link href="/connexion">
+        <Link href="/authentification">
           <button className="text-white hover:text-[#88B75D] p-2">
             <User size={25} />
           </button>
