@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { router as authRouter } from './auth.router.js';
 import { router as projectRouter } from './project.router.js';
-import { userRouter as userRoutes } from './user.routes.js';
+import { router as userRouter } from './user.router.js';
 import { router as treesRouter } from './trees.router.js';
 
 export const router = Router();
@@ -11,6 +11,6 @@ router.use('/auth', authRouter);
 router.use('/projects', projectRouter);
 
 // Compte utilisateur connecté : profil
-router.use('/users', userRoutes);
+router.use('/users', userRouter);
 
 router.use('/trees', treesRouter);

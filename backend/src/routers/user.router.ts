@@ -2,18 +2,18 @@ import { Router } from 'express';
 import { userController } from '../controllers/user.controller.js';
 import { authenticateToken } from '../middlewares/auth.middleware.js';
 
-export const userRouter = Router();
+export const router = Router();
 
 // Toutes les routes /users/me nécessitent un JWT valide.
-userRouter.use(authenticateToken);
+router.use(authenticateToken);
 // GET    /api/users/me              -> profil
 // PUT    /api/users/me              -> mise à jour partielle
 // DELETE /api/users/me              -> suppression du compte (RGPD)
-userRouter.get('/me', userController.me);
-userRouter.put('/me', userController.update);
-userRouter.delete('/me', userController.remove);
+router.get('/me', userController.me);
+router.put('/me', userController.update);
+router.delete('/me', userController.remove);
 
 // GET    /api/users/me/orders       -> liste des commandes
 // GET    /api/users/me/orders/:id   -> détail d'une commande
-userRouter.get('/me/orders', userController.listOrders);
-userRouter.get('/me/orders/:id', userController.getOrder);
+router.get('/me/orders', userController.listOrders);
+router.get('/me/orders/:id', userController.getOrder);
