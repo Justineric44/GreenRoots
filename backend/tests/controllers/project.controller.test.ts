@@ -4,8 +4,19 @@ import { describe, it } from 'node:test';
 const API_URL = 'http://localhost:3002';
 
 describe('[GET] /api/projects', () => {
-  it('should return first page of projects', async () => {
+  it('should return all projects without pagination', async () => {
     const response = await fetch(`${API_URL}/api/projects`);
+    const body = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.ok(Array.isArray(body.projects));
+    assert.ok(body.projects.length > 0);
+    // Pas de total ni limit dans ce cas
+    assert.equal(body.total, undefined);
+    assert.equal(body.limit, undefined);
+  });
+  it('should return first page of projects', async () => {
+    const response = await fetch(`${API_URL}/api/projects?page=1`);
     const body = await response.json();
 
     assert.equal(response.status, 200);

@@ -3,6 +3,9 @@
 GET http://localhost:3002/api/projects?page=1
 Accept: application/json
 
+### Obtenir tous les projets sans pagination
+GET http://localhost:3002/api/projects
+
 ### Obtenir un projet par slug
 GET http://localhost:3002/api/projects/reforestation-bretagne
 Accept: application/json
