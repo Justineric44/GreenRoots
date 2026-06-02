@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import DesktopHeader from './DesktopHeader';
 import MobileHeader from './MobileHeader';
+import MobileSearch from './MobileSearch';
 import Link from 'next/link';
-import { Search } from 'lucide-react';
 
 const MENU = [
   { label: 'Arbres', href: '/arbres' },
@@ -27,14 +27,7 @@ export default function Header() {
           }`}
         >
           <div className="border-t border-white/10 px-4 py-4 text-white">
-            <div className="mb-4 flex items-center gap-2 rounded-full border border-white/20 px-4 py-3">
-              <Search size={18} className="text-white/70" />
-              <input
-                type="text"
-                placeholder="Rechercher..."
-                className="w-full bg-transparent outline-none placeholder:text-white/60"
-              />
-            </div>
+            <MobileSearch />
 
             <nav className="flex flex-col gap-3">
               {MENU.map((item) => (
