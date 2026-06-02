@@ -140,10 +140,43 @@ export async function getOneTree(slug: string) {
 // ORDER
 // - POST   /api/orders                  → passer commande
 //
-// CART
-// - GET    /api/carts                   → voir le panier actif
-// - POST   /api/carts/items             → ajouter un arbre au panier
-// - PATCH  /api/carts/items/:id         → modifier la quantité d'un arbre
-// - DELETE /api/carts/items/:id         → supprimer un arbre du panier
-// - ??? DELETE /api/carts               → supprimer le panier
 // ================================================================
+
+export async function getCart() {
+  return apiFetchPrivate(`/api/carts`);
+}
+
+export async function addToCart(
+  treeId: number,
+  projectId: number,
+  quantity: number
+) {
+  return apiFetchPrivate(`/api/carts/items`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ treeId, projectId, quantity }),
+  });
+}
+
+export async function changeCartItemQuantity(
+  cartItemId: number,
+  quantity: number
+) {
+  return apiFetchPrivate(`/api/carts/items/${cartItemId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ quantity }),
+  });
+}
+
+export async function deleteCartItem(cartItemId: number) {
+  return apiFetchPrivate(`/api/carts/items/${cartItemId}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function clearCart() {
+  return apiFetchPrivate(`/api/carts`, {
+    method: 'DELETE',
+  });
+}
