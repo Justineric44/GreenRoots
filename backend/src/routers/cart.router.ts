@@ -4,5 +4,10 @@ import * as cartController from '../controllers/cart.controller.js';
 
 export const router = Router();
 
-router.get('/', authenticateToken, cartController.getActiveCart);
-router.post('/items', authenticateToken, cartController.addItemToCart);
+router.use(authenticateToken);
+
+router.get('/', cartController.getActiveCart);
+router.post('/items', cartController.addItemToCart);
+router.patch('/items/:id', cartController.changeItemQuantity);
+router.delete('/items/:id', cartController.deleteItemFromCart);
+router.delete('/', cartController.deleteAllItemsFromCart);
