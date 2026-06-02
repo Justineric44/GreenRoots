@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import { NotFoundError, ValidationError } from '../lib/errors.js';
 import { prisma } from '../lib/prisma.js';
 import { getOrCreateActiveCart } from '../lib/cartUtils.js';
+import { addCartItemsSchema } from '../validators/cart.validator.js';
 
 export async function getActiveCart(req: Request, res: Response) {
   // Récupère l'utilisateur courant depuis le token de session
@@ -45,21 +46,20 @@ export async function getActiveCart(req: Request, res: Response) {
     0
   );
 
-  res.json({ cartWithItems, cartTotal });
+  return res.status(200).json({ cartWithItems, cartTotal });
 }
 
-export async function addItemToCart(req: Request) {
+export async function addItemToCart(req: Request, res: Response) {
   // Récupère l'utilisateur courant depuis le token de session
   const userId = Number(req.user?.userId);
 
-  // Récupère les infos envoyés depuis le front
-  const { treeId, projectId, quantity } = req.body;
+  // Récupère les infos envoyés depuis le front + validation zod
+  const { treeId, projectId, quantity } = addCartItemsSchema.parse(req.body);
 
-  // Crée un panier actif si besoin ou récupère celui existant
+  // Récupère (ou crée) le panier actif de l'utilisateur
   const cart = await getOrCreateActiveCart(userId);
-  console.log(cart);
 
-  // Vérifie si l'arbre existe dans le projet
+  // Vérifie que l'arbre est bien lié au projet demandé
   const treeAndProject = await prisma.projectHasTree.findUnique({
     where: {
       projectId_treeId: { projectId, treeId },
@@ -69,11 +69,43 @@ export async function addItemToCart(req: Request) {
     throw new NotFoundError('Arbre ou projet introuvable');
   }
 
-  // Vérifie le stock de cet arbre pour ce projet
+  // Cherche si l'article est déjà présent dans le panier
+  const cartItem = await prisma.cartItem.findUnique({
+    where: {
+      cartId_treeId_projectId: { cartId: cart.id, treeId, projectId },
+    },
+  });
+  // Récupère le stock pour cet arbre
   const stock = treeAndProject.stock;
-  if (quantity > stock) {
-    throw new ValidationError('Quantité non disponible');
+  if (cartItem) {
+    // L'article existe :
+    // Vérifie la quantité disponible en stock
+    if (cartItem.quantity + quantity > stock) {
+      throw new ValidationError('Quantité non disponible');
+    }
+    // on incrémente la quantité
+    const updatedCartItem = await prisma.cartItem.update({
+      where: {
+        id: cartItem.id,
+      },
+      data: { quantity: quantity + cartItem.quantity },
+    });
+    return res.status(200).json({ updatedCartItem });
+  } else {
+    // L'article n'existe pas :
+    // Vérifie la quantité disponible en stock
+    if (quantity > stock) {
+      throw new ValidationError('Quantité non disponible');
+    }
+    // on crée une nouvelle ligne
+    const newCartItem = await prisma.cartItem.create({
+      data: {
+        treeId,
+        projectId,
+        quantity,
+        cartId: cart.id,
+      },
+    });
+    return res.status(201).json({ newCartItem });
   }
-
-  // Vérifie si l'arbre est déjà dans le panier
 }
