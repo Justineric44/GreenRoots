@@ -82,6 +82,10 @@ export async function loginUser(req: Request, res: Response) {
     throw new UnauthorizedError('Invalid email or password');
   }
 
+  if (user.deletedAt !== null) {
+    throw new UnauthorizedError('Invalid email or password');
+  }
+
   const isPasswordValid = await argon2.verify(user.password, password);
 
   if (!isPasswordValid) {
