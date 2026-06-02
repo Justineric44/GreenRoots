@@ -1,12 +1,9 @@
 'use client';
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from '@/components/ui/input-group';
-import { Search, ShoppingCart, User } from 'lucide-react';
+
+import { ShoppingCart, User } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import DesktopSearch from './DesktopSearch';
 
 interface DesktopHeaderProps {
   menu: { label: string; href: string }[];
@@ -47,16 +44,8 @@ export default function DesktopHeader({ menu }: DesktopHeaderProps) {
           ))}
         </ul>
 
-        {/* Recherche */}
-        <InputGroup className="w-48">
-          <InputGroupInput
-            placeholder="Rechercher..."
-            className="border-white/30 text-white placeholder:text-white/60"
-          />
-          <InputGroupAddon>
-            <Search className="w-5 h-5 text-white" />
-          </InputGroupAddon>
-        </InputGroup>
+        {/* Recherche avec dropdown */}
+        <DesktopSearch />
 
         {/* Authentification */}
         <Link href="/authentification">
