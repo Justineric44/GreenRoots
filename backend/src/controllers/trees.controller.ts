@@ -75,7 +75,16 @@ export async function getAllTrees(req: Request, res: Response) {
 export async function getOneTree(req: Request, res: Response) {
   const slug = req.params.slug as string;
 
-  const tree = await prisma.tree.findUnique({ where: { slug } });
+  const tree = await prisma.tree.findUnique({
+    where: { slug },
+    include: {
+      projects: {
+        include: {
+          project: true,
+        },
+      },
+    },
+  });
 
   if (!tree) throw new NotFoundError('Tree not found');
 
