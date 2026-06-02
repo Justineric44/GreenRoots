@@ -60,7 +60,10 @@ export async function apiFetchPrivate(endpoint: string, options?: RequestInit) {
  * @param currentPage - Numéro de la page
  * @returns Liste des projets de la page demandée
  */
-export async function getProjects(currentPage: number) {
+export async function getProjects(currentPage?: number) {
+  if (!currentPage) {
+    return apiFetch(`/api/projects`);
+  }
   return apiFetch(`/api/projects?page=${currentPage}`);
 }
 
