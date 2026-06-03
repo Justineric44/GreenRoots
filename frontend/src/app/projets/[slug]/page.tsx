@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers';
+import type { Tree } from '@/types/index';
 import Title from '@/components/layout/Title';
 import { getOneProject, getProjectTrees } from '@/lib/api';
 import TreesCarousel from '@/components/layout/TreesCarousel';
@@ -21,9 +22,9 @@ type ApiProjectTree = {
   stock: number;
 };
 
-type ProjectTree = Omit<ApiProjectTree, 'price'> & {
+type ProjectTree = Tree & {
   // On convertit le prix en nombre pour l’utiliser plus simplement dans l’interface.
-  price: number;
+  stock: number;
 };
 
 export default async function ProjectDetailsPage({
