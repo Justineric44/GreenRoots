@@ -36,17 +36,29 @@ export function authenticateToken(
   // Authorization: Bearer <token>
   const authHeader = req.headers.authorization;
 
-  if (!authHeader) {
+  // Récupération éventuelle du token depuis les cookies.
+  // Utile pour le futur back-office EJS, où le navigateur
+  // enverra automatiquement les cookies à chaque requête.
+  const cookieToken = req.cookies?.token;
+
+  if (!authHeader && !cookieToken) {
     throw new UnauthorizedError('Authorization header is missing');
   }
 
-  // Découpe le header en deux parties :
-  // ["Bearer", "<token>"]
-  const [type, token] = authHeader.split(' ');
+  let token = cookieToken;
 
-  // Vérifie le format du header.
-  if (type !== 'Bearer' || !token) {
-    throw new UnauthorizedError('Invalid authorization header format');
+  // Si un header Authorization est présent,
+  // il reste prioritaire sur le cookie.
+  if (authHeader) {
+    // Découpe le header en deux parties :
+    // ["Bearer", "<token>"]
+    const [type, headerToken] = authHeader.split(' ');
+
+    // Vérifie le format du header.
+    if (type !== 'Bearer' || !headerToken) {
+      throw new UnauthorizedError('Invalid authorization header format');
+    }
+    token = headerToken;
   }
 
   // Vérifie et décode le token JWT.
