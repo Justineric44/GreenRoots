@@ -27,7 +27,7 @@ export async function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// Configuration du middleware : appliqué seulement à /espace-client et ses sous-routes
+// Configuration du middleware : appliqué seulement aux routes privées
 export const config = {
-  matcher: ['/espace-client/:path*'],
+  matcher: ['/espace-client/:path*', '/panier/:path*'],
 };

@@ -1,6 +1,5 @@
 import { apiFetch } from '@/lib/api';
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 
 // ================================================================
 // ROUTE API : DÉCONNEXION DE L'UTILISATEUR
@@ -15,7 +14,7 @@ import { cookies } from 'next/headers';
  */
 export const POST = async () => {
   try {
-    // Appel interne vers l'API backend de logout pour prévenir le backend de la deconnexion.
+    // Appel interne vers l'API backend de logout pour prévenir le backend de la déconnexion.
     // À terme, cette route pourra être utilisée pour blacklister le token JWT côté serveur.
     await apiFetch(`/api/auth/logout`, {
       method: 'POST',
@@ -32,12 +31,12 @@ export const POST = async () => {
     );
   }
 
-  const cookieStore = await cookies();
-
-  // Supprime le cookie de token côté client dans tous les cas (même en cas d'erreur backend).
+  // Supprime le cookie directement sur la réponse HTTP dans tous les cas (même en cas d'erreur backend).
   // Cela garantit une déconnexion locale même si le backend rencontre un problème.
-  cookieStore.delete('token');
-
-  // Retourne une réponse JSON indiquant que la déconnexion a réussi.
-  return NextResponse.json({ message: 'Logout successful' }, { status: 200 });
+  const response = NextResponse.json(
+    { message: 'Logout successful' },
+    { status: 200 }
+  );
+  response.cookies.delete('token');
+  return response;
 };

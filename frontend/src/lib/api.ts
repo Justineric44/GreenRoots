@@ -1,4 +1,6 @@
 import { cookies } from 'next/headers';
+import { ApiError } from './errors';
+import { Cart } from '@/types';
 
 // ================================================================
 // MODULE DE CENTRALISATION DES APPELS API
@@ -21,9 +23,33 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
  */
 export async function apiFetch(endpoint: string, options?: RequestInit) {
   const response = await fetch(`${API_URL}${endpoint}`, options);
+
+  // Si le backend renvoie un code d'erreur HTTP (>= 400), on traite la réponse
   if (!response.ok) {
-    throw new Error(`Erreur API: ${response.status} ${endpoint}`);
+    let errorBody;
+
+    // On essaye de parser le corps de la réponse en JSON pour récupérer
+    // un message d'erreur structuré envoyé par l'API.
+    try {
+      errorBody = await response.json();
+    } catch {
+      // Si la réponse n'est pas du JSON valide, on logge quand même le statut.
+      console.error(
+        `Réponse non-JSON pour ${endpoint} (status ${response.status})`
+      );
+    }
+
+    // On privilégie le message d'erreur détaillé renvoyé par l'API,
+    // sinon on construit un message générique avec le statut HTTP.
+    const message =
+      errorBody?.error?.message ?? `Erreur API: ${response.status}`;
+
+    // On lance une erreur structurée pour que l'appelant puisse l'intercepter
+    // et afficher un message clair à l'utilisateur.
+    throw new ApiError(message, response.status, errorBody?.error?.code);
   }
+
+  // Si tout est OK, on retourne simplement le JSON de la réponse.
   return response.json();
 }
 
@@ -140,10 +166,46 @@ export async function getOneTree(slug: string) {
 // ORDER
 // - POST   /api/orders                  → passer commande
 //
-// CART
-// - GET    /api/carts                   → voir le panier actif
-// - POST   /api/carts/items             → ajouter un arbre au panier
-// - PATCH  /api/carts/items/:id         → modifier la quantité d'un arbre
-// - DELETE /api/carts/items/:id         → supprimer un arbre du panier
-// - ??? DELETE /api/carts               → supprimer le panier
 // ================================================================
+
+export async function getCart(): Promise<{
+  data: Cart;
+  meta: { total: number };
+}> {
+  return apiFetchPrivate(`/api/carts`);
+}
+
+export async function addToCart(
+  treeId: number,
+  projectId: number,
+  quantity: number
+) {
+  return apiFetchPrivate(`/api/carts/items`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ treeId, projectId, quantity }),
+  });
+}
+
+export async function changeCartItemQuantity(
+  cartItemId: number,
+  quantity: number
+) {
+  return apiFetchPrivate(`/api/carts/items/${cartItemId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ quantity }),
+  });
+}
+
+export async function deleteCartItem(cartItemId: number) {
+  return apiFetchPrivate(`/api/carts/items/${cartItemId}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function clearCart() {
+  return apiFetchPrivate(`/api/carts`, {
+    method: 'DELETE',
+  });
+}

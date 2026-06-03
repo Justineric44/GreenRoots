@@ -1,6 +1,6 @@
 ### Test du controller Cart
 @baseUrl = http://localhost:3002/api
-@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjUsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzgwMzkyMzA0LCJleHAiOjE3ODA0Nzg3MDR9.hW9977LfKhBpn2o2jbsNS-4Qkj2SOkffdU2Q742SvJw
+@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzgwNDgyMzI4LCJleHAiOjE3ODA1Njg3Mjh9.H23l9f3-l2rRJS0xtuwyloqcfjjjIePCmw2q5XRUUyc
 
 
 ### Login - récupère le token
@@ -9,8 +9,8 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "email": "register.test@email.fr",
-  "password": "Password123!"
+  "email": "thomas.martin@email.fr",
+  "password": "Password123@"
 }
 
 
