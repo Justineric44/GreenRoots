@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { clearCartAction } from '@/app/panier/actions';
+import { clearCartAction } from '@/lib/actions/cart';
 import { Button } from '../ui/button';
 
 export default function CartEmpty() {
