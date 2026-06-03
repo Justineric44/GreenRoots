@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { addToCartAction } from '@/lib/actions/cart';
 
 type ProjectTree = {
   id: number;
@@ -53,21 +54,17 @@ export default function ProjectTreePurchase({
       return;
     }
 
-    const response = await fetch('/api/cart/items', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        treeId: selectedTree.id,
-        projectId,
-        quantity,
-      }),
-    });
+    // Appelle l'action serveur pour ajouter l'arbre sélectionné au panier
+    const response = await addToCartAction(
+      selectedTree.id,
+      projectId,
+      quantity
+    );
 
     if (!response.ok) {
-      setMessage("Impossible d'ajouter cet arbre au panier.");
+      setMessage(response.message);
       return;
     }
-
     setMessage('Arbre ajouté au panier.');
   }
 
@@ -95,7 +92,7 @@ export default function ProjectTreePurchase({
         >
           {trees.map((tree) => (
             <option key={tree.id} value={tree.id}>
-              {tree.commonName} — {tree.price.toFixed(2)} €
+              {tree.commonName} — {Number(tree.price).toFixed(2)} €
             </option>
           ))}
         </select>
@@ -105,7 +102,7 @@ export default function ProjectTreePurchase({
       {selectedTree && (
         <>
           <p className="text-3xl font-bold">
-            {selectedTree.price.toFixed(2)} €
+            {Number(selectedTree.price).toFixed(2)} €
             <span className="text-base font-normal text-muted-foreground">
               {' '}
               / arbre
@@ -184,6 +181,8 @@ export default function ProjectTreePurchase({
           panier.
         </p>
       )}
+      {/* Message de retour utilisateur affiché après la tentative d’ajout au panier. */}
+      {message && <p className="text-sm">{message}</p>}
 
       {/* Lien vers la fiche détaillée de l’arbre sélectionné. */}
       {selectedTree && (
@@ -194,9 +193,6 @@ export default function ProjectTreePurchase({
           Voir la fiche complète →
         </a>
       )}
-
-      {/* Message de retour utilisateur affiché après la tentative d’ajout au panier. */}
-      {message && <p className="text-sm">{message}</p>}
     </div>
   );
 }

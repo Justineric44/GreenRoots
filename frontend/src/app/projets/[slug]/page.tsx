@@ -102,11 +102,6 @@ export default async function ProjectDetailsPage({
                 </p>
               </div>
 
-              <p className="text-sm text-muted-foreground">
-                Description : <br />
-                {longDescription}
-              </p>
-
               {/* Barre de progression du projet : elle montre le taux de financement atteint. */}
               <div className="max-w-4xl">
                 <p className="mb-3 text-lg font-bold">{progress}% financé</p>
@@ -153,6 +148,12 @@ export default async function ProjectDetailsPage({
                 isLoggedIn={isLoggedIn}
               />
             </div>
+          </div>
+          {/* DESCRIPTION */}
+          <div className="mt-12 bg-brand-bg text-brand-dark rounded-2xl p-8">
+            <h3 className="text-lg font-bold mb-4">Description</h3>
+
+            <p className="text-sm text-muted-foreground">{longDescription}</p>
           </div>
         </div>
       </section>

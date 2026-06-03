@@ -1,6 +1,6 @@
 'use client';
 
-import { deleteItemAction } from '@/app/panier/actions';
+import { deleteItemAction } from '@/lib/actions/cart';
 import { Trash } from 'lucide-react';
 
 export default function CartDeleteItem({ cartItemId }: { cartItemId: number }) {
