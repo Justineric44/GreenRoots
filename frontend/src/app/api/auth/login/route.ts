@@ -47,7 +47,7 @@ export const POST = async (request: Request) => {
       path: '/', // Disponible sur tout le site
       secure: process.env.NODE_ENV === 'production', // HTTPS only en production
       sameSite: 'strict', // Protection CSRF
-      maxAge: 60 * 60 * 24 * 7, // Valable 7 jours
+      maxAge: 60 * 60 * 24, // Valable 1 jour
     });
 
     // Retourne une réponse JSON indiquant le succès de l'authentification.
