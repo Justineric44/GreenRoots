@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 
 import { errorHandler } from './middlewares/errorHandler.js';
 import { router } from './routers/index.router.js';
-import searchRouter from './routers/searchRouter.js';
+import searchRouter from './routers/search.router.js';
 import { adminRouter } from './routers/admin.router.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
