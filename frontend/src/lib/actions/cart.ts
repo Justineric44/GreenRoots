@@ -1,6 +1,11 @@
 'use server';
 
-import { changeCartItemQuantity, clearCart, deleteCartItem } from '@/lib/api';
+import {
+  addToCart,
+  changeCartItemQuantity,
+  clearCart,
+  deleteCartItem,
+} from '@/lib/api';
 import { ApiError } from '@/lib/errors';
 import { revalidatePath } from 'next/cache';
 
@@ -41,6 +46,23 @@ export async function deleteItemAction(
 ): Promise<ActionResult> {
   try {
     await deleteCartItem(cartItemId);
+    revalidatePath('/panier');
+    return { ok: true };
+  } catch (error) {
+    if (error instanceof ApiError) {
+      return { ok: false, message: error.message };
+    }
+    return { ok: false, message: 'Une erreur est survenue' };
+  }
+}
+
+export async function addToCartAction(
+  treeId: number,
+  projectId: number,
+  quantity: number
+): Promise<ActionResult> {
+  try {
+    await addToCart(treeId, projectId, quantity);
     revalidatePath('/panier');
     return { ok: true };
   } catch (error) {
