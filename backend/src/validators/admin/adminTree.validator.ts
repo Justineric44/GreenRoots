@@ -20,7 +20,7 @@ export const createTreeSchema = z.object({
   longDescription: z.string().optional(),
   origin: z.string().optional(),
   price: z.coerce.number().positive('Le prix doit être supérieur à 0'),
-  picture: z.string().url("L'URL de l'image est invalide"),
+  picture: z.string().min(1, "L'URL de l'image est requise"),
 });
 
 export const updateTreeSchema = createTreeSchema.partial();
