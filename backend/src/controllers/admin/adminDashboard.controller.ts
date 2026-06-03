@@ -1,59 +1,29 @@
 // ============================================================
-// src/controllers/admin/adminDashboard.controller.ts
-// Contrôleur principal du dashboard admin
+//  src/controllers/admin/adminDashboard.controller.ts
+//  Contrôleur principal du dashboard admin
 //
-// Fonctions :
-// - getDashboard
-// - postCreateProject
-// - postUpdateProject
-// - postDeleteProject
-// - postCreateTree
-// - postUpdateTree
-// - postDeleteTree
-// - postDeleteUser
+//  Fonctions :
+//  - getDashboard      : charge toutes les données en une fois
+//  - postCreateProject : crée un projet
+//  - postUpdateProject : modifie un projet
+//  - postDeleteProject : supprime un projet
+//  - postCreateTree    : crée un arbre
+//  - postUpdateTree    : modifie un arbre
+//  - postDeleteTree    : supprime un arbre
+//  - postDeleteUser    : supprime un utilisateur
 // ============================================================
 
 import type { Request, Response } from 'express';
-import type { ZodError } from 'zod';
-
 import { prisma } from '../../lib/prisma.js';
-
 import {
   createProjectSchema,
   updateProjectSchema,
-} from '../../validators/admin/adminproject.validator.js';
-
+} from '../../validators/admin/adminProject.validator.js';
 import {
   createTreeSchema,
   updateTreeSchema,
-} from '../../validators/admin/admintree.validator.js';
-
-import { deleteUserSchema } from '../../validators/admin/adminuser.validator.js';
-
-// ============================================================
-// Helpers
-// ============================================================
-
-function redirectValidationError(
-  res: Response,
-  section: string,
-  error: ZodError
-): void {
-  const message = encodeURIComponent(
-    error.issues[0]?.message ?? 'Données invalides'
-  );
-
-  res.redirect(`/admin/dashboard?section=${section}&error=${message}`);
-}
-
-function hasPrismaCode(error: unknown, code: string): boolean {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'code' in error &&
-    (error as { code: string }).code === code
-  );
-}
+} from '../../validators/admin/adminTree.validator.js';
+import { deleteUserSchema } from '../../validators/admin/adminUser.validator.js';
 
 // ============================================================
 // GET /admin/dashboard
@@ -61,23 +31,16 @@ function hasPrismaCode(error: unknown, code: string): boolean {
 
 export async function getDashboard(req: Request, res: Response): Promise<void> {
   try {
+    // Charge toutes les données en parallèle
     const [projects, trees, orders, users] = await Promise.all([
       prisma.project.findMany({
-        orderBy: {
-          createdAt: 'desc',
-        },
+        orderBy: { name: 'asc' },
       }),
-
       prisma.tree.findMany({
-        orderBy: {
-          createdAt: 'desc',
-        },
+        orderBy: { commonName: 'asc' },
       }),
-
       prisma.order.findMany({
-        orderBy: {
-          createdAt: 'desc',
-        },
+        orderBy: { createdAt: 'desc' },
         include: {
           user: {
             select: {
@@ -89,11 +52,8 @@ export async function getDashboard(req: Request, res: Response): Promise<void> {
           items: true,
         },
       }),
-
       prisma.user.findMany({
-        orderBy: {
-          createdAt: 'desc',
-        },
+        orderBy: { lastName: 'asc' },
         select: {
           id: true,
           firstName: true,
@@ -115,7 +75,6 @@ export async function getDashboard(req: Request, res: Response): Promise<void> {
     });
   } catch (error) {
     console.error('[adminDashboard] getDashboard error:', error);
-
     res.redirect(
       '/admin/dashboard?error=Erreur+lors+du+chargement+des+donn%C3%A9es'
     );
@@ -123,8 +82,7 @@ export async function getDashboard(req: Request, res: Response): Promise<void> {
 }
 
 // ============================================================
-// POST /admin/projects
-// Créer un projet
+// POST /admin/projects — Créer un projet
 // ============================================================
 
 export async function postCreateProject(
@@ -134,28 +92,30 @@ export async function postCreateProject(
   const result = createProjectSchema.safeParse(req.body);
 
   if (!result.success) {
-    redirectValidationError(res, 'projects', result.error);
+    const message = encodeURIComponent(result.error.errors[0].message);
+    res.redirect(`/admin/dashboard?section=projects&error=${message}`);
     return;
   }
 
   try {
-    await prisma.project.create({
-      data: result.data,
-    });
-
+    await prisma.project.create({ data: result.data });
     res.redirect(
       '/admin/dashboard?section=projects&success=Projet+cr%C3%A9%C3%A9+avec+succ%C3%A8s'
     );
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[adminDashboard] postCreateProject error:', error);
-
-    if (hasPrismaCode(error, 'P2002')) {
+    // Gestion du slug dupliqué (contrainte unique Prisma)
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      (error as { code: string }).code === 'P2002'
+    ) {
       res.redirect(
         '/admin/dashboard?section=projects&error=Ce+slug+existe+d%C3%A9j%C3%A0'
       );
       return;
     }
-
     res.redirect(
       '/admin/dashboard?section=projects&error=Erreur+lors+de+la+cr%C3%A9ation'
     );
@@ -163,8 +123,7 @@ export async function postCreateProject(
 }
 
 // ============================================================
-// POST /admin/projects/:id
-// Modifier un projet
+// POST /admin/projects/:id — Modifier un projet
 // ============================================================
 
 export async function postUpdateProject(
@@ -173,7 +132,7 @@ export async function postUpdateProject(
 ): Promise<void> {
   const id = Number(req.params.id);
 
-  if (Number.isNaN(id)) {
+  if (isNaN(id)) {
     res.redirect(
       '/admin/dashboard?section=projects&error=Identifiant+invalide'
     );
@@ -183,7 +142,8 @@ export async function postUpdateProject(
   const result = updateProjectSchema.safeParse(req.body);
 
   if (!result.success) {
-    redirectValidationError(res, 'projects', result.error);
+    const message = encodeURIComponent(result.error.errors[0].message);
+    res.redirect(`/admin/dashboard?section=projects&error=${message}`);
     return;
   }
 
@@ -192,27 +152,22 @@ export async function postUpdateProject(
       where: { id },
       data: result.data,
     });
-
     res.redirect(
       '/admin/dashboard?section=projects&success=Projet+mis+%C3%A0+jour'
     );
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[adminDashboard] postUpdateProject error:', error);
-
-    if (hasPrismaCode(error, 'P2025')) {
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      (error as { code: string }).code === 'P2025'
+    ) {
       res.redirect(
         '/admin/dashboard?section=projects&error=Projet+introuvable'
       );
       return;
     }
-
-    if (hasPrismaCode(error, 'P2002')) {
-      res.redirect(
-        '/admin/dashboard?section=projects&error=Ce+slug+existe+d%C3%A9j%C3%A0'
-      );
-      return;
-    }
-
     res.redirect(
       '/admin/dashboard?section=projects&error=Erreur+lors+de+la+mise+%C3%A0+jour'
     );
@@ -220,8 +175,7 @@ export async function postUpdateProject(
 }
 
 // ============================================================
-// POST /admin/projects/:id/delete
-// Supprimer un projet
+// POST /admin/projects/:id/delete — Supprimer un projet
 // ============================================================
 
 export async function postDeleteProject(
@@ -230,7 +184,7 @@ export async function postDeleteProject(
 ): Promise<void> {
   const id = Number(req.params.id);
 
-  if (Number.isNaN(id)) {
+  if (isNaN(id)) {
     res.redirect(
       '/admin/dashboard?section=projects&error=Identifiant+invalide'
     );
@@ -238,23 +192,23 @@ export async function postDeleteProject(
   }
 
   try {
-    await prisma.project.delete({
-      where: { id },
-    });
-
+    await prisma.project.delete({ where: { id } });
     res.redirect(
       '/admin/dashboard?section=projects&success=Projet+supprim%C3%A9'
     );
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[adminDashboard] postDeleteProject error:', error);
-
-    if (hasPrismaCode(error, 'P2025')) {
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      (error as { code: string }).code === 'P2025'
+    ) {
       res.redirect(
         '/admin/dashboard?section=projects&error=Projet+introuvable'
       );
       return;
     }
-
     res.redirect(
       '/admin/dashboard?section=projects&error=Erreur+lors+de+la+suppression'
     );
@@ -262,8 +216,7 @@ export async function postDeleteProject(
 }
 
 // ============================================================
-// POST /admin/trees
-// Créer un arbre
+// POST /admin/trees — Créer un arbre
 // ============================================================
 
 export async function postCreateTree(
@@ -273,28 +226,29 @@ export async function postCreateTree(
   const result = createTreeSchema.safeParse(req.body);
 
   if (!result.success) {
-    redirectValidationError(res, 'trees', result.error);
+    const message = encodeURIComponent(result.error.errors[0].message);
+    res.redirect(`/admin/dashboard?section=trees&error=${message}`);
     return;
   }
 
   try {
-    await prisma.tree.create({
-      data: result.data,
-    });
-
+    await prisma.tree.create({ data: result.data });
     res.redirect(
       '/admin/dashboard?section=trees&success=Arbre+cr%C3%A9%C3%A9+avec+succ%C3%A8s'
     );
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[adminDashboard] postCreateTree error:', error);
-
-    if (hasPrismaCode(error, 'P2002')) {
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      (error as { code: string }).code === 'P2002'
+    ) {
       res.redirect(
         '/admin/dashboard?section=trees&error=Ce+slug+existe+d%C3%A9j%C3%A0'
       );
       return;
     }
-
     res.redirect(
       '/admin/dashboard?section=trees&error=Erreur+lors+de+la+cr%C3%A9ation'
     );
@@ -302,8 +256,7 @@ export async function postCreateTree(
 }
 
 // ============================================================
-// POST /admin/trees/:id
-// Modifier un arbre
+// POST /admin/trees/:id — Modifier un arbre
 // ============================================================
 
 export async function postUpdateTree(
@@ -312,7 +265,7 @@ export async function postUpdateTree(
 ): Promise<void> {
   const id = Number(req.params.id);
 
-  if (Number.isNaN(id)) {
+  if (isNaN(id)) {
     res.redirect('/admin/dashboard?section=trees&error=Identifiant+invalide');
     return;
   }
@@ -320,7 +273,8 @@ export async function postUpdateTree(
   const result = updateTreeSchema.safeParse(req.body);
 
   if (!result.success) {
-    redirectValidationError(res, 'trees', result.error);
+    const message = encodeURIComponent(result.error.errors[0].message);
+    res.redirect(`/admin/dashboard?section=trees&error=${message}`);
     return;
   }
 
@@ -329,25 +283,20 @@ export async function postUpdateTree(
       where: { id },
       data: result.data,
     });
-
     res.redirect(
       '/admin/dashboard?section=trees&success=Arbre+mis+%C3%A0+jour'
     );
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[adminDashboard] postUpdateTree error:', error);
-
-    if (hasPrismaCode(error, 'P2025')) {
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      (error as { code: string }).code === 'P2025'
+    ) {
       res.redirect('/admin/dashboard?section=trees&error=Arbre+introuvable');
       return;
     }
-
-    if (hasPrismaCode(error, 'P2002')) {
-      res.redirect(
-        '/admin/dashboard?section=trees&error=Ce+slug+existe+d%C3%A9j%C3%A0'
-      );
-      return;
-    }
-
     res.redirect(
       '/admin/dashboard?section=trees&error=Erreur+lors+de+la+mise+%C3%A0+jour'
     );
@@ -355,8 +304,7 @@ export async function postUpdateTree(
 }
 
 // ============================================================
-// POST /admin/trees/:id/delete
-// Supprimer un arbre
+// POST /admin/trees/:id/delete — Supprimer un arbre
 // ============================================================
 
 export async function postDeleteTree(
@@ -365,32 +313,27 @@ export async function postDeleteTree(
 ): Promise<void> {
   const id = Number(req.params.id);
 
-  if (Number.isNaN(id)) {
+  if (isNaN(id)) {
     res.redirect('/admin/dashboard?section=trees&error=Identifiant+invalide');
     return;
   }
 
   try {
-    await prisma.tree.delete({
-      where: { id },
-    });
-
+    await prisma.tree.delete({ where: { id } });
     res.redirect('/admin/dashboard?section=trees&success=Arbre+supprim%C3%A9');
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[adminDashboard] postDeleteTree error:', error);
-
-    if (hasPrismaCode(error, 'P2003')) {
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      (error as { code: string }).code === 'P2002'
+    ) {
       res.redirect(
-        '/admin/dashboard?section=trees&error=Impossible+de+supprimer+cet+arbre+car+il+est+utilis%C3%A9'
+        '/admin/dashboard?section=trees&error=Impossible+de+supprimer+cet+arbre+%28utilis%C3%A9+dans+des+commandes%29'
       );
       return;
     }
-
-    if (hasPrismaCode(error, 'P2025')) {
-      res.redirect('/admin/dashboard?section=trees&error=Arbre+introuvable');
-      return;
-    }
-
     res.redirect(
       '/admin/dashboard?section=trees&error=Erreur+lors+de+la+suppression'
     );
@@ -398,17 +341,14 @@ export async function postDeleteTree(
 }
 
 // ============================================================
-// POST /admin/users/:id/delete
-// Supprimer un utilisateur
+// POST /admin/users/:id/delete — Supprimer un utilisateur
 // ============================================================
 
 export async function postDeleteUser(
   req: Request,
   res: Response
 ): Promise<void> {
-  const result = deleteUserSchema.safeParse({
-    id: req.params.id,
-  });
+  const result = deleteUserSchema.safeParse({ id: req.params.id });
 
   if (!result.success) {
     res.redirect('/admin/dashboard?section=users&error=Identifiant+invalide');
@@ -418,9 +358,8 @@ export async function postDeleteUser(
   const { id } = result.data;
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { id },
-    });
+    // Sécurité : on ne peut pas supprimer un admin
+    const user = await prisma.user.findUnique({ where: { id } });
 
     if (!user) {
       res.redirect(
@@ -436,16 +375,12 @@ export async function postDeleteUser(
       return;
     }
 
-    await prisma.user.delete({
-      where: { id },
-    });
-
+    await prisma.user.delete({ where: { id } });
     res.redirect(
       '/admin/dashboard?section=users&success=Utilisateur+supprim%C3%A9'
     );
   } catch (error) {
     console.error('[adminDashboard] postDeleteUser error:', error);
-
     res.redirect(
       '/admin/dashboard?section=users&error=Erreur+lors+de+la+suppression'
     );
