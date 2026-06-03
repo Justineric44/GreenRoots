@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { changeQuantityAction } from '@/app/panier/actions';
+import { changeQuantityAction } from '@/lib/actions/cart';
 
 export default function CartItemQuantity({
   cartItemId,
