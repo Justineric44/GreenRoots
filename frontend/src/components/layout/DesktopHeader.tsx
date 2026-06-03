@@ -7,9 +7,13 @@ import DesktopSearch from './DesktopSearch';
 
 interface DesktopHeaderProps {
   menu: { label: string; href: string }[];
+  isLoggedIn: boolean;
 }
 
-export default function DesktopHeader({ menu }: DesktopHeaderProps) {
+export default function DesktopHeader({
+  menu,
+  isLoggedIn,
+}: DesktopHeaderProps) {
   return (
     <nav className="flex items-center justify-between px-4 py-4 absolute top-0 left-0 right-0 z-50 font-heading bg-brand-dark/70">
       {/* Logo */}
@@ -48,8 +52,15 @@ export default function DesktopHeader({ menu }: DesktopHeaderProps) {
         <DesktopSearch />
 
         {/* Authentification */}
-        <Link href="/authentification">
-          <button className="text-white hover:text-[#88B75D] p-2">
+        <Link href={isLoggedIn ? '/espace-client' : '/authentification'}>
+          <button
+            className={
+              isLoggedIn
+                ? 'rounded-full bg-brand-accent p-2 text-white hover:bg-white hover:text-brand-dark'
+                : 'p-2 text-white hover:text-[#88B75D]'
+            }
+            title={isLoggedIn ? 'Mon espace client' : 'Connexion'}
+          >
             <User size={25} />
           </button>
         </Link>
