@@ -54,6 +54,7 @@ export default function ProjectTreePurchase({
       return;
     }
 
+    // Appelle l'action serveur pour ajouter l'arbre sélectionné au panier
     const response = await addToCartAction(
       selectedTree.id,
       projectId,
