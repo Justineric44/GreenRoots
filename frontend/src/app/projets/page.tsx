@@ -16,6 +16,8 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 import type { Project } from '@/types/index';
 import { getProjects } from '@/lib/api';
+import { Progress } from '@/components/ui/progress';
+import { Field, FieldLabel } from '@/components/ui/field';
 
 export const metadata: Metadata = {
   title: 'Projets de reforestation - GreenRoots',
@@ -91,6 +93,18 @@ export default async function ProjectsPage({
                 <CardDescription className="min-h-[3rem]">
                   {project.shortDescription}
                 </CardDescription>
+
+                <Field className="w-full max-w-sm">
+                  <FieldLabel htmlFor="progress-upload">
+                    <span>Progression</span>
+                    <span className="ml-auto">66%</span>
+                  </FieldLabel>
+                  <Progress
+                    value={project.progress}
+                    id="progress-upload"
+                    className="w-full"
+                  />
+                </Field>
               </CardHeader>
               <CardFooter>
                 <Button className="w-full bg-accent">
@@ -111,3 +125,13 @@ export default async function ProjectsPage({
     </main>
   );
 }
+
+//  <Image
+//                       src="/images/projects/details/tree-progress.svg"
+//                       alt="Progression"
+//                       width={40}
+//                       height={40}
+//                       className="absolute -top-2 -translate-x-1/2"
+//                       style={{ left: `${progress}%` }}
+//                     />
+//                   </div>
