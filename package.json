@@ -21,14 +21,12 @@
   "homepage": "https://github.com/O-clock-Helsinki/projet-cda-GreenRoots#readme",
   "devDependencies": {
     "@commitlint/config-conventional": "^21.0.1",
-    "@types/cookie-parser": "^1.4.10",
     "commitlint": "^21.0.1",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.5",
     "prettier": "^3.8.3"
   },
   "dependencies": {
-    "cookie-parser": "^1.4.7",
     "lucide-react": "^1.16.0"
   }
 }
