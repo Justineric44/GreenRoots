@@ -1,0 +1,639 @@
+<!-- ============================================================
+     views/admin/dashboard.ejs
+     Page unique admin — 4 sections (Projets / Arbres / Commandes / Users)
+     Navigation par JS show/hide
+
+     Données attendues du contrôleur :
+       - projects : Project[]
+       - trees    : Tree[]
+       - orders   : Order[] (avec items + user)
+       - users    : User[]
+       - query    : req.query (pour ?error, ?success, ?section)
+     ============================================================ -->
+
+<%- include('partials/header', { title: 'Dashboard' }) %>
+
+<div class="admin-layout">
+
+  <!-- ======================================================
+       SIDEBAR
+       activeSection est déterminé par ?section= ou 'projects'
+       ====================================================== -->
+  <%
+    const activeSection = (query && query.section) ? query.section : 'projects';
+  %>
+  <%- include('partials/nav', { activeSection }) %>
+
+  <!-- ======================================================
+       CONTENU PRINCIPAL
+       ====================================================== -->
+  <main class="admin-content">
+
+    <!-- Flash message global -->
+    <%- include('partials/flash-message', { query }) %>
+
+    <!-- ====================================================
+         SECTION — PROJETS
+         ==================================================== -->
+    <section class="section <%= activeSection === 'projects' ? 'active' : '' %>" id="section-projects">
+
+      <div class="page-header">
+        <h2 class="page-title">
+          Projets
+          <span>(<%= projects.length %>)</span>
+        </h2>
+        <button class="btn btn-primary btn-sm" onclick="openCreateModal('project')">
+          + Nouveau projet
+        </button>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Localisation</th>
+              <th>Progression</th>
+              <th>Créé le</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (projects.length === 0) { %>
+              <tr>
+                <td colspan="5" class="td-muted" style="text-align:center; padding: 32px;">
+                  Aucun projet pour le moment.
+                </td>
+              </tr>
+            <% } else { %>
+              <% projects.forEach(project => { %>
+                <tr>
+                  <td>
+                    <strong><%= project.name %></strong>
+                    <div class="td-muted"><%= project.slug %></div>
+                  </td>
+                  <td><%= project.localisation %></td>
+                  <td>
+                    <span class="badge <%= project.progress === 100 ? 'badge-green' : project.progress > 0 ? 'badge-muted' : 'badge-muted' %>">
+                      <%= project.progress %>%
+                    </span>
+                  </td>
+                  <td class="td-muted">
+                    <%= new Date(project.createdAt).toLocaleDateString('fr-FR') %>
+                  </td>
+                  <td>
+                    <div style="display:flex; gap:6px;">
+                      <button
+                        class="btn btn-secondary btn-sm"
+                        onclick="openEditModal('project', <%= JSON.stringify(project) %>)"
+                      >
+                        Éditer
+                      </button>
+                      <form action="/admin/projects/<%= project.id %>/delete" method="POST"
+                            onsubmit="return confirm('Supprimer ce projet ?')">
+                        <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+    <!-- ====================================================
+         SECTION — ARBRES
+         ==================================================== -->
+    <section class="section <%= activeSection === 'trees' ? 'active' : '' %>" id="section-trees">
+
+      <div class="page-header">
+        <h2 class="page-title">
+          Arbres
+          <span>(<%= trees.length %>)</span>
+        </h2>
+        <button class="btn btn-primary btn-sm" onclick="openCreateModal('tree')">
+          + Nouvel arbre
+        </button>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Nom commun</th>
+              <th>Nom scientifique</th>
+              <th>Famille</th>
+              <th>Prix</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (trees.length === 0) { %>
+              <tr>
+                <td colspan="5" class="td-muted" style="text-align:center; padding: 32px;">
+                  Aucun arbre pour le moment.
+                </td>
+              </tr>
+            <% } else { %>
+              <% trees.forEach(tree => { %>
+                <tr>
+                  <td>
+                    <strong><%= tree.commonName %></strong>
+                    <div class="td-muted"><%= tree.slug %></div>
+                  </td>
+                  <td class="td-muted"><em><%= tree.scientificName %></em></td>
+                  <td><%= tree.family %></td>
+                  <td>
+                    <span class="badge badge-green"><%= Number(tree.price).toFixed(2) %> €</span>
+                  </td>
+                  <td>
+                    <div style="display:flex; gap:6px;">
+                      <button
+                        class="btn btn-secondary btn-sm"
+                        onclick="openEditModal('tree', <%= JSON.stringify(tree) %>)"
+                      >
+                        Éditer
+                      </button>
+                      <form action="/admin/trees/<%= tree.id %>/delete" method="POST"
+                            onsubmit="return confirm('Supprimer cet arbre ?')">
+                        <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+    <!-- ====================================================
+         SECTION — COMMANDES
+         ==================================================== -->
+    <section class="section <%= activeSection === 'orders' ? 'active' : '' %>" id="section-orders">
+
+      <div class="page-header">
+        <h2 class="page-title">
+          Commandes
+          <span>(<%= orders.length %>)</span>
+        </h2>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>#ID</th>
+              <th>Utilisateur</th>
+              <th>Montant</th>
+              <th>Statut</th>
+              <th>Date</th>
+              <th>Détail</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (orders.length === 0) { %>
+              <tr>
+                <td colspan="6" class="td-muted" style="text-align:center; padding: 32px;">
+                  Aucune commande pour le moment.
+                </td>
+              </tr>
+            <% } else { %>
+              <% orders.forEach(order => { %>
+                <tr>
+                  <td class="td-muted">#<%= order.id %></td>
+                  <td>
+                    <strong><%= order.user.firstName %> <%= order.user.lastName %></strong>
+                    <div class="td-muted"><%= order.user.email %></div>
+                  </td>
+                  <td><strong><%= Number(order.amount).toFixed(2) %> €</strong></td>
+                  <td>
+                    <span class="badge <%= order.status === 'validated' ? 'badge-green' : 'badge-red' %>">
+                      <%= order.status === 'validated' ? 'Validée' : 'Annulée' %>
+                    </span>
+                  </td>
+                  <td class="td-muted">
+                    <%= new Date(order.createdAt).toLocaleDateString('fr-FR') %>
+                  </td>
+                  <td>
+                    <button
+                      class="btn btn-secondary btn-sm"
+                      onclick="toggleOrderDetail(<%= order.id %>)"
+                    >
+                      Voir
+                    </button>
+                  </td>
+                </tr>
+                <!-- Ligne de détail (masquée par défaut) -->
+                <tr id="order-detail-<%= order.id %>" style="display:none;">
+                  <td colspan="6" style="background: var(--brand-bg); padding: 12px 16px;">
+                    <strong style="font-size:13px;">Détail de la commande :</strong>
+                    <table style="margin-top:8px; width:auto;">
+                      <thead>
+                        <tr>
+                          <th style="font-size:11px;">Arbre</th>
+                          <th style="font-size:11px;">Qté</th>
+                          <th style="font-size:11px;">Prix unitaire</th>
+                          <th style="font-size:11px;">Sous-total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% order.items.forEach(item => { %>
+                          <tr>
+                            <td style="font-size:13px;"><%= item.treeCommonName %></td>
+                            <td style="font-size:13px;"><%= item.quantity %></td>
+                            <td style="font-size:13px;"><%= Number(item.unitPrice).toFixed(2) %> €</td>
+                            <td style="font-size:13px;">
+                              <%= (item.quantity * Number(item.unitPrice)).toFixed(2) %> €
+                            </td>
+                          </tr>
+                        <% }) %>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+    <!-- ====================================================
+         SECTION — UTILISATEURS
+         ==================================================== -->
+    <section class="section <%= activeSection === 'users' ? 'active' : '' %>" id="section-users">
+
+      <div class="page-header">
+        <h2 class="page-title">
+          Utilisateurs
+          <span>(<%= users.length %>)</span>
+        </h2>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Email</th>
+              <th>Type</th>
+              <th>Rôle</th>
+              <th>Inscrit le</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (users.length === 0) { %>
+              <tr>
+                <td colspan="6" class="td-muted" style="text-align:center; padding: 32px;">
+                  Aucun utilisateur pour le moment.
+                </td>
+              </tr>
+            <% } else { %>
+              <% users.forEach(user => { %>
+                <tr>
+                  <td>
+                    <strong><%= user.firstName %> <%= user.lastName %></strong>
+                  </td>
+                  <td class="td-muted"><%= user.email %></td>
+                  <td>
+                    <span class="badge badge-muted"><%= user.type %></span>
+                  </td>
+                  <td>
+                    <span class="badge <%= user.role === 'admin' ? 'badge-green' : 'badge-muted' %>">
+                      <%= user.role %>
+                    </span>
+                  </td>
+                  <td class="td-muted">
+                    <%= new Date(user.createdAt).toLocaleDateString('fr-FR') %>
+                  </td>
+                  <td>
+                    <% if (user.role !== 'admin') { %>
+                      <form action="/admin/users/<%= user.id %>/delete" method="POST"
+                            onsubmit="return confirm('Supprimer cet utilisateur ?')">
+                        <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                      </form>
+                    <% } else { %>
+                      <span class="td-muted" style="font-size:12px;">—</span>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+<!-- ============================================================
+     MODAL — CRÉER PROJET
+     ============================================================ -->
+<div class="modal-overlay" id="modal-create-project">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">Nouveau projet</h3>
+      <button class="modal-close" onclick="closeModal('modal-create-project')">✕</button>
+    </div>
+    <form action="/admin/projects" method="POST">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="cp-name">Nom</label>
+          <input type="text" id="cp-name" name="name" required />
+        </div>
+        <div class="form-group">
+          <label for="cp-slug">Slug</label>
+          <input type="text" id="cp-slug" name="slug" required placeholder="ex: reforestation-amazonie" />
+        </div>
+        <div class="form-group">
+          <label for="cp-localisation">Localisation</label>
+          <input type="text" id="cp-localisation" name="localisation" required />
+        </div>
+        <div class="form-group">
+          <label for="cp-progress">Progression (%)</label>
+          <input type="number" id="cp-progress" name="progress" min="0" max="100" value="0" required />
+        </div>
+        <div class="form-group full">
+          <label for="cp-shortDescription">Description courte</label>
+          <textarea id="cp-shortDescription" name="shortDescription" required></textarea>
+        </div>
+        <div class="form-group full">
+          <label for="cp-longDescription">Description longue</label>
+          <textarea id="cp-longDescription" name="longDescription" style="min-height:120px;"></textarea>
+        </div>
+        <div class="form-group full">
+          <label for="cp-picture">URL image</label>
+          <input type="url" id="cp-picture" name="picture" required placeholder="https://..." />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-create-project')">Annuler</button>
+        <button type="submit" class="btn btn-primary">Créer le projet</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============================================================
+     MODAL — ÉDITER PROJET
+     ============================================================ -->
+<div class="modal-overlay" id="modal-edit-project">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">Éditer le projet</h3>
+      <button class="modal-close" onclick="closeModal('modal-edit-project')">✕</button>
+    </div>
+    <form id="form-edit-project" action="" method="POST">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="ep-name">Nom</label>
+          <input type="text" id="ep-name" name="name" required />
+        </div>
+        <div class="form-group">
+          <label for="ep-slug">Slug</label>
+          <input type="text" id="ep-slug" name="slug" required />
+        </div>
+        <div class="form-group">
+          <label for="ep-localisation">Localisation</label>
+          <input type="text" id="ep-localisation" name="localisation" required />
+        </div>
+        <div class="form-group">
+          <label for="ep-progress">Progression (%)</label>
+          <input type="number" id="ep-progress" name="progress" min="0" max="100" required />
+        </div>
+        <div class="form-group full">
+          <label for="ep-shortDescription">Description courte</label>
+          <textarea id="ep-shortDescription" name="shortDescription" required></textarea>
+        </div>
+        <div class="form-group full">
+          <label for="ep-longDescription">Description longue</label>
+          <textarea id="ep-longDescription" name="longDescription" style="min-height:120px;"></textarea>
+        </div>
+        <div class="form-group full">
+          <label for="ep-picture">URL image</label>
+          <input type="url" id="ep-picture" name="picture" required />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-edit-project')">Annuler</button>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============================================================
+     MODAL — CRÉER ARBRE
+     ============================================================ -->
+<div class="modal-overlay" id="modal-create-tree">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">Nouvel arbre</h3>
+      <button class="modal-close" onclick="closeModal('modal-create-tree')">✕</button>
+    </div>
+    <form action="/admin/trees" method="POST">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="ct-commonName">Nom commun</label>
+          <input type="text" id="ct-commonName" name="commonName" required />
+        </div>
+        <div class="form-group">
+          <label for="ct-slug">Slug</label>
+          <input type="text" id="ct-slug" name="slug" required placeholder="ex: pin-sylvestre" />
+        </div>
+        <div class="form-group">
+          <label for="ct-scientificName">Nom scientifique</label>
+          <input type="text" id="ct-scientificName" name="scientificName" required />
+        </div>
+        <div class="form-group">
+          <label for="ct-family">Famille</label>
+          <input type="text" id="ct-family" name="family" required />
+        </div>
+        <div class="form-group">
+          <label for="ct-price">Prix (€)</label>
+          <input type="number" id="ct-price" name="price" min="0" step="0.01" required />
+        </div>
+        <div class="form-group">
+          <label for="ct-origin">Origine</label>
+          <input type="text" id="ct-origin" name="origin" />
+        </div>
+        <div class="form-group full">
+          <label for="ct-shortDescription">Description courte</label>
+          <textarea id="ct-shortDescription" name="shortDescription" required></textarea>
+        </div>
+        <div class="form-group full">
+          <label for="ct-longDescription">Description longue</label>
+          <textarea id="ct-longDescription" name="longDescription" style="min-height:120px;"></textarea>
+        </div>
+        <div class="form-group full">
+          <label for="ct-picture">URL image</label>
+          <input type="url" id="ct-picture" name="picture" required placeholder="https://..." />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-create-tree')">Annuler</button>
+        <button type="submit" class="btn btn-primary">Créer l'arbre</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============================================================
+     MODAL — ÉDITER ARBRE
+     ============================================================ -->
+<div class="modal-overlay" id="modal-edit-tree">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">Éditer l'arbre</h3>
+      <button class="modal-close" onclick="closeModal('modal-edit-tree')">✕</button>
+    </div>
+    <form id="form-edit-tree" action="" method="POST">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="et-commonName">Nom commun</label>
+          <input type="text" id="et-commonName" name="commonName" required />
+        </div>
+        <div class="form-group">
+          <label for="et-slug">Slug</label>
+          <input type="text" id="et-slug" name="slug" required />
+        </div>
+        <div class="form-group">
+          <label for="et-scientificName">Nom scientifique</label>
+          <input type="text" id="et-scientificName" name="scientificName" required />
+        </div>
+        <div class="form-group">
+          <label for="et-family">Famille</label>
+          <input type="text" id="et-family" name="family" required />
+        </div>
+        <div class="form-group">
+          <label for="et-price">Prix (€)</label>
+          <input type="number" id="et-price" name="price" min="0" step="0.01" required />
+        </div>
+        <div class="form-group">
+          <label for="et-origin">Origine</label>
+          <input type="text" id="et-origin" name="origin" />
+        </div>
+        <div class="form-group full">
+          <label for="et-shortDescription">Description courte</label>
+          <textarea id="et-shortDescription" name="shortDescription" required></textarea>
+        </div>
+        <div class="form-group full">
+          <label for="et-longDescription">Description longue</label>
+          <textarea id="et-longDescription" name="longDescription" style="min-height:120px;"></textarea>
+        </div>
+        <div class="form-group full">
+          <label for="et-picture">URL image</label>
+          <input type="url" id="et-picture" name="picture" required />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-edit-tree')">Annuler</button>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT — Navigation + Modals
+     ============================================================ -->
+<script>
+  // ---- Navigation sections ----
+  const sectionIds = ['projects', 'trees', 'orders', 'users'];
+
+  document.querySelectorAll('.sidebar-link[data-section]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.section;
+      switchSection(target);
+    });
+  });
+
+  function switchSection(target) {
+    // Masque toutes les sections
+    sectionIds.forEach(id => {
+      const el = document.getElementById('section-' + id);
+      if (el) el.classList.remove('active');
+    });
+
+    // Retire l'état actif de tous les liens
+    document.querySelectorAll('.sidebar-link[data-section]').forEach(b => {
+      b.classList.remove('active');
+    });
+
+    // Active la section cible
+    const section = document.getElementById('section-' + target);
+    if (section) section.classList.add('active');
+
+    // Active le lien correspondant
+    const link = document.querySelector(`.sidebar-link[data-section="${target}"]`);
+    if (link) link.classList.add('active');
+  }
+
+  // ---- Modals ----
+  function openCreateModal(type) {
+    document.getElementById('modal-create-' + type).classList.add('open');
+  }
+
+  function openEditModal(type, data) {
+    const modalId = 'modal-edit-' + type;
+    const modal = document.getElementById(modalId);
+
+    if (type === 'project') {
+      document.getElementById('form-edit-project').action = '/admin/projects/' + data.id;
+      document.getElementById('ep-name').value          = data.name || '';
+      document.getElementById('ep-slug').value          = data.slug || '';
+      document.getElementById('ep-localisation').value  = data.localisation || '';
+      document.getElementById('ep-progress').value      = data.progress ?? 0;
+      document.getElementById('ep-shortDescription').value = data.shortDescription || '';
+      document.getElementById('ep-longDescription').value  = data.longDescription || '';
+      document.getElementById('ep-picture').value       = data.picture || '';
+    }
+
+    if (type === 'tree') {
+      document.getElementById('form-edit-tree').action = '/admin/trees/' + data.id;
+      document.getElementById('et-commonName').value      = data.commonName || '';
+      document.getElementById('et-slug').value            = data.slug || '';
+      document.getElementById('et-scientificName').value  = data.scientificName || '';
+      document.getElementById('et-family').value          = data.family || '';
+      document.getElementById('et-price').value           = data.price || '';
+      document.getElementById('et-origin').value          = data.origin || '';
+      document.getElementById('et-shortDescription').value = data.shortDescription || '';
+      document.getElementById('et-longDescription').value  = data.longDescription || '';
+      document.getElementById('et-picture').value         = data.picture || '';
+    }
+
+    modal.classList.add('open');
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+
+  // Fermer modal en cliquant sur l'overlay
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) overlay.classList.remove('open');
+    });
+  });
+
+  // ---- Détail commande ----
+  function toggleOrderDetail(orderId) {
+    const row = document.getElementById('order-detail-' + orderId);
+    if (row) {
+      row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+    }
+  }
+</script>
+
+</body>
+</html>
