@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import CookieSettingsButton from './CookieSettingsButton';
 
 const companyLinks = [
   { label: 'À propos', href: '/a-propos' },
@@ -12,6 +13,7 @@ const legalLinks = [
   { label: 'Mentions légales', href: '/mentions-legales' },
   { label: 'CGV', href: '/conditions-generales-ventes' },
   { label: 'CGU', href: '/conditions-generales-utilisations' },
+  { label: 'Politique de confidentialité', href: '/politique-confidentialite' },
 ];
 
 export default function Footer() {
@@ -50,6 +52,9 @@ export default function Footer() {
                 <Link href={link.href}>{link.label}</Link>
               </li>
             ))}
+            <li>
+              <CookieSettingsButton />
+            </li>
           </ul>
         </div>
       </nav>
