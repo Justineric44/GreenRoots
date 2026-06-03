@@ -9,7 +9,7 @@ import {
 
 import Title from '@/components/layout/Title';
 import LogoutButton from '@/components/layout/LogoutButton';
-import { apiFetchPrivate } from '@/lib/api';
+import { getMe, getMyOrders } from '@/lib/api';
 import type { Order, User } from '@/types';
 
 // ============================================================
@@ -17,30 +17,28 @@ import type { Order, User } from '@/types';
 //  et /api/users/me/orders (token JWT injecté par apiFetchPrivate).
 // ============================================================
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('fr-FR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
-
 export default async function CustomerAreaPage() {
   let user: User;
   let orders: Order[];
 
   try {
     // Appels parallèles : profil + commandes
-    const [meRes, ordersRes] = await Promise.all([
-      apiFetchPrivate('/api/users/me'),
-      apiFetchPrivate('/api/users/me/orders'),
-    ]);
+
+    const [meRes, ordersRes] = await Promise.all([getMe(), getMyOrders()]);
+
     user = meRes.data;
     orders = ordersRes.data;
   } catch (err) {
     // 401 / 403 / réseau → on renvoie vers la page de connexion
     console.error('[espace-client] API call failed:', err);
     redirect('/authentification');
+  }
+  function formatDate(iso: string): string {
+    return new Date(iso).toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
   }
 
   return (
@@ -143,32 +141,53 @@ export default async function CustomerAreaPage() {
               {orders.map((order) => (
                 <li
                   key={order.id}
-                  className="rounded-2xl border border-border p-4 bg-card flex items-center justify-between gap-4 flex-wrap"
+                  className="rounded-2xl border border-border p-4 bg-card space-y-3"
                 >
-                  <div>
-                    <p className="font-semibold">Commande #{order.id}</p>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-1">
-                      <CalendarDays className="size-3.5" aria-hidden="true" />
-                      {formatDate(order.createdAt)}
-                      {' · '}
-                      {order.items.length} article
-                      {order.items.length > 1 ? 's' : ''}
-                    </p>
+                  {/* En-tête de la commande */}
+                  <div className="flex items-center justify-between gap-4 flex-wrap">
+                    <div>
+                      <p className="font-semibold">Commande #{order.id}</p>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-1">
+                        <CalendarDays className="size-3.5" aria-hidden="true" />
+                        {formatDate(order.createdAt)}
+                        {' · '}
+                        {order.items.length} article
+                        {order.items.length > 1 ? 's' : ''}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={
+                          order.status === 'validated'
+                            ? 'rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-medium'
+                            : 'rounded-full bg-destructive/10 text-destructive px-3 py-1 text-xs font-medium'
+                        }
+                      >
+                        {order.status === 'validated' ? 'Validée' : 'Annulée'}
+                      </span>
+                      <span className="font-semibold">
+                        {Number(order.amount).toFixed(2)} €
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={
-                        order.status === 'validated'
-                          ? 'rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-medium'
-                          : 'rounded-full bg-destructive/10 text-destructive px-3 py-1 text-xs font-medium'
-                      }
-                    >
-                      {order.status === 'validated' ? 'Validée' : 'Annulée'}
-                    </span>
-                    <span className="font-semibold">
-                      {Number(order.amount).toFixed(2)} €
-                    </span>
-                  </div>
+
+                  {/* Détail des items */}
+                  <ul className="border-t border-border pt-3 space-y-2">
+                    {order.items.map((item) => (
+                      <li
+                        key={item.id}
+                        className="flex items-center justify-between gap-3 text-sm"
+                      >
+                        <span className="text-muted-foreground">
+                          {item.treeCommonName}{' '}
+                          <span className="text-xs">× {item.quantity}</span>
+                        </span>
+                        <span className="font-mono text-muted-foreground">
+                          {Number(item.unitPrice).toFixed(2)} €
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 </li>
               ))}
             </ul>

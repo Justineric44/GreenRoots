@@ -146,27 +146,49 @@ export async function getOneTree(slug: string) {
   return apiFetch(`/api/trees/${slug}`);
 }
 
-// ================================================================
-// ROUTES PRIVÉES - À IMPLÉMENTER
-// ================================================================
-// Utiliser apiFetchPrivate pour tous les appels nécessitant une auth.
-// Exemple :
-// export async function getMe() {
-//   return apiFetchPrivate('/api/users/me');
-// }
-//
-// Routes à implémenter :
-// USER
-// - GET    /api/users/me                → récupérer l'utilisateur connecté
-// - PUT    /api/users/me                → modifier les informations de l'utilisateur
-// - DELETE /api/users/me                → supprimer son propre compte
-// - GET    /api/users/me/orders         → consulter les commandes de l'utilisateur
-// - GET    /api/users/me/orders/:id     → consulter une commande spécifique
-//
-// ORDER
-// - POST   /api/orders                  → passer commande
-//
-// ================================================================
+// --- USER ---
+
+/** GET /api/users/me — récupère le profil de l'utilisateur connecté. */
+export async function getMe() {
+  return apiFetchPrivate(`/api/users/me`);
+}
+
+/** PUT /api/users/me — modifie partiellement les informations du user connecté. */
+export async function updateMe(body: Record<string, unknown>) {
+  return apiFetchPrivate(`/api/users/me`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+/** DELETE /api/users/me — supprime (anonymise) le compte du user connecté. */
+export async function deleteMe() {
+  return apiFetchPrivate(`/api/users/me`, {
+    method: 'DELETE',
+  });
+}
+
+/** GET /api/users/me/orders — historique des commandes du user connecté. */
+export async function getMyOrders() {
+  return apiFetchPrivate(`/api/users/me/orders`);
+}
+
+/** GET /api/users/me/orders/:id — détail d'une commande spécifique. */
+export async function getMyOrder(id: number) {
+  return apiFetchPrivate(`/api/users/me/orders/${id}`);
+}
+
+// --- ORDER ---
+
+/** POST /api/orders — convertit le panier actif en commande. */
+export async function createOrder() {
+  return apiFetchPrivate(`/api/orders`, {
+    method: 'POST',
+  });
+}
+
+// --- CART ---
 
 export async function getCart(): Promise<{
   data: Cart;
