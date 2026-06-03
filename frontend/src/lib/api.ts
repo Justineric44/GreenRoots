@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import { ApiError } from './errors';
+import { Cart } from '@/types';
 
 // ================================================================
 // MODULE DE CENTRALISATION DES APPELS API
@@ -167,7 +168,10 @@ export async function getOneTree(slug: string) {
 //
 // ================================================================
 
-export async function getCart() {
+export async function getCart(): Promise<{
+  data: Cart;
+  meta: { total: number };
+}> {
   return apiFetchPrivate(`/api/carts`);
 }
 

@@ -76,3 +76,29 @@ export interface Order {
   updatedAt?: string;
   items: OrderItem[];
 }
+
+// ============================================================
+// CART
+// ============================================================
+
+export interface CartItem {
+  id: number;
+  quantity: number;
+  tree: {
+    commonName: string;
+    price: string;
+    picture: string;
+  };
+  project: {
+    name: string;
+  };
+}
+
+export interface Cart {
+  id: number;
+  status: 'active' | 'converted';
+  userId: number;
+  items: CartItem[];
+  createdAt: string;
+  updatedAt: string;
+}
