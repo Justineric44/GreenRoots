@@ -7,6 +7,16 @@ import TreesCarousel from '@/components/layout/TreesCarousel';
 import TreeQuantity from '@/components/layout/TreeQuantity';
 import { cookies } from 'next/headers';
 
+type ProjectHasTree = {
+  projectId: number;
+  stock: number;
+  project: {
+    id: number;
+    slug: string;
+    name: string;
+  };
+};
+
 export default async function TreeDetailsPage({
   params,
 }: {
@@ -23,12 +33,6 @@ export default async function TreeDetailsPage({
 
   const treeData = tree.value;
 
-  const totalStock =
-    treeData.projects?.reduce(
-      (sum: number, pt: any) => sum + (pt.stock ?? 0),
-      0
-    ) ?? 0;
-
   const { trees: otherTrees = [] } =
     treesData.status === 'fulfilled' ? treesData.value : { trees: [] };
 
@@ -36,22 +40,26 @@ export default async function TreeDetailsPage({
 
   const isLoggedIn = Boolean((await cookies()).get('token')?.value);
 
-  const projectsForPurchase =
-    treeData.projects
-      ?.filter((pt: any) => pt.stock > 0)
-      .map((pt: any) => ({
-        id: pt.project.id,
-        slug: pt.project.slug,
-        name: pt.project.name,
-        stock: pt.stock,
-      })) ?? [];
-
-  const allProjects =
-    treeData.projects?.map((pt: any) => ({
+  const allProjects: { id: number; name: string; stock: number }[] =
+    (treeData.projects as ProjectHasTree[])?.map((pt) => ({
       id: pt.project.id,
       name: pt.project.name,
       stock: pt.stock,
     })) ?? [];
+
+  const totalStock = allProjects.reduce((sum, pt) => sum + pt.stock, 0);
+
+  const projectsForPurchase = allProjects
+    .filter((pt) => pt.stock > 0)
+    .map((pt) => ({
+      id: pt.id,
+      slug:
+        (treeData.projects as ProjectHasTree[]).find(
+          (p) => p.project.id === pt.id
+        )?.project.slug ?? '',
+      name: pt.name,
+      stock: pt.stock,
+    }));
 
   return (
     <main>
@@ -107,21 +115,17 @@ export default async function TreeDetailsPage({
                 </p>
                 <div className="flex flex-col gap-1">
                   {allProjects.length > 0 ? (
-                    allProjects.map(
-                      (pt: { id: number; name: string; stock: number }) => (
-                        <div
-                          key={pt.id}
-                          className="flex justify-between items-center"
-                        >
-                          <span className="text-muted-foreground">
-                            {pt.name}
-                          </span>
-                          <span className="bg-muted text-muted-foreground text-xs px-2 py-0.5 rounded-full">
-                            {pt.stock} plants
-                          </span>
-                        </div>
-                      )
-                    )
+                    allProjects.map((pt) => (
+                      <div
+                        key={pt.id}
+                        className="flex justify-between items-center"
+                      >
+                        <span className="text-muted-foreground">{pt.name}</span>
+                        <span className="bg-muted text-muted-foreground text-xs px-2 py-0.5 rounded-full">
+                          {pt.stock} plants
+                        </span>
+                      </div>
+                    ))
                   ) : (
                     <p className="text-muted-foreground text-xs">
                       Aucun projet associé
