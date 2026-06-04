@@ -92,7 +92,13 @@ export const userController = {
     const orders = await prisma.order.findMany({
       where: { userId: req.user!.userId },
       orderBy: { createdAt: 'desc' },
-      include: { items: true },
+      include: {
+        items: {
+          include: {
+            project: { select: { name: true, slug: true } },
+          },
+        },
+      },
     });
 
     res.status(200).json({ data: orders });
@@ -104,7 +110,13 @@ export const userController = {
 
     const order = await prisma.order.findFirst({
       where: { id, userId: req.user!.userId },
-      include: { items: true },
+      include: {
+        items: {
+          include: {
+            project: { select: { name: true, slug: true } },
+          },
+        },
+      },
     });
 
     if (!order) {
