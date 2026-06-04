@@ -49,6 +49,7 @@ function hasPrismaCode(error: unknown, code: string): boolean {
 // Si un fichier a été uploadé → /uploads/filename
 // Sinon → garde la valeur existante du body (pour les updates sans nouvelle image)
 function resolvePicture(req: Request): string | undefined {
+  console.log('[upload] req.file:', req.file);
   if (req.file) {
     return `${UPLOADS_BASE_URL}/uploads/${req.file.filename}`;
   }

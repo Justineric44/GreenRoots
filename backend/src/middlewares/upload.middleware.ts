@@ -5,13 +5,10 @@
 
 import multer from 'multer';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import fs from 'fs';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
 // Dossier de destination
-const uploadDir = path.join(__dirname, '../public/uploads');
+const uploadDir = path.join(process.cwd(), '../public/uploads');
 
 // Créer le dossier s'il n'existe pas
 if (!fs.existsSync(uploadDir)) {
