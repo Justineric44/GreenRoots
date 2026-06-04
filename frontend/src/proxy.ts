@@ -14,7 +14,7 @@ import type { NextRequest } from 'next/server';
  * @param request - La requête Next.js
  * @returns Redirection vers /login si pas de token, sinon poursuite de la requête
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // Récupère le token JWT depuis les cookies de la requête
   const token = request.cookies.get('token')?.value;
 

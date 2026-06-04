@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
+import TarteAuCitron from '@/components/layout/TarteAuCitron';
 import { Inter, Montserrat } from 'next/font/google';
 import '@/styles/globals.css';
 import Footer from '@/components/layout/Footer';
@@ -31,6 +32,7 @@ export default async function RootLayout({
         <Header isLoggedIn={isLoggedIn} />
         {children}
         <Footer />
+        <TarteAuCitron />
       </body>
     </html>
   );

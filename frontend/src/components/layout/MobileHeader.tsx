@@ -18,7 +18,7 @@ export default function MobileHeader({
         <button
           className={
             isLoggedIn
-              ? 'rounded-full bg-brand-accent p-2 text-white'
+              ? 'p-2 text-brand-accent hover:opacity-80'
               : 'p-2 text-white hover:text-[#88B75D]'
           }
           title={isLoggedIn ? 'Mon espace client' : 'Connexion'}

@@ -31,6 +31,7 @@ export const treeProjectsSchema = z.object({
       return Array.isArray(val) ? val : [val];
     }),
   stocks: z.record(z.string(), z.coerce.number().min(0)).optional().default({}),
+  picture: z.string().min(1, "L'URL de l'image est requise"),
 });
 
 export const updateTreeSchema = createTreeSchema.partial();
