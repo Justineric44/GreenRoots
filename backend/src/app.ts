@@ -14,11 +14,16 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
-app.use(cors());
+const corsOptions = {
+  origin: ['http://localhost:3000', 'http://localhost:3001'],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(
   helmet({
-    // Nécessaire pour charger le CSS admin servi par Express
     contentSecurityPolicy: false,
+    crossOriginResourcePolicy: false, // Autorise le chargement des ressources statiques cross-origin
   })
 );
 app.use(express.json());
@@ -33,6 +38,17 @@ app.set('views', path.join(__dirname, '../views'));
 app.use(
   '/admin/static',
   express.static(path.join(__dirname, '../public/admin'))
+);
+
+// ---- Fichiers statiques uploads ----
+app.use(
+  '/uploads',
+  express.static(path.join(__dirname, '../public/uploads'), {
+    setHeaders: (res) => {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    },
+  })
 );
 
 // ---- Routes API ----

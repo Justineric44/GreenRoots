@@ -1,6 +1,5 @@
 // ============================================================
 //  src/validators/admin/adminTree.validator.ts
-//  Validation Zod des formulaires arbre (admin)
 // ============================================================
 
 import { z } from 'zod';
@@ -20,10 +19,22 @@ export const createTreeSchema = z.object({
   longDescription: z.string().optional(),
   origin: z.string().optional(),
   price: z.coerce.number().positive('Le prix doit être supérieur à 0'),
-  picture: z.string().url("L'URL de l'image est invalide"),
+  picture: z.string().min(1, "L'image est requise"),
+});
+
+export const treeProjectsSchema = z.object({
+  projectIds: z
+    .union([z.string(), z.array(z.string())])
+    .optional()
+    .transform((val) => {
+      if (!val) return [];
+      return Array.isArray(val) ? val : [val];
+    }),
+  stocks: z.record(z.string(), z.coerce.number().min(0)).optional().default({}),
 });
 
 export const updateTreeSchema = createTreeSchema.partial();
 
 export type CreateTreeInput = z.infer<typeof createTreeSchema>;
 export type UpdateTreeInput = z.infer<typeof updateTreeSchema>;
+export type TreeProjectsInput = z.infer<typeof treeProjectsSchema>;
