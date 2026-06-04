@@ -16,6 +16,7 @@
   --brand-white: #ffffff;
 
   /* Tokens shadcn — surchargés avec la charte */
+  --progress-indicator: oklch(0.68 0.13 128);
   --background: oklch(0.95 0.008 92);
   --foreground: oklch(0.19 0.018 155);
   --card: oklch(1 0 0);

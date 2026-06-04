@@ -27,6 +27,7 @@ export async function getActiveCart(req: Request, res: Response) {
     where: { id: cart.id },
     include: {
       items: {
+        orderBy: { id: 'asc' },
         select: {
           quantity: true,
           id: true,
