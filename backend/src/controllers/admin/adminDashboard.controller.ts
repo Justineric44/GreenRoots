@@ -1,16 +1,16 @@
 // ============================================================
-//  src/controllers/admin/adminDashboard.controller.ts
-//  Contrôleur principal du dashboard admin
+//  src/controllers/admin/adminDashboard.controller.ts
+//  Contrôleur principal du dashboard admin
 //
-//  Fonctions :
-//  - getDashboard      : charge toutes les données en une fois
-//  - postCreateProject : crée un projet
-//  - postUpdateProject : modifie un projet
-//  - postDeleteProject : supprime un projet
-//  - postCreateTree    : crée un arbre
-//  - postUpdateTree    : modifie un arbre
-//  - postDeleteTree    : supprime un arbre
-//  - postDeleteUser    : supprime un utilisateur
+//  Fonctions :
+//  - getDashboard      : charge toutes les données en une fois
+//  - postCreateProject : crée un projet
+//  - postUpdateProject : modifie un projet
+//  - postDeleteProject : supprime un projet
+//  - postCreateTree    : crée un arbre
+//  - postUpdateTree    : modifie un arbre
+//  - postDeleteTree    : supprime un arbre
+//  - postDeleteUser    : supprime un utilisateur
 // ============================================================
 
 import type { Request, Response } from 'express';
@@ -103,8 +103,7 @@ export async function postCreateProject(
       '/admin/dashboard?section=projects&success=Projet+cr%C3%A9%C3%A9+avec+succ%C3%A8s'
     );
   } catch (error: unknown) {
-    console.error('[adminDashboard] postCreateProject error:', error);
-    // Gestion du slug dupliqué (contrainte unique Prisma)
+    console.error('[adminDashboard] postCreateProject error:', error); // Gestion du slug dupliqué (contrainte unique Prisma)
     if (
       typeof error === 'object' &&
       error !== null &&
