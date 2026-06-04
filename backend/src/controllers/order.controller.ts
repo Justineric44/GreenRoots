@@ -9,28 +9,46 @@ export const orderController = {
     const cart = await prisma.cart.findFirst({
       where: { userId, status: 'active' },
       include: {
-        items: {
-          include: { tree: true },
-        },
+        items: { include: { tree: true } },
       },
     });
 
     if (!cart) {
       throw new NotFoundError('Aucun panier actif');
     }
-
     if (cart.items.length === 0) {
       throw new ValidationError('Le panier est vide');
     }
 
-    // Calcul du montant total à partir des prix actuels des arbres.
     const amount = cart.items.reduce(
       (sum, item) => sum + Number(item.tree.price) * item.quantity,
       0
     );
 
-    // Transaction : création de la commande + clôture du panier.
     const order = await prisma.$transaction(async (tx) => {
+      // 1. Décrémenter le stock pour chaque item
+      //    Si un stock devient négatif, on throw → transaction rollback
+      for (const item of cart.items) {
+        const updated = await tx.projectHasTree.updateMany({
+          where: {
+            treeId: item.treeId,
+            projectId: item.projectId,
+            stock: { gte: item.quantity }, // ← contrainte : stock suffisant
+          },
+          data: {
+            stock: { decrement: item.quantity },
+          },
+        });
+
+        // Si aucune ligne mise à jour → stock insuffisant
+        if (updated.count === 0) {
+          throw new ValidationError(
+            `Stock insuffisant pour "${item.tree.commonName}"`
+          );
+        }
+      }
+
+      // 2. Créer la commande + items
       const created = await tx.order.create({
         data: {
           userId,
@@ -49,6 +67,7 @@ export const orderController = {
         include: { items: true },
       });
 
+      // 3. Fermer le panier
       await tx.cart.update({
         where: { id: cart.id },
         data: { status: 'converted' },
