@@ -5,6 +5,7 @@ import { getOneTree, getTrees } from '@/lib/api';
 import type { Tree } from '@/types/index';
 import TreesCarousel from '@/components/layout/TreesCarousel';
 import TreeQuantity from '@/components/layout/TreeQuantity';
+import { cookies } from 'next/headers';
 
 export default async function TreeDetailsPage({
   params,
@@ -28,6 +29,17 @@ export default async function TreeDetailsPage({
     treesData.status === 'fulfilled' ? treesData.value : { trees: [] };
 
   const suggestions = (otherTrees as Tree[]).filter((t) => t.slug !== slug);
+
+  // Prépare la liste des projets pour le composant
+  const isLoggedIn = Boolean((await cookies()).get('token')?.value);
+
+  const projectsForPurchase =
+    treeData.projects?.map((pt: any) => ({
+      id: pt.project.id,
+      slug: pt.project.slug,
+      name: pt.project.name,
+      stock: pt.stock,
+    })) ?? [];
 
   return (
     <main>
@@ -91,22 +103,11 @@ export default async function TreeDetailsPage({
               </p>
 
               {/* PROJETS */}
-              <div className="flex flex-col gap-1">
-                <p className="text-sm">Choisir le projet</p>
-
-                <select className="bg-brand-bg text-brand-dark px-0 py-1 text-sm rounded-md border-0 w-75">
-                  {treeData.projects?.map((projectTree) => (
-                    <option
-                      key={projectTree.project.slug}
-                      value={projectTree.project.slug}
-                    >
-                      {projectTree.project.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <TreeQuantity />
+              <TreeQuantity
+                treeId={treeData.id}
+                projects={projectsForPurchase}
+                isLoggedIn={isLoggedIn}
+              />
 
               <p className="text-xs text-muted-foreground">
                 Réf. produit : {treeData.id}
