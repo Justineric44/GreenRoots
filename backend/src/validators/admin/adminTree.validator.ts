@@ -30,8 +30,31 @@ export const treeProjectsSchema = z.object({
       if (!val) return [];
       return Array.isArray(val) ? val : [val];
     }),
-  stocks: z.record(z.string(), z.coerce.number().min(0)).optional().default({}),
-  picture: z.string().min(1, "L'URL de l'image est requise"),
+
+  // ✅ FIX : Express interprète stocks[12] comme un tableau quand les clés
+  // sont des entiers. On accepte les deux formes (record OU array) et on
+  // normalise en record { "p<id>": stock } via le préfixe "p" côté EJS.
+  stocks: z
+    .union([
+      z.record(z.string(), z.coerce.number().min(0)),
+      z.array(z.coerce.number().min(0).nullable()),
+    ])
+    .optional()
+    .default({})
+    .transform((val) => {
+      if (!val || (Array.isArray(val) && val.length === 0)) return {};
+      if (Array.isArray(val)) {
+        // Cas array : reconstruit le record depuis les index
+        const result: Record<string, number> = {};
+        val.forEach((v, idx) => {
+          if (v !== null && v !== undefined) {
+            result[String(idx)] = v;
+          }
+        });
+        return result;
+      }
+      return val as Record<string, number>;
+    }),
 });
 
 export const updateTreeSchema = createTreeSchema.partial();

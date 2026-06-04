@@ -45,11 +45,7 @@ function hasPrismaCode(error: unknown, code: string): boolean {
   );
 }
 
-// Construit l'URL publique de l'image uploadée
-// Si un fichier a été uploadé → /uploads/filename
-// Sinon → garde la valeur existante du body (pour les updates sans nouvelle image)
 function resolvePicture(req: Request): string | undefined {
-  console.log('[upload] req.file:', req.file);
   if (req.file) {
     return `${UPLOADS_BASE_URL}/uploads/${req.file.filename}`;
   }
@@ -261,6 +257,20 @@ export async function postCreateTree(
   }
 
   const projectsResult = treeProjectsSchema.safeParse(req.body);
+
+  // 🔍 DEBUG — à supprimer une fois le problème résolu
+  console.log('--- [postCreateTree] DEBUG ---');
+  console.log('req.body.projectIds:', req.body.projectIds);
+  console.log('req.body.stocks:', req.body.stocks);
+  console.log('projectsResult.success:', projectsResult.success);
+  console.log(
+    'projectsResult.data:',
+    JSON.stringify(
+      projectsResult.success ? projectsResult.data : projectsResult.error
+    )
+  );
+  console.log('-----------------------------');
+
   const { projectIds, stocks } = projectsResult.success
     ? projectsResult.data
     : { projectIds: [], stocks: {} };
@@ -321,6 +331,20 @@ export async function postUpdateTree(
   }
 
   const projectsResult = treeProjectsSchema.safeParse(req.body);
+
+  // 🔍 DEBUG — à supprimer une fois le problème résolu
+  console.log('--- [postUpdateTree] DEBUG ---');
+  console.log('req.body.projectIds:', req.body.projectIds);
+  console.log('req.body.stocks:', req.body.stocks);
+  console.log('projectsResult.success:', projectsResult.success);
+  console.log(
+    'projectsResult.data:',
+    JSON.stringify(
+      projectsResult.success ? projectsResult.data : projectsResult.error
+    )
+  );
+  console.log('-----------------------------');
+
   const { projectIds, stocks } = projectsResult.success
     ? projectsResult.data
     : { projectIds: [], stocks: {} };

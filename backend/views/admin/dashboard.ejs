@@ -115,12 +115,18 @@
                     <% if (tree.projects.length === 0) { %>
                       <span class="td-muted">—</span>
                     <% } else { %>
+                      <%
+                        const totalStock = tree.projects.reduce((sum, ph) => sum + ph.stock, 0);
+                      %>
                       <% tree.projects.forEach(ph => { %>
                         <div style="font-size:12px; margin-bottom:2px;">
                           <strong><%= ph.project.name %></strong>
                           <span class="badge badge-muted" style="margin-left:4px;"><%= ph.stock %> plants</span>
                         </div>
                       <% }) %>
+                      <div style="font-size:11px; margin-top:4px; color: var(--color-text-muted, #888);">
+                        Total : <strong><%= totalStock %> plants</strong>
+                      </div>
                     <% } %>
                   </td>
                   <td>
@@ -588,7 +594,6 @@
 
   // ---- Modals ----
   function openCreateModal(type) {
-    // Reset projets cochés dans le formulaire de création
     if (type === 'tree') {
       document.querySelectorAll('#modal-create-tree input[type="checkbox"]').forEach(cb => {
         cb.checked = false;
@@ -610,7 +615,6 @@
       document.getElementById('ep-progress').value         = data.progress ?? 0;
       document.getElementById('ep-shortDescription').value = data.shortDescription || '';
       document.getElementById('ep-longDescription').value  = data.longDescription || '';
-      // Afficher l'aperçu de l'image actuelle
       const previewP = document.getElementById('ep-picture-preview');
       const previewImgP = document.getElementById('ep-picture-img');
       if (data.picture) {
@@ -631,7 +635,6 @@
       document.getElementById('et-origin').value             = data.origin || '';
       document.getElementById('et-shortDescription').value   = data.shortDescription || '';
       document.getElementById('et-longDescription').value    = data.longDescription || '';
-      // Afficher l'aperçu de l'image actuelle
       const preview = document.getElementById('et-picture-preview');
       const previewImg = document.getElementById('et-picture-img');
       if (data.picture) {
@@ -641,10 +644,11 @@
         preview.style.display = 'none';
       }
 
-      // Pré-remplir les projets + stocks existants
+      // ✅ FIX : utiliser ph.projectId (champ direct sur ProjectHasTree)
+      //    au lieu de ph.project.id (relation imbriquée, absente après JSON.parse)
       const existingProjects = data.projects || [];
       document.querySelectorAll('#modal-edit-tree input[type="checkbox"]').forEach(cb => {
-        const match = existingProjects.find(ph => String(ph.project.id) === cb.value);
+        const match = existingProjects.find(ph => String(ph.projectId) === cb.value);
         cb.checked = !!match;
         const stockInput = document.getElementById('et-stock-' + cb.value);
         if (stockInput) {

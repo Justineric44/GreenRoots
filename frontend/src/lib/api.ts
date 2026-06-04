@@ -143,7 +143,7 @@ export async function getTrees(
  * @returns Données de l'arbre
  */
 export async function getOneTree(slug: string) {
-  return apiFetch(`/api/trees/${slug}`);
+  return apiFetch(`/api/trees/${slug}`, { cache: 'no-store' });
 }
 
 // --- USER ---
