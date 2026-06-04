@@ -10,15 +10,15 @@ import { prisma } from '../../lib/prisma.js';
 import {
   createProjectSchema,
   updateProjectSchema,
-} from '../../validators/admin/adminproject.validator.js';
+} from '../../validators/admin/adminProject.validator.js';
 
 import {
   createTreeSchema,
   updateTreeSchema,
   treeProjectsSchema,
-} from '../../validators/admin/admintree.validator.js';
+} from '../../validators/admin/adminTree.validator.js';
 
-import { deleteUserSchema } from '../../validators/admin/adminuser.validator.js';
+import { deleteUserSchema } from '../../validators/admin/adminUser.validator.js';
 import { UPLOADS_BASE_URL } from '../../middlewares/upload.middleware.js';
 
 // ============================================================
