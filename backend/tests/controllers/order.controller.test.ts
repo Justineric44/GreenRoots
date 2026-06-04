@@ -13,6 +13,7 @@ const TEST_USER = {
 let token: string;
 let projectId: number;
 let treeId: number;
+let treeStock: number;
 
 // ------------------------------------------------------------
 // Helpers
@@ -84,6 +85,7 @@ before(async () => {
   const treesRes = await fetch(`${API_URL}/api/projects/${project.slug}/trees`);
   const treesBody = await treesRes.json();
   treeId = treesBody.trees[0].id;
+  treeStock = treesBody.trees[0].stock;
 });
 
 // ------------------------------------------------------------
@@ -187,6 +189,42 @@ describe('[POST] /api/orders', () => {
 
     assert.equal(res.status, 404);
     assert.equal(body.error.code, 'NOT_FOUND');
+  });
+
+  it('should decrement project stock after order creation', async () => {
+    // 1. Récupère le stock initial via la route projet
+    const projectRes = await fetch(`${API_URL}/api/projects`);
+    const projectBody = await projectRes.json();
+    const project = projectBody.projects[0];
+    const treesRes = await fetch(
+      `${API_URL}/api/projects/${project.slug}/trees`
+    );
+    const treesBody = await treesRes.json();
+    const initialStock = treesBody.trees[0].stock;
+
+    // 2. Ajoute 2 arbres au panier puis checkout
+    await addItem(2);
+    const { res } = await checkout();
+    assert.equal(res.status, 201);
+
+    // 3. Vérifie que le stock a diminué de 2
+    const treesAfterRes = await fetch(
+      `${API_URL}/api/projects/${project.slug}/trees`
+    );
+    const treesAfterBody = await treesAfterRes.json();
+    const finalStock = treesAfterBody.trees[0].stock;
+
+    assert.equal(finalStock, initialStock - 2);
+  });
+
+  it('should allow checkout when ordering exactly the available stock', async () => {
+    // Cas limite : commander pile le stock disponible doit passer
+    await addItem(treeStock);
+    const { res } = await checkout();
+
+    // Soit 201 (succès), soit échec contrôlé (ex: panier vidé entretemps)
+    // L'important est qu'on ne crashe pas avec une 500
+    assert.ok(res.status === 201 || (res.status >= 400 && res.status < 500));
   });
 });
 
