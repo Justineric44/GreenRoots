@@ -23,20 +23,32 @@ export default async function TreeDetailsPage({
 
   const treeData = tree.value;
 
-  const stock = treeData.projects?.[0]?.stock ?? 0;
+  const totalStock =
+    treeData.projects?.reduce(
+      (sum: number, pt: any) => sum + (pt.stock ?? 0),
+      0
+    ) ?? 0;
 
   const { trees: otherTrees = [] } =
     treesData.status === 'fulfilled' ? treesData.value : { trees: [] };
 
   const suggestions = (otherTrees as Tree[]).filter((t) => t.slug !== slug);
 
-  // Prépare la liste des projets pour le composant
   const isLoggedIn = Boolean((await cookies()).get('token')?.value);
 
   const projectsForPurchase =
+    treeData.projects
+      ?.filter((pt: any) => pt.stock > 0)
+      .map((pt: any) => ({
+        id: pt.project.id,
+        slug: pt.project.slug,
+        name: pt.project.name,
+        stock: pt.stock,
+      })) ?? [];
+
+  const allProjects =
     treeData.projects?.map((pt: any) => ({
       id: pt.project.id,
-      slug: pt.project.slug,
       name: pt.project.name,
       stock: pt.stock,
     })) ?? [];
@@ -47,7 +59,6 @@ export default async function TreeDetailsPage({
 
       <section className="bg-brand-dark px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
         <div className="mx-auto max-w-7xl p-8 text-brand-white">
-          {/* IMPORTANT : items-stretch pour même hauteur */}
           <div className="flex flex-col lg:flex-row gap-12 items-stretch lg:h-[550px]">
             {/* IMAGE */}
             <div className="relative w-full lg:w-1/2 aspect-square rounded-2xl overflow-hidden bg-gray-100">
@@ -89,20 +100,44 @@ export default async function TreeDetailsPage({
                 </span>
               </p>
 
-              <p className="text-sm">
-                <span className="border border-brand-accent text-brand-accent px-2 py-0.5 rounded text-xs font-semibold mr-2">
-                  En stock
-                </span>
-                <span className="text-muted-foreground">
-                  {stock} plants disponibles
-                </span>
-              </p>
+              {/* PROJETS / STOCK */}
+              <div className="text-sm">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                  Projets / Stock
+                </p>
+                <div className="flex flex-col gap-1">
+                  {allProjects.length > 0 ? (
+                    allProjects.map(
+                      (pt: { id: number; name: string; stock: number }) => (
+                        <div
+                          key={pt.id}
+                          className="flex justify-between items-center"
+                        >
+                          <span className="text-muted-foreground">
+                            {pt.name}
+                          </span>
+                          <span className="bg-muted text-muted-foreground text-xs px-2 py-0.5 rounded-full">
+                            {pt.stock} plants
+                          </span>
+                        </div>
+                      )
+                    )
+                  ) : (
+                    <p className="text-muted-foreground text-xs">
+                      Aucun projet associé
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-1 border-t border-brand-bg/20 pt-1">
+                    Total : {totalStock} plants
+                  </p>
+                </div>
+              </div>
 
               <p className="text-sm text-muted-foreground">
                 Description : <br /> {treeData.shortDescription}
               </p>
 
-              {/* PROJETS */}
+              {/* ACHAT */}
               <TreeQuantity
                 treeId={treeData.id}
                 projects={projectsForPurchase}
@@ -120,7 +155,6 @@ export default async function TreeDetailsPage({
             <h3 className="text-lg font-bold mb-4">
               Description &amp; caractéristiques
             </h3>
-
             <p className="text-sm text-muted-foreground">
               {treeData.longDescription}
             </p>
@@ -135,7 +169,6 @@ export default async function TreeDetailsPage({
             <h2 className="text-xl font-bold uppercase mb-8 text-brand-dark">
               Sélection d&apos;autres arbres
             </h2>
-
             <TreesCarousel trees={suggestions} />
           </div>
         </section>
