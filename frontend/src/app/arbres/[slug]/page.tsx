@@ -55,6 +55,7 @@ export default async function TreeDetailsPage({
                 src={treeData.picture}
                 alt={treeData.commonName}
                 fill
+                sizes="(min-width: 1024px) 50vw, 100vw"
                 className="object-cover"
               />
             </div>

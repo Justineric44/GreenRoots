@@ -37,6 +37,7 @@ export default async function CartPage() {
                     src={item.tree.picture}
                     alt={item.tree.commonName}
                     fill
+                    sizes="(min-width: 640px) 200px, 100vw"
                     className="object-cover rounded-lg"
                   />
                 </div>
