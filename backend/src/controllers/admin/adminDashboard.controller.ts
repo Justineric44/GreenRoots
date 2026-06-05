@@ -1,29 +1,56 @@
 // ============================================================
-//  src/controllers/admin/adminDashboard.controller.ts
-//  Contrôleur principal du dashboard admin
-//
-//  Fonctions :
-//  - getDashboard      : charge toutes les données en une fois
-//  - postCreateProject : crée un projet
-//  - postUpdateProject : modifie un projet
-//  - postDeleteProject : supprime un projet
-//  - postCreateTree    : crée un arbre
-//  - postUpdateTree    : modifie un arbre
-//  - postDeleteTree    : supprime un arbre
-//  - postDeleteUser    : supprime un utilisateur
+// src/controllers/admin/adminDashboard.controller.ts
 // ============================================================
 
 import type { Request, Response } from 'express';
+import type { ZodError } from 'zod';
+
 import { prisma } from '../../lib/prisma.js';
+
 import {
   createProjectSchema,
   updateProjectSchema,
 } from '../../validators/admin/adminProject.validator.js';
+
 import {
   createTreeSchema,
   updateTreeSchema,
+  treeProjectsSchema,
 } from '../../validators/admin/adminTree.validator.js';
+
 import { deleteUserSchema } from '../../validators/admin/adminUser.validator.js';
+import { UPLOADS_BASE_URL } from '../../middlewares/upload.middleware.js';
+
+// ============================================================
+// Helpers
+// ============================================================
+
+function redirectValidationError(
+  res: Response,
+  section: string,
+  error: ZodError
+): void {
+  const message = encodeURIComponent(
+    error.issues[0]?.message ?? 'Données invalides'
+  );
+  res.redirect(`/admin/dashboard?section=${section}&error=${message}`);
+}
+
+function hasPrismaCode(error: unknown, code: string): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    (error as { code: string }).code === code
+  );
+}
+
+function resolvePicture(req: Request): string | undefined {
+  if (req.file) {
+    return `${UPLOADS_BASE_URL}/uploads/${req.file.filename}`;
+  }
+  return req.body.picture || undefined;
+}
 
 // ============================================================
 // GET /admin/dashboard
@@ -31,14 +58,24 @@ import { deleteUserSchema } from '../../validators/admin/adminUser.validator.js'
 
 export async function getDashboard(req: Request, res: Response): Promise<void> {
   try {
-    // Charge toutes les données en parallèle
     const [projects, trees, orders, users] = await Promise.all([
       prisma.project.findMany({
-        orderBy: { name: 'asc' },
+        orderBy: { createdAt: 'desc' },
       }),
+
       prisma.tree.findMany({
-        orderBy: { commonName: 'asc' },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          projects: {
+            include: {
+              project: {
+                select: { id: true, name: true, slug: true },
+              },
+            },
+          },
+        },
       }),
+
       prisma.order.findMany({
         orderBy: { createdAt: 'desc' },
         include: {
@@ -52,8 +89,9 @@ export async function getDashboard(req: Request, res: Response): Promise<void> {
           items: true,
         },
       }),
+
       prisma.user.findMany({
-        orderBy: { lastName: 'asc' },
+        orderBy: { createdAt: 'desc' },
         select: {
           id: true,
           firstName: true,
@@ -89,11 +127,11 @@ export async function postCreateProject(
   req: Request,
   res: Response
 ): Promise<void> {
-  const result = createProjectSchema.safeParse(req.body);
+  const body = { ...req.body, picture: resolvePicture(req) };
+  const result = createProjectSchema.safeParse(body);
 
   if (!result.success) {
-    const message = encodeURIComponent(result.error.errors[0].message);
-    res.redirect(`/admin/dashboard?section=projects&error=${message}`);
+    redirectValidationError(res, 'projects', result.error);
     return;
   }
 
@@ -102,14 +140,9 @@ export async function postCreateProject(
     res.redirect(
       '/admin/dashboard?section=projects&success=Projet+cr%C3%A9%C3%A9+avec+succ%C3%A8s'
     );
-  } catch (error: unknown) {
-    console.error('[adminDashboard] postCreateProject error:', error); // Gestion du slug dupliqué (contrainte unique Prisma)
-    if (
-      typeof error === 'object' &&
-      error !== null &&
-      'code' in error &&
-      (error as { code: string }).code === 'P2002'
-    ) {
+  } catch (error) {
+    console.error('[adminDashboard] postCreateProject error:', error);
+    if (hasPrismaCode(error, 'P2002')) {
       res.redirect(
         '/admin/dashboard?section=projects&error=Ce+slug+existe+d%C3%A9j%C3%A0'
       );
@@ -131,39 +164,37 @@ export async function postUpdateProject(
 ): Promise<void> {
   const id = Number(req.params.id);
 
-  if (isNaN(id)) {
+  if (Number.isNaN(id)) {
     res.redirect(
       '/admin/dashboard?section=projects&error=Identifiant+invalide'
     );
     return;
   }
 
-  const result = updateProjectSchema.safeParse(req.body);
+  const body = { ...req.body, picture: resolvePicture(req) };
+  const result = updateProjectSchema.safeParse(body);
 
   if (!result.success) {
-    const message = encodeURIComponent(result.error.errors[0].message);
-    res.redirect(`/admin/dashboard?section=projects&error=${message}`);
+    redirectValidationError(res, 'projects', result.error);
     return;
   }
 
   try {
-    await prisma.project.update({
-      where: { id },
-      data: result.data,
-    });
+    await prisma.project.update({ where: { id }, data: result.data });
     res.redirect(
       '/admin/dashboard?section=projects&success=Projet+mis+%C3%A0+jour'
     );
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('[adminDashboard] postUpdateProject error:', error);
-    if (
-      typeof error === 'object' &&
-      error !== null &&
-      'code' in error &&
-      (error as { code: string }).code === 'P2025'
-    ) {
+    if (hasPrismaCode(error, 'P2025')) {
       res.redirect(
         '/admin/dashboard?section=projects&error=Projet+introuvable'
+      );
+      return;
+    }
+    if (hasPrismaCode(error, 'P2002')) {
+      res.redirect(
+        '/admin/dashboard?section=projects&error=Ce+slug+existe+d%C3%A9j%C3%A0'
       );
       return;
     }
@@ -183,7 +214,7 @@ export async function postDeleteProject(
 ): Promise<void> {
   const id = Number(req.params.id);
 
-  if (isNaN(id)) {
+  if (Number.isNaN(id)) {
     res.redirect(
       '/admin/dashboard?section=projects&error=Identifiant+invalide'
     );
@@ -195,14 +226,9 @@ export async function postDeleteProject(
     res.redirect(
       '/admin/dashboard?section=projects&success=Projet+supprim%C3%A9'
     );
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('[adminDashboard] postDeleteProject error:', error);
-    if (
-      typeof error === 'object' &&
-      error !== null &&
-      'code' in error &&
-      (error as { code: string }).code === 'P2025'
-    ) {
+    if (hasPrismaCode(error, 'P2025')) {
       res.redirect(
         '/admin/dashboard?section=projects&error=Projet+introuvable'
       );
@@ -215,34 +241,61 @@ export async function postDeleteProject(
 }
 
 // ============================================================
-// POST /admin/trees — Créer un arbre
+// POST /admin/trees — Créer un arbre + associations projets
 // ============================================================
 
 export async function postCreateTree(
   req: Request,
   res: Response
 ): Promise<void> {
-  const result = createTreeSchema.safeParse(req.body);
+  const body = { ...req.body, picture: resolvePicture(req) };
+  const result = createTreeSchema.safeParse(body);
 
   if (!result.success) {
-    const message = encodeURIComponent(result.error.errors[0].message);
-    res.redirect(`/admin/dashboard?section=trees&error=${message}`);
+    redirectValidationError(res, 'trees', result.error);
     return;
   }
 
+  const projectsResult = treeProjectsSchema.safeParse(req.body);
+
+  // 🔍 DEBUG — à supprimer une fois le problème résolu
+  console.log('--- [postCreateTree] DEBUG ---');
+  console.log('req.body.projectIds:', req.body.projectIds);
+  console.log('req.body.stocks:', req.body.stocks);
+  console.log('projectsResult.success:', projectsResult.success);
+  console.log(
+    'projectsResult.data:',
+    JSON.stringify(
+      projectsResult.success ? projectsResult.data : projectsResult.error
+    )
+  );
+  console.log('-----------------------------');
+
+  const { projectIds, stocks } = projectsResult.success
+    ? projectsResult.data
+    : { projectIds: [], stocks: {} };
+
   try {
-    await prisma.tree.create({ data: result.data });
+    await prisma.$transaction(async (tx) => {
+      const tree = await tx.tree.create({ data: result.data });
+
+      if (projectIds && projectIds.length > 0) {
+        await tx.projectHasTree.createMany({
+          data: projectIds.map((projectId) => ({
+            treeId: tree.id,
+            projectId: Number(projectId),
+            stock: stocks?.[projectId] ?? 0,
+          })),
+        });
+      }
+    });
+
     res.redirect(
       '/admin/dashboard?section=trees&success=Arbre+cr%C3%A9%C3%A9+avec+succ%C3%A8s'
     );
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('[adminDashboard] postCreateTree error:', error);
-    if (
-      typeof error === 'object' &&
-      error !== null &&
-      'code' in error &&
-      (error as { code: string }).code === 'P2002'
-    ) {
+    if (hasPrismaCode(error, 'P2002')) {
       res.redirect(
         '/admin/dashboard?section=trees&error=Ce+slug+existe+d%C3%A9j%C3%A0'
       );
@@ -255,7 +308,7 @@ export async function postCreateTree(
 }
 
 // ============================================================
-// POST /admin/trees/:id — Modifier un arbre
+// POST /admin/trees/:id — Modifier un arbre + associations
 // ============================================================
 
 export async function postUpdateTree(
@@ -264,36 +317,67 @@ export async function postUpdateTree(
 ): Promise<void> {
   const id = Number(req.params.id);
 
-  if (isNaN(id)) {
+  if (Number.isNaN(id)) {
     res.redirect('/admin/dashboard?section=trees&error=Identifiant+invalide');
     return;
   }
 
-  const result = updateTreeSchema.safeParse(req.body);
+  const body = { ...req.body, picture: resolvePicture(req) };
+  const result = updateTreeSchema.safeParse(body);
 
   if (!result.success) {
-    const message = encodeURIComponent(result.error.errors[0].message);
-    res.redirect(`/admin/dashboard?section=trees&error=${message}`);
+    redirectValidationError(res, 'trees', result.error);
     return;
   }
 
+  const projectsResult = treeProjectsSchema.safeParse(req.body);
+
+  // 🔍 DEBUG — à supprimer une fois le problème résolu
+  console.log('--- [postUpdateTree] DEBUG ---');
+  console.log('req.body.projectIds:', req.body.projectIds);
+  console.log('req.body.stocks:', req.body.stocks);
+  console.log('projectsResult.success:', projectsResult.success);
+  console.log(
+    'projectsResult.data:',
+    JSON.stringify(
+      projectsResult.success ? projectsResult.data : projectsResult.error
+    )
+  );
+  console.log('-----------------------------');
+
+  const { projectIds, stocks } = projectsResult.success
+    ? projectsResult.data
+    : { projectIds: [], stocks: {} };
+
   try {
-    await prisma.tree.update({
-      where: { id },
-      data: result.data,
+    await prisma.$transaction(async (tx) => {
+      await tx.tree.update({ where: { id }, data: result.data });
+      await tx.projectHasTree.deleteMany({ where: { treeId: id } });
+
+      if (projectIds && projectIds.length > 0) {
+        await tx.projectHasTree.createMany({
+          data: projectIds.map((projectId) => ({
+            treeId: id,
+            projectId: Number(projectId),
+            stock: stocks?.[projectId] ?? 0,
+          })),
+        });
+      }
     });
+
     res.redirect(
       '/admin/dashboard?section=trees&success=Arbre+mis+%C3%A0+jour'
     );
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('[adminDashboard] postUpdateTree error:', error);
-    if (
-      typeof error === 'object' &&
-      error !== null &&
-      'code' in error &&
-      (error as { code: string }).code === 'P2025'
-    ) {
+    if (hasPrismaCode(error, 'P2025')) {
       res.redirect('/admin/dashboard?section=trees&error=Arbre+introuvable');
+      return;
+    }
+    if (hasPrismaCode(error, 'P2002')) {
+      res.redirect(
+        '/admin/dashboard?section=trees&error=Ce+slug+existe+d%C3%A9j%C3%A0'
+      );
       return;
     }
     res.redirect(
@@ -312,7 +396,7 @@ export async function postDeleteTree(
 ): Promise<void> {
   const id = Number(req.params.id);
 
-  if (isNaN(id)) {
+  if (Number.isNaN(id)) {
     res.redirect('/admin/dashboard?section=trees&error=Identifiant+invalide');
     return;
   }
@@ -320,17 +404,16 @@ export async function postDeleteTree(
   try {
     await prisma.tree.delete({ where: { id } });
     res.redirect('/admin/dashboard?section=trees&success=Arbre+supprim%C3%A9');
-  } catch (error: unknown) {
+  } catch (error) {
     console.error('[adminDashboard] postDeleteTree error:', error);
-    if (
-      typeof error === 'object' &&
-      error !== null &&
-      'code' in error &&
-      (error as { code: string }).code === 'P2002'
-    ) {
+    if (hasPrismaCode(error, 'P2003')) {
       res.redirect(
-        '/admin/dashboard?section=trees&error=Impossible+de+supprimer+cet+arbre+%28utilis%C3%A9+dans+des+commandes%29'
+        '/admin/dashboard?section=trees&error=Impossible+de+supprimer+cet+arbre+car+il+est+utilis%C3%A9'
       );
+      return;
+    }
+    if (hasPrismaCode(error, 'P2025')) {
+      res.redirect('/admin/dashboard?section=trees&error=Arbre+introuvable');
       return;
     }
     res.redirect(
@@ -357,7 +440,6 @@ export async function postDeleteUser(
   const { id } = result.data;
 
   try {
-    // Sécurité : on ne peut pas supprimer un admin
     const user = await prisma.user.findUnique({ where: { id } });
 
     if (!user) {

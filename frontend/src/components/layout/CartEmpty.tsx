@@ -12,7 +12,7 @@ export default function CartEmpty() {
   }
   return (
     <>
-      <Button onClick={() => setIsConfirming(true)} variant="ghost">
+      <Button onClick={() => setIsConfirming(true)} variant="outline">
         Vider le panier
       </Button>
       {isConfirming && (

@@ -86,11 +86,32 @@ export async function apiFetchPrivate(endpoint: string, options?: RequestInit) {
  * @param currentPage - Numéro de la page
  * @returns Liste des projets de la page demandée
  */
-export async function getProjects(currentPage?: number) {
+export async function getProjects(
+  currentPage?: number,
+  localisation?: string,
+  search?: string,
+  sortBy?: string,
+  sortOrder?: string
+) {
   if (!currentPage) {
     return apiFetch(`/api/projects`);
   }
-  return apiFetch(`/api/projects?page=${currentPage}`);
+  const params = new URLSearchParams({ page: String(currentPage) });
+  if (localisation) params.append('localisation', localisation);
+  if (search) params.append('search', search);
+  if (sortBy) params.append('sortBy', sortBy);
+  if (sortOrder) params.append('sortOrder', sortOrder);
+
+  return apiFetch(`/api/projects?${params}`);
+}
+
+/**
+ * Récupère la liste des localisations disponibles pour les projets.
+ * Utilisé pour remplir le filtre de localisation côté frontend.
+ * @returns Liste des localisations
+ */
+export async function getProjectsLocalisations() {
+  return apiFetch(`/api/projects/localisations`);
 }
 
 /**
@@ -143,7 +164,7 @@ export async function getTrees(
  * @returns Données de l'arbre
  */
 export async function getOneTree(slug: string) {
-  return apiFetch(`/api/trees/${slug}`);
+  return apiFetch(`/api/trees/${slug}`, { cache: 'no-store' });
 }
 
 // --- USER ---

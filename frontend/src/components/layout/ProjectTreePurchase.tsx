@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { addToCartAction } from '@/lib/actions/cart';
 
@@ -23,6 +23,11 @@ export default function ProjectTreePurchase({
   trees,
   isLoggedIn,
 }: ProjectTreePurchaseProps) {
+  // useTransition permet de marquer l’ajout au panier comme une action non urgente.
+  // isPending indique que la transition est en cours, ce qui permet de désactiver
+  // le bouton et d’afficher un état de chargement sans bloquer le rendu immédiat.
+  const [isPending, startTransition] = useTransition();
+
   // État courant de l'arbre sélectionné dans la liste déroulante.
   const [selectedTreeId, setSelectedTreeId] = useState(trees[0]?.id ?? 0);
 
@@ -39,33 +44,38 @@ export default function ProjectTreePurchase({
   // 1. il réinitialise le message avant de lancer la vérification,
   // 2. il bloque l’action si l’utilisateur n’est pas connecté,
   // 3. il contrôle que l’arbre choisi existe bien,
-  // 4. il envoie la requête vers l’API du panier,
+  // 4. il appelle la Server Action d'ajout au panier
   // 5. il affiche un message de succès ou d’échec selon la réponse serveur.
-  async function handleAddToCart() {
-    setMessage('');
 
-    if (!isLoggedIn) {
-      setMessage('Connectez-vous pour ajouter un arbre au panier.');
-      return;
-    }
+  function handleAddToCart() {
+    // L’ajout au panier est lancé dans une transition
+    //  pour obtenir l'état isPending et ne pas bloquer l'interface pendant l'appel serveur
+    startTransition(async () => {
+      setMessage('');
+      if (!isLoggedIn) {
+        setMessage('Connectez-vous pour ajouter un arbre au panier.');
+        return;
+      }
 
-    if (!selectedTree) {
-      setMessage('Veuillez choisir un arbre.');
-      return;
-    }
+      if (!selectedTree) {
+        setMessage('Veuillez choisir un arbre.');
+        return;
+      }
 
-    // Appelle l'action serveur pour ajouter l'arbre sélectionné au panier
-    const response = await addToCartAction(
-      selectedTree.id,
-      projectId,
-      quantity
-    );
+      // Appelle l'action serveur pour ajouter l'arbre sélectionné au panier
+      const response = await addToCartAction(
+        selectedTree.id,
+        projectId,
+        quantity
+      );
 
-    if (!response.ok) {
-      setMessage(response.message);
-      return;
-    }
-    setMessage('Arbre ajouté au panier.');
+      if (!response.ok) {
+        setMessage(response.message);
+        return;
+      }
+
+      setMessage('Arbre ajouté au panier.');
+    });
   }
 
   return (
@@ -164,13 +174,15 @@ export default function ProjectTreePurchase({
           onClick={handleAddToCart}
           // Le bouton d’ajout est verrouillé tant que l’utilisateur n’est pas connecté
           // ou qu’aucun arbre valide n’est disponible à l’achat.
-          disabled={!isLoggedIn || !selectedTree || selectedTree.stock <= 0}
+          disabled={
+            !isLoggedIn || !selectedTree || selectedTree.stock <= 0 || isPending
+          }
           title={
             !isLoggedIn ? 'Connectez-vous pour ajouter au panier' : undefined
           }
           className="bg-brand-accent px-6 text-white disabled:pointer-events-none disabled:opacity-50"
         >
-          🛒 Ajouter au panier
+          {isPending ? 'Ajout...' : '🛒 Ajouter au panier'}
         </Button>
       </div>
 

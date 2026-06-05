@@ -1,6 +1,5 @@
 // ============================================================
 //  src/validators/admin/adminProject.validator.ts
-//  Validation Zod des formulaires projet (admin)
 // ============================================================
 
 import { z } from 'zod';
@@ -17,7 +16,7 @@ export const createProjectSchema = z.object({
   shortDescription: z.string().min(1, 'La description courte est requise'),
   longDescription: z.string().optional(),
   localisation: z.string().min(1, 'La localisation est requise'),
-  picture: z.string().min(1, "L'URL de l'image est requise"),
+  picture: z.string().min(1, "L'image est requise"),
   progress: z.coerce.number().int().min(0).max(100),
 });
 

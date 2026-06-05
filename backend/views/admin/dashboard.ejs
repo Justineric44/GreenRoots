@@ -5,7 +5,7 @@
 
      Données attendues du contrôleur :
        - projects : Project[]
-       - trees    : Tree[]
+       - trees    : Tree[] (avec projects[].project + stock)
        - orders   : Order[] (avec items + user)
        - users    : User[]
        - query    : req.query (pour ?error, ?success, ?section)
@@ -15,38 +15,23 @@
 
 <div class="admin-layout">
 
-  <!-- ======================================================
-       SIDEBAR
-       activeSection est déterminé par ?section= ou 'projects'
-       ====================================================== -->
   <%
     const activeSection = (query && query.section) ? query.section : 'projects';
   %>
   <%- include('partials/nav', { activeSection }) %>
 
-  <!-- ======================================================
-       CONTENU PRINCIPAL
-       ====================================================== -->
   <main class="admin-content">
 
-    <!-- Flash message global -->
     <%- include('partials/flash-message', { query }) %>
 
     <!-- ====================================================
          SECTION — PROJETS
          ==================================================== -->
     <section class="section <%= activeSection === 'projects' ? 'active' : '' %>" id="section-projects">
-
       <div class="page-header">
-        <h2 class="page-title">
-          Projets
-          <span>(<%= projects.length %>)</span>
-        </h2>
-        <button class="btn btn-primary btn-sm" onclick="openCreateModal('project')">
-          + Nouveau projet
-        </button>
+        <h2 class="page-title">Projets <span>(<%= projects.length %>)</span></h2>
+        <button class="btn btn-primary btn-sm" onclick="openCreateModal('project')">+ Nouveau projet</button>
       </div>
-
       <div class="table-wrapper">
         <table>
           <thead>
@@ -60,11 +45,7 @@
           </thead>
           <tbody>
             <% if (projects.length === 0) { %>
-              <tr>
-                <td colspan="5" class="td-muted" style="text-align:center; padding: 32px;">
-                  Aucun projet pour le moment.
-                </td>
-              </tr>
+              <tr><td colspan="5" class="td-muted" style="text-align:center; padding:32px;">Aucun projet pour le moment.</td></tr>
             <% } else { %>
               <% projects.forEach(project => { %>
                 <tr>
@@ -74,23 +55,15 @@
                   </td>
                   <td><%= project.localisation %></td>
                   <td>
-                    <span class="badge <%= project.progress === 100 ? 'badge-green' : project.progress > 0 ? 'badge-muted' : 'badge-muted' %>">
+                    <span class="badge <%= project.progress === 100 ? 'badge-green' : 'badge-muted' %>">
                       <%= project.progress %>%
                     </span>
                   </td>
-                  <td class="td-muted">
-                    <%= new Date(project.createdAt).toLocaleDateString('fr-FR') %>
-                  </td>
+                  <td class="td-muted"><%= new Date(project.createdAt).toLocaleDateString('fr-FR') %></td>
                   <td>
                     <div style="display:flex; gap:6px;">
-                      <button
-                        class="btn btn-secondary btn-sm"
-                        onclick="openEditModal('project', <%= JSON.stringify(project) %>)"
-                      >
-                        Éditer
-                      </button>
-                      <form action="/admin/projects/<%= project.id %>/delete" method="POST"
-                            onsubmit="return confirm('Supprimer ce projet ?')">
+                      <button class="btn btn-secondary btn-sm" onclick="openEditModal('project', <%= JSON.stringify(project) %>)">Éditer</button>
+                      <form action="/admin/projects/<%= project.id %>/delete" method="POST" onsubmit="return confirm('Supprimer ce projet ?')">
                         <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
                       </form>
                     </div>
@@ -101,64 +74,66 @@
           </tbody>
         </table>
       </div>
-
     </section>
 
     <!-- ====================================================
          SECTION — ARBRES
          ==================================================== -->
     <section class="section <%= activeSection === 'trees' ? 'active' : '' %>" id="section-trees">
-
       <div class="page-header">
-        <h2 class="page-title">
-          Arbres
-          <span>(<%= trees.length %>)</span>
-        </h2>
-        <button class="btn btn-primary btn-sm" onclick="openCreateModal('tree')">
-          + Nouvel arbre
-        </button>
+        <h2 class="page-title">Arbres <span>(<%= trees.length %>)</span></h2>
+        <button class="btn btn-primary btn-sm" onclick="openCreateModal('tree')">+ Nouvel arbre</button>
       </div>
-
       <div class="table-wrapper">
         <table>
           <thead>
             <tr>
+              <th>Réf.</th>
               <th>Nom commun</th>
               <th>Nom scientifique</th>
               <th>Famille</th>
               <th>Prix</th>
+              <th>Projets / Stock</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             <% if (trees.length === 0) { %>
-              <tr>
-                <td colspan="5" class="td-muted" style="text-align:center; padding: 32px;">
-                  Aucun arbre pour le moment.
-                </td>
-              </tr>
+              <tr><td colspan="7" class="td-muted" style="text-align:center; padding:32px;">Aucun arbre pour le moment.</td></tr>
             <% } else { %>
               <% trees.forEach(tree => { %>
                 <tr>
+                  <td class="td-muted">#<%= tree.id %></td>
                   <td>
                     <strong><%= tree.commonName %></strong>
                     <div class="td-muted"><%= tree.slug %></div>
                   </td>
                   <td class="td-muted"><em><%= tree.scientificName %></em></td>
                   <td><%= tree.family %></td>
+                  <td><span class="badge badge-green"><%= Number(tree.price).toFixed(2) %> €</span></td>
                   <td>
-                    <span class="badge badge-green"><%= Number(tree.price).toFixed(2) %> €</span>
+                    <% if (tree.projects.length === 0) { %>
+                      <span class="td-muted">—</span>
+                    <% } else { %>
+                      <%
+                        const totalStock = tree.projects.reduce((sum, ph) => sum + ph.stock, 0);
+                      %>
+                      <% tree.projects.forEach(ph => { %>
+                        <div style="font-size:12px; margin-bottom:2px;">
+                          <strong><%= ph.project.name %></strong>
+                          <span class="badge badge-muted" style="margin-left:4px;"><%= ph.stock %> plants</span>
+                        </div>
+                      <% }) %>
+                      <div style="font-size:11px; margin-top:4px; color: var(--color-text-muted, #888);">
+                        Total : <strong><%= totalStock %> plants</strong>
+                      </div>
+                    <% } %>
                   </td>
                   <td>
-                    <div style="display:flex; gap:6px;">
-                      <button
-                        class="btn btn-secondary btn-sm"
-                        onclick="openEditModal('tree', <%= JSON.stringify(tree) %>)"
-                      >
-                        Éditer
-                      </button>
-                      <form action="/admin/trees/<%= tree.id %>/delete" method="POST"
-                            onsubmit="return confirm('Supprimer cet arbre ?')">
+                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                      <a href="http://localhost:3000/arbres/<%= tree.slug %>" target="_blank" class="btn btn-secondary btn-sm">Voir</a>
+                      <button class="btn btn-secondary btn-sm" onclick="openEditModal('tree', JSON.parse(this.dataset.tree))" data-tree="<%- JSON.stringify(tree).replace(/"/g, '&quot;') %>">Éditer</button>
+                      <form action="/admin/trees/<%= tree.id %>/delete" method="POST" onsubmit="return confirm('Supprimer cet arbre ?')">
                         <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
                       </form>
                     </div>
@@ -169,21 +144,15 @@
           </tbody>
         </table>
       </div>
-
     </section>
 
     <!-- ====================================================
          SECTION — COMMANDES
          ==================================================== -->
     <section class="section <%= activeSection === 'orders' ? 'active' : '' %>" id="section-orders">
-
       <div class="page-header">
-        <h2 class="page-title">
-          Commandes
-          <span>(<%= orders.length %>)</span>
-        </h2>
+        <h2 class="page-title">Commandes <span>(<%= orders.length %>)</span></h2>
       </div>
-
       <div class="table-wrapper">
         <table>
           <thead>
@@ -198,11 +167,7 @@
           </thead>
           <tbody>
             <% if (orders.length === 0) { %>
-              <tr>
-                <td colspan="6" class="td-muted" style="text-align:center; padding: 32px;">
-                  Aucune commande pour le moment.
-                </td>
-              </tr>
+              <tr><td colspan="6" class="td-muted" style="text-align:center; padding:32px;">Aucune commande pour le moment.</td></tr>
             <% } else { %>
               <% orders.forEach(order => { %>
                 <tr>
@@ -217,19 +182,11 @@
                       <%= order.status === 'validated' ? 'Validée' : 'Annulée' %>
                     </span>
                   </td>
-                  <td class="td-muted">
-                    <%= new Date(order.createdAt).toLocaleDateString('fr-FR') %>
-                  </td>
+                  <td class="td-muted"><%= new Date(order.createdAt).toLocaleDateString('fr-FR') %></td>
                   <td>
-                    <button
-                      class="btn btn-secondary btn-sm"
-                      onclick="toggleOrderDetail(<%= order.id %>)"
-                    >
-                      Voir
-                    </button>
+                    <button class="btn btn-secondary btn-sm" onclick="toggleOrderDetail(<%= order.id %>)">Voir</button>
                   </td>
                 </tr>
-                <!-- Ligne de détail (masquée par défaut) -->
                 <tr id="order-detail-<%= order.id %>" style="display:none;">
                   <td colspan="6" style="background: var(--brand-bg); padding: 12px 16px;">
                     <strong style="font-size:13px;">Détail de la commande :</strong>
@@ -248,9 +205,7 @@
                             <td style="font-size:13px;"><%= item.treeCommonName %></td>
                             <td style="font-size:13px;"><%= item.quantity %></td>
                             <td style="font-size:13px;"><%= Number(item.unitPrice).toFixed(2) %> €</td>
-                            <td style="font-size:13px;">
-                              <%= (item.quantity * Number(item.unitPrice)).toFixed(2) %> €
-                            </td>
+                            <td style="font-size:13px;"><%= (item.quantity * Number(item.unitPrice)).toFixed(2) %> €</td>
                           </tr>
                         <% }) %>
                       </tbody>
@@ -262,21 +217,15 @@
           </tbody>
         </table>
       </div>
-
     </section>
 
     <!-- ====================================================
          SECTION — UTILISATEURS
          ==================================================== -->
     <section class="section <%= activeSection === 'users' ? 'active' : '' %>" id="section-users">
-
       <div class="page-header">
-        <h2 class="page-title">
-          Utilisateurs
-          <span>(<%= users.length %>)</span>
-        </h2>
+        <h2 class="page-title">Utilisateurs <span>(<%= users.length %>)</span></h2>
       </div>
-
       <div class="table-wrapper">
         <table>
           <thead>
@@ -291,33 +240,22 @@
           </thead>
           <tbody>
             <% if (users.length === 0) { %>
-              <tr>
-                <td colspan="6" class="td-muted" style="text-align:center; padding: 32px;">
-                  Aucun utilisateur pour le moment.
-                </td>
-              </tr>
+              <tr><td colspan="6" class="td-muted" style="text-align:center; padding:32px;">Aucun utilisateur pour le moment.</td></tr>
             <% } else { %>
               <% users.forEach(user => { %>
                 <tr>
-                  <td>
-                    <strong><%= user.firstName %> <%= user.lastName %></strong>
-                  </td>
+                  <td><strong><%= user.firstName %> <%= user.lastName %></strong></td>
                   <td class="td-muted"><%= user.email %></td>
-                  <td>
-                    <span class="badge badge-muted"><%= user.type %></span>
-                  </td>
+                  <td><span class="badge badge-muted"><%= user.type %></span></td>
                   <td>
                     <span class="badge <%= user.role === 'admin' ? 'badge-green' : 'badge-muted' %>">
                       <%= user.role %>
                     </span>
                   </td>
-                  <td class="td-muted">
-                    <%= new Date(user.createdAt).toLocaleDateString('fr-FR') %>
-                  </td>
+                  <td class="td-muted"><%= new Date(user.createdAt).toLocaleDateString('fr-FR') %></td>
                   <td>
                     <% if (user.role !== 'admin') { %>
-                      <form action="/admin/users/<%= user.id %>/delete" method="POST"
-                            onsubmit="return confirm('Supprimer cet utilisateur ?')">
+                      <form action="/admin/users/<%= user.id %>/delete" method="POST" onsubmit="return confirm('Supprimer cet utilisateur ?')">
                         <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
                       </form>
                     <% } else { %>
@@ -330,7 +268,6 @@
           </tbody>
         </table>
       </div>
-
     </section>
 
   </main>
@@ -345,7 +282,7 @@
       <h3 class="modal-title">Nouveau projet</h3>
       <button class="modal-close" onclick="closeModal('modal-create-project')">✕</button>
     </div>
-    <form action="/admin/projects" method="POST">
+    <form action="/admin/projects" method="POST" enctype="multipart/form-data">
       <div class="form-grid">
         <div class="form-group">
           <label for="cp-name">Nom</label>
@@ -373,7 +310,7 @@
         </div>
         <div class="form-group full">
           <label for="cp-picture">URL image</label>
-          <input type="url" id="cp-picture" name="picture" required placeholder="https://..." />
+          <input type="file" id="cp-picture" name="picture" accept="image/jpeg,image/png,image/webp" required />
         </div>
       </div>
       <div class="form-actions">
@@ -393,7 +330,7 @@
       <h3 class="modal-title">Éditer le projet</h3>
       <button class="modal-close" onclick="closeModal('modal-edit-project')">✕</button>
     </div>
-    <form id="form-edit-project" action="" method="POST">
+    <form id="form-edit-project" action="" method="POST" enctype="multipart/form-data">
       <div class="form-grid">
         <div class="form-group">
           <label for="ep-name">Nom</label>
@@ -421,7 +358,12 @@
         </div>
         <div class="form-group full">
           <label for="ep-picture">URL image</label>
-          <input type="url" id="ep-picture" name="picture" required />
+          <input type="file" id="ep-picture" name="picture" accept="image/jpeg,image/png,image/webp" />
+          <p class="td-muted" style="font-size:11px; margin-top:4px;">Laisser vide pour conserver l'image actuelle</p>
+          <div id="ep-picture-preview" style="margin-top:8px; display:none;">
+            <p style="font-size:11px; color:#666;">Image actuelle :</p>
+            <img id="ep-picture-img" src="" alt="aperçu" style="height:60px; border-radius:4px; object-fit:cover;" />
+          </div>
         </div>
       </div>
       <div class="form-actions">
@@ -441,7 +383,7 @@
       <h3 class="modal-title">Nouvel arbre</h3>
       <button class="modal-close" onclick="closeModal('modal-create-tree')">✕</button>
     </div>
-    <form action="/admin/trees" method="POST">
+    <form action="/admin/trees" method="POST" enctype="multipart/form-data">
       <div class="form-grid">
         <div class="form-group">
           <label for="ct-commonName">Nom commun</label>
@@ -477,8 +419,40 @@
         </div>
         <div class="form-group full">
           <label for="ct-picture">URL image</label>
-          <input type="url" id="ct-picture" name="picture" required placeholder="https://..." />
+          <input type="file" id="ct-picture" name="picture" accept="image/jpeg,image/png,image/webp" required />
         </div>
+
+        <!-- Projets associés -->
+        <div class="form-group full">
+          <label>Projets associés &amp; stock</label>
+          <div id="ct-projects-list" style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
+            <% projects.forEach(project => { %>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <input
+                  type="checkbox"
+                  id="ct-project-<%= project.id %>"
+                  name="projectIds"
+                  value="<%= project.id %>"
+                  onchange="toggleStockInput('ct-stock-<%= project.id %>', this.checked)"
+                />
+                <label for="ct-project-<%= project.id %>" style="margin:0; font-weight:normal; flex:1;">
+                  <%= project.name %>
+                </label>
+                <input
+                  type="number"
+                  id="ct-stock-<%= project.id %>"
+                  name="stocks[<%= project.id %>]"
+                  min="0"
+                  value="0"
+                  placeholder="Stock"
+                  disabled
+                  style="width:80px; opacity:0.4;"
+                />
+              </div>
+            <% }) %>
+          </div>
+        </div>
+
       </div>
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" onclick="closeModal('modal-create-tree')">Annuler</button>
@@ -497,7 +471,7 @@
       <h3 class="modal-title">Éditer l'arbre</h3>
       <button class="modal-close" onclick="closeModal('modal-edit-tree')">✕</button>
     </div>
-    <form id="form-edit-tree" action="" method="POST">
+    <form id="form-edit-tree" action="" method="POST" enctype="multipart/form-data">
       <div class="form-grid">
         <div class="form-group">
           <label for="et-commonName">Nom commun</label>
@@ -533,8 +507,45 @@
         </div>
         <div class="form-group full">
           <label for="et-picture">URL image</label>
-          <input type="url" id="et-picture" name="picture" required />
+          <input type="file" id="et-picture" name="picture" accept="image/jpeg,image/png,image/webp" />
+          <p class="td-muted" style="font-size:11px; margin-top:4px;">Laisser vide pour conserver l'image actuelle</p>
+          <div id="et-picture-preview" style="margin-top:8px; display:none;">
+            <p style="font-size:11px; color:#666;">Image actuelle :</p>
+            <img id="et-picture-img" src="" alt="aperçu" style="height:60px; border-radius:4px; object-fit:cover;" />
+          </div>
         </div>
+
+        <!-- Projets associés -->
+        <div class="form-group full">
+          <label>Projets associés &amp; stock</label>
+          <div id="et-projects-list" style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
+            <% projects.forEach(project => { %>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <input
+                  type="checkbox"
+                  id="et-project-<%= project.id %>"
+                  name="projectIds"
+                  value="<%= project.id %>"
+                  onchange="toggleStockInput('et-stock-<%= project.id %>', this.checked)"
+                />
+                <label for="et-project-<%= project.id %>" style="margin:0; font-weight:normal; flex:1;">
+                  <%= project.name %>
+                </label>
+                <input
+                  type="number"
+                  id="et-stock-<%= project.id %>"
+                  name="stocks[<%= project.id %>]"
+                  min="0"
+                  value="0"
+                  placeholder="Stock"
+                  disabled
+                  style="width:80px; opacity:0.4;"
+                />
+              </div>
+            <% }) %>
+          </div>
+        </div>
+
       </div>
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" onclick="closeModal('modal-edit-tree')">Annuler</button>
@@ -559,28 +570,36 @@
   });
 
   function switchSection(target) {
-    // Masque toutes les sections
     sectionIds.forEach(id => {
       const el = document.getElementById('section-' + id);
       if (el) el.classList.remove('active');
     });
-
-    // Retire l'état actif de tous les liens
     document.querySelectorAll('.sidebar-link[data-section]').forEach(b => {
       b.classList.remove('active');
     });
-
-    // Active la section cible
     const section = document.getElementById('section-' + target);
     if (section) section.classList.add('active');
-
-    // Active le lien correspondant
     const link = document.querySelector(`.sidebar-link[data-section="${target}"]`);
     if (link) link.classList.add('active');
   }
 
+  // ---- Toggle champ stock selon checkbox ----
+  function toggleStockInput(inputId, checked) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    input.disabled = !checked;
+    input.style.opacity = checked ? '1' : '0.4';
+    if (!checked) input.value = '0';
+  }
+
   // ---- Modals ----
   function openCreateModal(type) {
+    if (type === 'tree') {
+      document.querySelectorAll('#modal-create-tree input[type="checkbox"]').forEach(cb => {
+        cb.checked = false;
+        toggleStockInput('ct-stock-' + cb.value, false);
+      });
+    }
     document.getElementById('modal-create-' + type).classList.add('open');
   }
 
@@ -590,26 +609,54 @@
 
     if (type === 'project') {
       document.getElementById('form-edit-project').action = '/admin/projects/' + data.id;
-      document.getElementById('ep-name').value          = data.name || '';
-      document.getElementById('ep-slug').value          = data.slug || '';
-      document.getElementById('ep-localisation').value  = data.localisation || '';
-      document.getElementById('ep-progress').value      = data.progress ?? 0;
+      document.getElementById('ep-name').value             = data.name || '';
+      document.getElementById('ep-slug').value             = data.slug || '';
+      document.getElementById('ep-localisation').value     = data.localisation || '';
+      document.getElementById('ep-progress').value         = data.progress ?? 0;
       document.getElementById('ep-shortDescription').value = data.shortDescription || '';
       document.getElementById('ep-longDescription').value  = data.longDescription || '';
-      document.getElementById('ep-picture').value       = data.picture || '';
+      const previewP = document.getElementById('ep-picture-preview');
+      const previewImgP = document.getElementById('ep-picture-img');
+      if (data.picture) {
+        previewImgP.src = data.picture;
+        previewP.style.display = 'block';
+      } else {
+        previewP.style.display = 'none';
+      }
     }
 
     if (type === 'tree') {
-      document.getElementById('form-edit-tree').action = '/admin/trees/' + data.id;
-      document.getElementById('et-commonName').value      = data.commonName || '';
-      document.getElementById('et-slug').value            = data.slug || '';
-      document.getElementById('et-scientificName').value  = data.scientificName || '';
-      document.getElementById('et-family').value          = data.family || '';
-      document.getElementById('et-price').value           = data.price || '';
-      document.getElementById('et-origin').value          = data.origin || '';
-      document.getElementById('et-shortDescription').value = data.shortDescription || '';
-      document.getElementById('et-longDescription').value  = data.longDescription || '';
-      document.getElementById('et-picture').value         = data.picture || '';
+      document.getElementById('form-edit-tree').action       = '/admin/trees/' + data.id;
+      document.getElementById('et-commonName').value         = data.commonName || '';
+      document.getElementById('et-slug').value               = data.slug || '';
+      document.getElementById('et-scientificName').value     = data.scientificName || '';
+      document.getElementById('et-family').value             = data.family || '';
+      document.getElementById('et-price').value              = data.price || '';
+      document.getElementById('et-origin').value             = data.origin || '';
+      document.getElementById('et-shortDescription').value   = data.shortDescription || '';
+      document.getElementById('et-longDescription').value    = data.longDescription || '';
+      const preview = document.getElementById('et-picture-preview');
+      const previewImg = document.getElementById('et-picture-img');
+      if (data.picture) {
+        previewImg.src = data.picture;
+        preview.style.display = 'block';
+      } else {
+        preview.style.display = 'none';
+      }
+
+      // ✅ FIX : utiliser ph.projectId (champ direct sur ProjectHasTree)
+      //    au lieu de ph.project.id (relation imbriquée, absente après JSON.parse)
+      const existingProjects = data.projects || [];
+      document.querySelectorAll('#modal-edit-tree input[type="checkbox"]').forEach(cb => {
+        const match = existingProjects.find(ph => String(ph.projectId) === cb.value);
+        cb.checked = !!match;
+        const stockInput = document.getElementById('et-stock-' + cb.value);
+        if (stockInput) {
+          stockInput.disabled = !match;
+          stockInput.style.opacity = match ? '1' : '0.4';
+          stockInput.value = match ? match.stock : '0';
+        }
+      });
     }
 
     modal.classList.add('open');
@@ -619,7 +666,6 @@
     document.getElementById(id).classList.remove('open');
   }
 
-  // Fermer modal en cliquant sur l'overlay
   document.querySelectorAll('.modal-overlay').forEach(overlay => {
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) overlay.classList.remove('open');
