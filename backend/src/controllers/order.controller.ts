@@ -64,7 +64,13 @@ export const orderController = {
             })),
           },
         },
-        include: { items: true },
+        include: {
+          items: {
+            include: {
+              project: { select: { name: true, slug: true } },
+            },
+          },
+        },
       });
 
       // 3. Fermer le panier
