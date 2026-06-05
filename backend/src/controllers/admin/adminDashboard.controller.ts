@@ -136,10 +136,12 @@ export async function postCreateProject(
   }
 
   try {
-    await prisma.project.create({ data: result.data });
-    res.redirect(
-      '/admin/dashboard?section=projects&success=Projet+cr%C3%A9%C3%A9+avec+succ%C3%A8s'
-    );
+    await prisma.project.create({
+      data: {
+        ...result.data,
+        longDescription: result.data.longDescription ?? null,
+      },
+    });
   } catch (error) {
     console.error('[adminDashboard] postCreateProject error:', error);
     if (hasPrismaCode(error, 'P2002')) {
@@ -180,10 +182,12 @@ export async function postUpdateProject(
   }
 
   try {
-    await prisma.project.update({ where: { id }, data: result.data });
-    res.redirect(
-      '/admin/dashboard?section=projects&success=Projet+mis+%C3%A0+jour'
-    );
+    await prisma.project.update({
+      where: { id },
+      data: Object.fromEntries(
+        Object.entries(result.data).filter(([, value]) => value !== undefined)
+      ),
+    });
   } catch (error) {
     console.error('[adminDashboard] postUpdateProject error:', error);
     if (hasPrismaCode(error, 'P2025')) {
@@ -277,7 +281,13 @@ export async function postCreateTree(
 
   try {
     await prisma.$transaction(async (tx) => {
-      const tree = await tx.tree.create({ data: result.data });
+      const tree = await tx.tree.create({
+        data: {
+          ...result.data,
+          longDescription: result.data.longDescription ?? null,
+          origin: result.data.origin ?? null,
+        },
+      });
 
       if (projectIds && projectIds.length > 0) {
         await tx.projectHasTree.createMany({
@@ -351,7 +361,12 @@ export async function postUpdateTree(
 
   try {
     await prisma.$transaction(async (tx) => {
-      await tx.tree.update({ where: { id }, data: result.data });
+      await tx.tree.update({
+        where: { id },
+        data: Object.fromEntries(
+          Object.entries(result.data).filter(([, value]) => value !== undefined)
+        ),
+      });
       await tx.projectHasTree.deleteMany({ where: { treeId: id } });
 
       if (projectIds && projectIds.length > 0) {
