@@ -11,9 +11,17 @@ import searchRouter from './routers/search.router.js';
 import { adminRouter } from './routers/admin.router.js';
 import { router as stripeWebhookRouter } from './routers/stripe-webhook.router.js';
 
+import swaggerUi from 'swagger-ui-express';
+import SwaggerParser from '@apidevtools/swagger-parser';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
+const swaggerDocument = await SwaggerParser.bundle(
+  path.join(__dirname, 'docs/openapi.yaml')
+);
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Activation de CORS pour autoriser les appels du front-end vers l'API.
 // FRONTEND_URL permet d'adapter l'origine autorisée selon l'environnement.
@@ -27,6 +35,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
 app.use(
   helmet({
     contentSecurityPolicy: false,

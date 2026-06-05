@@ -31,29 +31,33 @@ export const treeProjectsSchema = z.object({
       return Array.isArray(val) ? val : [val];
     }),
 
-  // ✅ FIX : Express interprète stocks[12] comme un tableau quand les clés
-  // sont des entiers. On accepte les deux formes (record OU array) et on
-  // normalise en record { "p<id>": stock } via le préfixe "p" côté EJS.
+  // Express transforme stocks[1], stocks[2]... en array quand les clés sont
+  // des entiers. On accepte les deux formes et on ignore les valeurs vides/NaN.
   stocks: z
-    .union([
-      z.record(z.string(), z.coerce.number().min(0)),
-      z.array(z.coerce.number().min(0).nullable()),
-    ])
+    .union([z.record(z.string(), z.coerce.number().min(0)), z.array(z.any())])
     .optional()
     .default({})
     .transform((val) => {
-      if (!val || (Array.isArray(val) && val.length === 0)) return {};
+      if (!val) return {};
+
       if (Array.isArray(val)) {
-        // Cas array : reconstruit le record depuis les index
         const result: Record<string, number> = {};
         val.forEach((v, idx) => {
-          if (v !== null && v !== undefined) {
-            result[String(idx)] = v;
+          const n = Number(v);
+          if (v !== null && v !== undefined && v !== '' && !isNaN(n)) {
+            result[String(idx)] = n;
           }
         });
         return result;
       }
-      return val as Record<string, number>;
+
+      // Record : filtre aussi les NaN éventuels
+      const result: Record<string, number> = {};
+      for (const [k, v] of Object.entries(val as Record<string, unknown>)) {
+        const n = Number(v);
+        if (!isNaN(n)) result[k] = n;
+      }
+      return result;
     }),
 });
 

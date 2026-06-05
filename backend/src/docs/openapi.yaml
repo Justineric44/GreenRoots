@@ -1,0 +1,38 @@
+openapi: 3.0.0
+info:
+  title: GreenRoots API
+  version: 1.0.0
+  description: |
+    API de la plateforme GreenRoots — reforestation solidaire.
+    Documentation modulaire : chaque scope (Users, Orders, …) est défini
+    dans son propre fichier YAML et combiné ici via $ref.
+
+tags:
+  - name: Users
+    description: Routes liées à l'utilisateur connecté
+  - name: Orders
+    description: Création et gestion des commandes
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  # ============================================================
+  # USERS — Routes importées de users.openapi.yaml
+  # ============================================================
+  /api/users/me:
+    $ref: './users.openapi.yaml#/paths/~1api~1users~1me'
+  /api/users/me/orders:
+    $ref: './users.openapi.yaml#/paths/~1api~1users~1me~1orders'
+  /api/users/me/orders/{id}:
+    $ref: './users.openapi.yaml#/paths/~1api~1users~1me~1orders~1{id}'
+
+  # ============================================================
+  # ORDERS — Routes importées de orders.openapi.yaml
+  # ============================================================
+  /api/orders:
+    $ref: './orders.openapi.yaml#/paths/~1api~1orders'
