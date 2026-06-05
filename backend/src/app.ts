@@ -10,10 +10,17 @@ import { router } from './routers/index.router.js';
 import searchRouter from './routers/search.router.js';
 import { adminRouter } from './routers/admin.router.js';
 
+import swaggerUi from 'swagger-ui-express';
+import SwaggerParser from '@apidevtools/swagger-parser';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
+const swaggerDocument = await SwaggerParser.bundle(
+  path.join(__dirname, 'docs/openapi.yaml')
+);
 
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(cors());
 app.use(
   helmet({
