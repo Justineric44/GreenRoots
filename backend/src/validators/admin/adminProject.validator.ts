@@ -14,7 +14,7 @@ export const createProjectSchema = z.object({
       'Le slug ne peut contenir que des minuscules, chiffres et tirets'
     ),
   shortDescription: z.string().min(1, 'La description courte est requise'),
-  longDescription: z.string().optional(),
+  longDescription: z.string().nullable().default(null),
   localisation: z.string().min(1, 'La localisation est requise'),
   picture: z.string().min(1, "L'image est requise"),
   progress: z.coerce.number().int().min(0).max(100),
