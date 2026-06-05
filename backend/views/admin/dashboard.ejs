@@ -25,56 +25,121 @@
     <%- include('partials/flash-message', { query }) %>
 
     <!-- ====================================================
-         SECTION — PROJETS
-         ==================================================== -->
-    <section class="section <%= activeSection === 'projects' ? 'active' : '' %>" id="section-projects">
-      <div class="page-header">
-        <h2 class="page-title">Projets <span>(<%= projects.length %>)</span></h2>
-        <button class="btn btn-primary btn-sm" onclick="openCreateModal('project')">+ Nouveau projet</button>
-      </div>
-      <div class="table-wrapper">
-        <table>
-          <thead>
+     SECTION — PROJETS
+     ==================================================== -->
+<section class="section <%= activeSection === 'projects' ? 'active' : '' %>" id="section-projects">
+  <div class="page-header">
+    <h2 class="page-title">
+      Projets <span>(<%= projects.length %>)</span>
+    </h2>
+
+    <button class="btn btn-primary btn-sm" onclick="openCreateModal('project')">
+      + Nouveau projet
+    </button>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Localisation</th>
+          <th>Progression</th>
+          <th>Stock total</th>
+          <th>Arbres associés</th>
+          <th>Créé le</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% if (projects.length === 0) { %>
+          <tr>
+            <td colspan="7" class="td-muted" style="text-align:center; padding:32px;">
+              Aucun projet pour le moment.
+            </td>
+          </tr>
+        <% } else { %>
+          <% projects.forEach(project => { %>
+            <% const totalStock = project.trees.reduce((sum, ph) => sum + ph.stock, 0); %>
+
             <tr>
-              <th>Nom</th>
-              <th>Localisation</th>
-              <th>Progression</th>
-              <th>Créé le</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% if (projects.length === 0) { %>
-              <tr><td colspan="5" class="td-muted" style="text-align:center; padding:32px;">Aucun projet pour le moment.</td></tr>
-            <% } else { %>
-              <% projects.forEach(project => { %>
-                <tr>
-                  <td>
-                    <strong><%= project.name %></strong>
-                    <div class="td-muted"><%= project.slug %></div>
-                  </td>
-                  <td><%= project.localisation %></td>
-                  <td>
-                    <span class="badge <%= project.progress === 100 ? 'badge-green' : 'badge-muted' %>">
-                      <%= project.progress %>%
-                    </span>
-                  </td>
-                  <td class="td-muted"><%= new Date(project.createdAt).toLocaleDateString('fr-FR') %></td>
-                  <td>
-                    <div style="display:flex; gap:6px;">
-                      <button class="btn btn-secondary btn-sm" onclick="openEditModal('project', <%= JSON.stringify(project) %>)">Éditer</button>
-                      <form action="/admin/projects/<%= project.id %>/delete" method="POST" onsubmit="return confirm('Supprimer ce projet ?')">
-                        <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
-                      </form>
+              <td>
+                <strong><%= project.name %></strong>
+                <div class="td-muted"><%= project.slug %></div>
+              </td>
+
+              <td><%= project.localisation %></td>
+
+              <td>
+                <span
+                  class="badge <%= project.progress === 100 ? 'badge-green' : 'badge-muted' %>"
+                >
+                  <%= project.progress %>%
+                </span>
+              </td>
+
+              <td>
+                <span class="badge badge-muted">
+                  <%= totalStock %> plants
+                </span>
+              </td>
+
+              <td>
+                <% if (project.trees.length === 0) { %>
+                  <span class="td-muted">—</span>
+                <% } else { %>
+                  <% project.trees.forEach(ph => { %>
+                    <div style="font-size:12px; margin-bottom:2px;">
+                      <strong><%= ph.tree.commonName %></strong>
+
+                      <span class="badge badge-muted" style="margin-left:4px;">
+                        <%= ph.stock %> plants
+                      </span>
                     </div>
-                  </td>
-                </tr>
-              <% }) %>
-            <% } %>
-          </tbody>
-        </table>
-      </div>
-    </section>
+                  <% }) %>
+                <% } %>
+              </td>
+
+              <td class="td-muted">
+                <%= new Date(project.createdAt).toLocaleDateString('fr-FR') %>
+              </td>
+
+              <td>
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                  <a
+                    href="http://localhost:3000/projets/<%= project.slug %>"
+                    target="_blank"
+                    class="btn btn-secondary btn-sm"
+                  >
+                    Voir
+                  </a>
+
+                  <button
+                    class="btn btn-secondary btn-sm"
+                    onclick="openEditModal('project', <%= JSON.stringify(project) %>)"
+                  >
+                    Éditer
+                  </button>
+
+                  <form
+                    action="/admin/projects/<%= project.id %>/delete"
+                    method="POST"
+                    onsubmit="return confirm('Supprimer ce projet ?')"
+                  >
+                    <button type="submit" class="btn btn-danger btn-sm">
+                      Supprimer
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</section>
 
     <!-- ====================================================
          SECTION — ARBRES
@@ -283,41 +348,85 @@
       <button class="modal-close" onclick="closeModal('modal-create-project')">✕</button>
     </div>
     <form action="/admin/projects" method="POST" enctype="multipart/form-data">
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="cp-name">Nom</label>
-          <input type="text" id="cp-name" name="name" required />
-        </div>
-        <div class="form-group">
-          <label for="cp-slug">Slug</label>
-          <input type="text" id="cp-slug" name="slug" required placeholder="ex: reforestation-amazonie" />
-        </div>
-        <div class="form-group">
-          <label for="cp-localisation">Localisation</label>
-          <input type="text" id="cp-localisation" name="localisation" required />
-        </div>
-        <div class="form-group">
-          <label for="cp-progress">Progression (%)</label>
-          <input type="number" id="cp-progress" name="progress" min="0" max="100" value="0" required />
-        </div>
-        <div class="form-group full">
-          <label for="cp-shortDescription">Description courte</label>
-          <textarea id="cp-shortDescription" name="shortDescription" required></textarea>
-        </div>
-        <div class="form-group full">
-          <label for="cp-longDescription">Description longue</label>
-          <textarea id="cp-longDescription" name="longDescription" style="min-height:120px;"></textarea>
-        </div>
-        <div class="form-group full">
-          <label for="cp-picture">URL image</label>
-          <input type="file" id="cp-picture" name="picture" accept="image/jpeg,image/png,image/webp" required />
-        </div>
+  <div class="form-grid">
+
+    <!-- Champs principaux du projet -->
+    <div class="form-group">
+      <label for="cp-name">Nom</label>
+      <input type="text" id="cp-name" name="name" required />
+    </div>
+
+    <div class="form-group">
+      <label for="cp-slug">Slug</label>
+      <input type="text" id="cp-slug" name="slug" required placeholder="ex: reforestation-amazonie" />
+    </div>
+
+    <div class="form-group">
+      <label for="cp-localisation">Localisation</label>
+      <input type="text" id="cp-localisation" name="localisation" required />
+    </div>
+
+    <div class="form-group">
+      <label for="cp-progress">Progression (%)</label>
+      <input type="number" id="cp-progress" name="progress" min="0" max="100" value="0" required />
+    </div>
+
+    <div class="form-group full">
+      <label for="cp-shortDescription">Description courte</label>
+      <textarea id="cp-shortDescription" name="shortDescription" required></textarea>
+    </div>
+
+    <div class="form-group full">
+      <label for="cp-longDescription">Description longue</label>
+      <textarea id="cp-longDescription" name="longDescription" style="min-height:120px;"></textarea>
+    </div>
+
+    <div class="form-group full">
+      <label for="cp-picture">Image</label>
+      <input type="file" id="cp-picture" name="picture" accept="image/jpeg,image/png,image/webp" required />
+    </div>
+
+    <!-- Arbres associés au projet -->
+    <div class="form-group full">
+      <label>Arbres associés &amp; stock</label>
+
+      <div id="cp-trees-list" style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
+        <% trees.forEach(tree => { %>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <input
+              type="checkbox"
+              id="cp-tree-<%= tree.id %>"
+              name="treeIds"
+              value="<%= tree.id %>"
+              onchange="toggleStockInput('cp-stock-<%= tree.id %>', this.checked)"
+            />
+
+            <label for="cp-tree-<%= tree.id %>" style="margin:0; font-weight:normal; flex:1;">
+              <%= tree.commonName %>
+            </label>
+
+            <input
+              type="number"
+              id="cp-stock-<%= tree.id %>"
+              name="stocks[t<%= tree.id %>]"
+              min="0"
+              value="0"
+              placeholder="Stock"
+              disabled
+              style="width:80px; opacity:0.4;"
+            />
+          </div>
+        <% }) %>
       </div>
-      <div class="form-actions">
-        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-create-project')">Annuler</button>
-        <button type="submit" class="btn btn-primary">Créer le projet</button>
-      </div>
-    </form>
+    </div>
+
+  </div>
+
+  <div class="form-actions">
+    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-create-project')">Annuler</button>
+    <button type="submit" class="btn btn-primary">Créer le projet</button>
+  </div>
+</form>
   </div>
 </div>
 
@@ -357,7 +466,7 @@
           <textarea id="ep-longDescription" name="longDescription" style="min-height:120px;"></textarea>
         </div>
         <div class="form-group full">
-          <label for="ep-picture">URL image</label>
+          <label for="ep-picture">image du projet</label>
           <input type="file" id="ep-picture" name="picture" accept="image/jpeg,image/png,image/webp" />
           <p class="td-muted" style="font-size:11px; margin-top:4px;">Laisser vide pour conserver l'image actuelle</p>
           <div id="ep-picture-preview" style="margin-top:8px; display:none;">
@@ -365,6 +474,44 @@
             <img id="ep-picture-img" src="" alt="aperçu" style="height:60px; border-radius:4px; object-fit:cover;" />
           </div>
         </div>
+        <!-- Arbres associés au projet -->
+<div class="form-group full">
+  <label>Arbres associés &amp; stock</label>
+
+  <div
+    id="ep-trees-list"
+    style="display:flex; flex-direction:column; gap:8px; margin-top:4px;"
+  >
+    <% trees.forEach(tree => { %>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <input
+          type="checkbox"
+          id="ep-tree-<%= tree.id %>"
+          name="treeIds"
+          value="<%= tree.id %>"
+          onchange="toggleStockInput('ep-stock-<%= tree.id %>', this.checked)"
+        />
+
+        <label
+          for="ep-tree-<%= tree.id %>"
+          style="margin:0; font-weight:normal; flex:1;"
+        >
+          <%= tree.commonName %>
+        </label>
+
+        <input
+          type="number"
+          id="ep-stock-<%= tree.id %>"
+          name="stocks[t<%= tree.id %>]"
+          min="0"
+          value="0"
+          disabled
+          style="width:80px; opacity:0.4;"
+        />
+      </div>
+    <% }) %>
+  </div>
+</div>
       </div>
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" onclick="closeModal('modal-edit-project')">Annuler</button>
@@ -441,7 +588,7 @@
                 <input
                   type="number"
                   id="ct-stock-<%= project.id %>"
-                  name="stocks[<%= project.id %>]"
+                  name="stocks[p<%= project.id %>]"
                   min="0"
                   value="0"
                   placeholder="Stock"
@@ -534,7 +681,7 @@
                 <input
                   type="number"
                   id="et-stock-<%= project.id %>"
-                  name="stocks[<%= project.id %>]"
+                  name="stocks[p<%= project.id %>]"
                   min="0"
                   value="0"
                   placeholder="Stock"
@@ -623,6 +770,23 @@
       } else {
         previewP.style.display = 'none';
       }
+
+       // Préremplissage des arbres associés au projet
+  const existingTrees = data.trees || [];
+
+  document.querySelectorAll('#modal-edit-project input[type="checkbox"]').forEach(cb => {
+    const match = existingTrees.find(ph => String(ph.treeId) === cb.value);
+
+    cb.checked = !!match;
+
+    const stockInput = document.getElementById('ep-stock-' + cb.value);
+
+    if (stockInput) {
+      stockInput.disabled = !match;
+      stockInput.style.opacity = match ? '1' : '0.4';
+      stockInput.value = match ? match.stock : '0';
+    }
+  });
     }
 
     if (type === 'tree') {

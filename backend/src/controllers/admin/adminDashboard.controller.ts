@@ -10,6 +10,7 @@ import { prisma } from '../../lib/prisma.js';
 import {
   createProjectSchema,
   updateProjectSchema,
+  projectTreesSchema,
 } from '../../validators/admin/adminProject.validator.js';
 
 import {
@@ -61,6 +62,19 @@ export async function getDashboard(req: Request, res: Response): Promise<void> {
     const [projects, trees, orders, users] = await Promise.all([
       prisma.project.findMany({
         orderBy: { createdAt: 'desc' },
+        include: {
+          trees: {
+            include: {
+              tree: {
+                select: {
+                  id: true,
+                  commonName: true,
+                  slug: true,
+                },
+              },
+            },
+          },
+        },
       }),
 
       prisma.tree.findMany({
@@ -135,8 +149,27 @@ export async function postCreateProject(
     return;
   }
 
+  const treesResult = projectTreesSchema.safeParse(req.body);
+
+  const { treeIds, stocks } = treesResult.success
+    ? treesResult.data
+    : { treeIds: [], stocks: {} };
+
   try {
-    await prisma.project.create({ data: result.data });
+    await prisma.$transaction(async (tx) => {
+      const project = await tx.project.create({ data: result.data });
+
+      if (treeIds && treeIds.length > 0) {
+        await tx.projectHasTree.createMany({
+          data: treeIds.map((treeId) => ({
+            projectId: project.id,
+            treeId: Number(treeId),
+            stock: stocks?.[`t${treeId}`] ?? 0,
+          })),
+        });
+      }
+    });
+
     res.redirect(
       '/admin/dashboard?section=projects&success=Projet+cr%C3%A9%C3%A9+avec+succ%C3%A8s'
     );
@@ -179,25 +212,66 @@ export async function postUpdateProject(
     return;
   }
 
+  const treesResult = projectTreesSchema.safeParse(req.body);
+
+  const { treeIds, stocks } = treesResult.success
+    ? treesResult.data
+    : { treeIds: [], stocks: {} };
+
   try {
-    await prisma.project.update({ where: { id }, data: result.data });
+    await prisma.$transaction(async (tx) => {
+      // ============================================================
+      // Mise à jour du projet
+      // ============================================================
+
+      await tx.project.update({
+        where: { id },
+        data: result.data,
+      });
+
+      // ============================================================
+      // Suppression des anciennes associations
+      // ============================================================
+
+      await tx.projectHasTree.deleteMany({
+        where: { projectId: id },
+      });
+
+      // ============================================================
+      // Création des nouvelles associations
+      // ============================================================
+
+      if (treeIds && treeIds.length > 0) {
+        await tx.projectHasTree.createMany({
+          data: treeIds.map((treeId) => ({
+            projectId: id,
+            treeId: Number(treeId),
+            stock: stocks?.[`t${treeId}`] ?? 0,
+          })),
+        });
+      }
+    });
+
     res.redirect(
       '/admin/dashboard?section=projects&success=Projet+mis+%C3%A0+jour'
     );
   } catch (error) {
     console.error('[adminDashboard] postUpdateProject error:', error);
+
     if (hasPrismaCode(error, 'P2025')) {
       res.redirect(
         '/admin/dashboard?section=projects&error=Projet+introuvable'
       );
       return;
     }
+
     if (hasPrismaCode(error, 'P2002')) {
       res.redirect(
         '/admin/dashboard?section=projects&error=Ce+slug+existe+d%C3%A9j%C3%A0'
       );
       return;
     }
+
     res.redirect(
       '/admin/dashboard?section=projects&error=Erreur+lors+de+la+mise+%C3%A0+jour'
     );
@@ -257,19 +331,6 @@ export async function postCreateTree(
   }
 
   const projectsResult = treeProjectsSchema.safeParse(req.body);
-
-  // 🔍 DEBUG — à supprimer une fois le problème résolu
-  console.log('--- [postCreateTree] DEBUG ---');
-  console.log('req.body.projectIds:', req.body.projectIds);
-  console.log('req.body.stocks:', req.body.stocks);
-  console.log('projectsResult.success:', projectsResult.success);
-  console.log(
-    'projectsResult.data:',
-    JSON.stringify(
-      projectsResult.success ? projectsResult.data : projectsResult.error
-    )
-  );
-  console.log('-----------------------------');
 
   const { projectIds, stocks } = projectsResult.success
     ? projectsResult.data
@@ -331,19 +392,6 @@ export async function postUpdateTree(
   }
 
   const projectsResult = treeProjectsSchema.safeParse(req.body);
-
-  // 🔍 DEBUG — à supprimer une fois le problème résolu
-  console.log('--- [postUpdateTree] DEBUG ---');
-  console.log('req.body.projectIds:', req.body.projectIds);
-  console.log('req.body.stocks:', req.body.stocks);
-  console.log('projectsResult.success:', projectsResult.success);
-  console.log(
-    'projectsResult.data:',
-    JSON.stringify(
-      projectsResult.success ? projectsResult.data : projectsResult.error
-    )
-  );
-  console.log('-----------------------------');
 
   const { projectIds, stocks } = projectsResult.success
     ? projectsResult.data
