@@ -95,6 +95,27 @@
                 <h2 class="page-title">Arbres <span>(<%= trees.length %>)</span></h2>
                 <button class="btn btn-primary btn-sm" onclick="openCreateModal('tree')">+ Nouvel arbre</button>
               </div>
+
+            <!-- Barre de recherche + tri -->
+<div style="display:flex; justify-content:flex-end; gap:10px; align-items:center; margin-bottom:16px; flex-wrap:wrap;">
+  <input
+    type="text"
+    id="tree-search"
+    placeholder="Rechercher par nom ou projet / stock..."
+    oninput="applyTreeFilters()"
+    style="padding:6px 12px; border:1px solid var(--border, #ddd); border-radius:6px; font-size:13px; width:280px;"
+  />
+  <select
+    id="tree-sort"
+    onchange="applyTreeFilters()"
+    style="padding:6px 12px; border:1px solid var(--border, #ddd); border-radius:6px; font-size:13px; width:280px;"
+  >
+    <option value="">— Ordre par défaut —</option>
+    <option value="asc">Nom A → Z</option>
+    <option value="desc">Nom Z → A</option>
+  </select>
+</div>
+
               <div class="table-wrapper">
                 <table>
                   <thead>
@@ -108,7 +129,7 @@
                       <th>Actions</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody id="trees-tbody">
                     <% if (trees.length===0) { %>
                       <tr>
                         <td colspan="7" class="td-muted" style="text-align:center; padding:32px;">Aucun arbre pour le
@@ -167,7 +188,7 @@
                                   class="btn btn-secondary btn-sm">Voir</a>
                                 <button class="btn btn-secondary btn-sm"
                                   onclick="openEditModal('tree', JSON.parse(this.dataset.tree))"
-                                  data-tree="<%- JSON.stringify(tree).replace(/" /g, '&quot;' ) %>">Éditer</button>
+                                  data-tree="<%- JSON.stringify(tree).replace(/"/g, '&quot;') %>">Éditer</button>
                                 <form action="/admin/trees/<%= tree.id %>/delete" method="POST"
                                   onsubmit="return confirm('Supprimer cet arbre ?')">
                                   <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
@@ -179,6 +200,10 @@
                             <% } %>
                   </tbody>
                 </table>
+                <!-- Message aucun résultat -->
+                <div id="trees-no-result" style="display:none; text-align:center; padding:32px; color: var(--color-text-muted, #888); font-size:13px;">
+                  Aucun arbre ne correspond à votre recherche.
+                </div>
               </div>
             </section>
 
@@ -601,7 +626,7 @@
   </div>
 
   <!-- ============================================================
-     JAVASCRIPT — Navigation + Modals
+     JAVASCRIPT — Navigation + Modals + Recherche + SSE
      ============================================================ -->
   <script>
     // ---- Navigation sections ----
@@ -689,8 +714,6 @@
           preview.style.display = 'none';
         }
 
-        // ✅ FIX : utiliser ph.projectId (champ direct sur ProjectHasTree)
-        //    au lieu de ph.project.id (relation imbriquée, absente après JSON.parse)
         const existingProjects = data.projects || [];
         document.querySelectorAll('#modal-edit-tree input[type="checkbox"]').forEach(cb => {
           const match = existingProjects.find(ph => String(ph.projectId) === cb.value);
@@ -725,36 +748,71 @@
       }
     }
 
-    // ---- SSE — Mise à jour stocks en temps réel ----
-const evtSource = new EventSource('/api/sse');
+    // ---- Recherche + Tri — Section Arbres ----
+    function applyTreeFilters() {
+      const search = document.getElementById('tree-search').value.toLowerCase().trim();
+      const sort = document.getElementById('tree-sort').value;
+      const tbody = document.getElementById('trees-tbody');
+      const noResult = document.getElementById('trees-no-result');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
 
-evtSource.addEventListener('stock:updated', async (e) => {
-  const updates = JSON.parse(e.data); // [{ treeId, projectId }]
+      // Filtrage
+      rows.forEach(row => {
+        const nameEl = row.querySelector('td:nth-child(2) strong');
+        const stockEl = row.querySelector('td:nth-child(6)');
+        if (!nameEl) { row.style.display = 'none'; return; }
+        const name = nameEl.textContent.toLowerCase();
+        const stock = stockEl ? stockEl.textContent.toLowerCase() : '';
+        row.style.display = (!search || name.includes(search) || stock.includes(search)) ? '' : 'none';
+      });
 
-  for (const { treeId, projectId } of updates) {
-    try {
-      const res = await fetch(`/api/trees/${treeId}`);
-      const json = await res.json();
-      const tree = json.data;
+      // Tri alphabétique sur les lignes visibles
+      if (sort) {
+        const visibleRows = rows.filter(r => r.style.display !== 'none');
+        visibleRows.sort((a, b) => {
+          const nameA = a.querySelector('td:nth-child(2) strong')?.textContent.trim() ?? '';
+          const nameB = b.querySelector('td:nth-child(2) strong')?.textContent.trim() ?? '';
+          return sort === 'asc'
+            ? nameA.localeCompare(nameB, 'fr')
+            : nameB.localeCompare(nameA, 'fr');
+        });
+        visibleRows.forEach(row => tbody.appendChild(row));
+      }
 
-      const badge = document.querySelector(
-        `[data-stock-tree="${treeId}"][data-stock-project="${projectId}"]`
-      );
-      if (!badge) continue;
-
-      const ph = tree.projects?.find(
-        (p) => p.treeId === treeId && p.projectId === projectId
-      );
-      if (ph) badge.textContent = ph.stock + ' plants';
-    } catch (err) {
-      console.error('SSE stock update error:', err);
+      // Message "aucun résultat"
+      const anyVisible = rows.some(r => r.style.display !== 'none');
+      noResult.style.display = anyVisible ? 'none' : 'block';
     }
-  }
-});
 
-evtSource.onerror = () => console.warn('SSE connexion perdue, reconnexion auto...');
+    // ---- SSE — Mise à jour stocks en temps réel ----
+    const evtSource = new EventSource('/api/sse');
+
+    evtSource.addEventListener('stock:updated', async (e) => {
+      const updates = JSON.parse(e.data);
+
+      for (const { treeId, projectId } of updates) {
+        try {
+          const res = await fetch(`/api/trees/${treeId}`);
+          const json = await res.json();
+          const tree = json.data;
+
+          const badge = document.querySelector(
+            `[data-stock-tree="${treeId}"][data-stock-project="${projectId}"]`
+          );
+          if (!badge) continue;
+
+          const ph = tree.projects?.find(
+            (p) => p.treeId === treeId && p.projectId === projectId
+          );
+          if (ph) badge.textContent = ph.stock + ' plants';
+        } catch (err) {
+          console.error('SSE stock update error:', err);
+        }
+      }
+    });
+
+    evtSource.onerror = () => console.warn('SSE connexion perdue, reconnexion auto...');
   </script>
 
-  </body>
-
-  </html>
+</body>
+</html>
