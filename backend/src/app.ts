@@ -16,21 +16,21 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 
 // Activation de CORS pour autoriser les appels du front-end vers l'API.
-// L'origine est définie par FRONTEND_URL en production, avec une valeur par défaut
-// locale pour les tests et le développement.
-// credentials: true est indispensable pour que les cookies d'authentification
-// soient envoyés et conservés par le navigateur lors des requêtes croisées.
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL ?? 'http://localhost:3000',
-    credentials: true,
-  })
-);
+// FRONTEND_URL permet d'adapter l'origine autorisée selon l'environnement.
+// credentials: true est indispensable pour envoyer les cookies d'authentification.
+const corsOptions = {
+  origin: [
+    process.env.FRONTEND_URL ?? 'http://localhost:3000',
+    'http://localhost:3001',
+  ],
+  credentials: true,
+};
 
+app.use(cors(corsOptions));
 app.use(
   helmet({
-    // Nécessaire pour charger le CSS admin servi par Express
     contentSecurityPolicy: false,
+    crossOriginResourcePolicy: false, // Autorise le chargement des ressources statiques cross-origin
   })
 );
 
@@ -51,6 +51,17 @@ app.set('views', path.join(__dirname, '../views'));
 app.use(
   '/admin/static',
   express.static(path.join(__dirname, '../public/admin'))
+);
+
+// ---- Fichiers statiques uploads ----
+app.use(
+  '/uploads',
+  express.static(path.join(process.cwd(), '../public/uploads'), {
+    setHeaders: (res) => {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    },
+  })
 );
 
 // ---- Routes API ----

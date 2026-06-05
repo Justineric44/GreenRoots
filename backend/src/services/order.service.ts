@@ -73,7 +73,16 @@ export async function createOrderFromActiveCart(
       },
     },
     include: {
-      items: true,
+      items: {
+        include: {
+          project: {
+            select: {
+              name: true,
+              slug: true,
+            },
+          },
+        },
+      },
     },
   });
 

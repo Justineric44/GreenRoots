@@ -64,6 +64,10 @@ export interface OrderItem {
   treeId: number;
   projectId: number;
   orderId: number;
+  project: {
+    name: string;
+    slug: string;
+  };
 }
 
 export interface Order {

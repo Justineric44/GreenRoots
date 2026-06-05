@@ -170,7 +170,7 @@ export default async function CustomerAreaPage({
                       <span
                         className={
                           order.status === 'validated'
-                            ? 'rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-medium'
+                            ? 'rounded-full bg-brand-accent text-brand-white px-3 py-1 text-xs font-medium'
                             : 'rounded-full bg-destructive/10 text-destructive px-3 py-1 text-xs font-medium'
                         }
                       >
@@ -187,13 +187,19 @@ export default async function CustomerAreaPage({
                     {order.items.map((item) => (
                       <li
                         key={item.id}
-                        className="flex items-center justify-between gap-3 text-sm"
+                        className="flex items-start justify-between gap-3 text-sm"
                       >
-                        <span className="text-muted-foreground">
-                          {item.treeCommonName}{' '}
-                          <span className="text-xs">× {item.quantity}</span>
-                        </span>
-                        <span className="font-mono text-muted-foreground">
+                        <div className="flex-1">
+                          <p className="text-muted-foreground">
+                            {item.treeCommonName}{' '}
+                            <span className="text-xs">× {item.quantity}</span>
+                          </p>
+
+                          <p className="text-xs text-muted-foreground/70 italic mt-0.5">
+                            Projet : {item.project.name}
+                          </p>
+                        </div>
+                        <span className="font-mono text-muted-foreground whitespace-nowrap">
                           {Number(item.unitPrice).toFixed(2)} €
                         </span>
                       </li>

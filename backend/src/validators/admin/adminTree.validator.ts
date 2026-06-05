@@ -1,6 +1,5 @@
 // ============================================================
 //  src/validators/admin/adminTree.validator.ts
-//  Validation Zod des formulaires arbre (admin)
 // ============================================================
 
 import { z } from 'zod';
@@ -20,10 +19,46 @@ export const createTreeSchema = z.object({
   longDescription: z.string().optional(),
   origin: z.string().optional(),
   price: z.coerce.number().positive('Le prix doit être supérieur à 0'),
-  picture: z.string().min(1, "L'URL de l'image est requise"),
+  picture: z.string().min(1, "L'image est requise"),
+});
+
+export const treeProjectsSchema = z.object({
+  projectIds: z
+    .union([z.string(), z.array(z.string())])
+    .optional()
+    .transform((val) => {
+      if (!val) return [];
+      return Array.isArray(val) ? val : [val];
+    }),
+
+  // ✅ FIX : Express interprète stocks[12] comme un tableau quand les clés
+  // sont des entiers. On accepte les deux formes (record OU array) et on
+  // normalise en record { "p<id>": stock } via le préfixe "p" côté EJS.
+  stocks: z
+    .union([
+      z.record(z.string(), z.coerce.number().min(0)),
+      z.array(z.coerce.number().min(0).nullable()),
+    ])
+    .optional()
+    .default({})
+    .transform((val) => {
+      if (!val || (Array.isArray(val) && val.length === 0)) return {};
+      if (Array.isArray(val)) {
+        // Cas array : reconstruit le record depuis les index
+        const result: Record<string, number> = {};
+        val.forEach((v, idx) => {
+          if (v !== null && v !== undefined) {
+            result[String(idx)] = v;
+          }
+        });
+        return result;
+      }
+      return val as Record<string, number>;
+    }),
 });
 
 export const updateTreeSchema = createTreeSchema.partial();
 
 export type CreateTreeInput = z.infer<typeof createTreeSchema>;
 export type UpdateTreeInput = z.infer<typeof updateTreeSchema>;
+export type TreeProjectsInput = z.infer<typeof treeProjectsSchema>;

@@ -1,25 +1,10 @@
 // ============================================================
-//  src/routers/admin.router.ts
-//  Toutes les routes de l'interface admin
-//
-//  Routes publiques (sans middleware) :
-//    GET  /admin/login
-//    POST /admin/login
-//
-//  Routes protégées (requireAdmin) :
-//    POST /admin/logout
-//    GET  /admin/dashboard
-//    POST /admin/projects
-//    POST /admin/projects/:id
-//    POST /admin/projects/:id/delete
-//    POST /admin/trees
-//    POST /admin/trees/:id
-//    POST /admin/trees/:id/delete
-//    POST /admin/users/:id/delete
+// src/routers/admin.router.ts
 // ============================================================
 
 import { Router } from 'express';
 import { requireAdmin } from '../middlewares/adminAuth.middleware.js';
+import { uploadImage } from '../middlewares/upload.middleware.js';
 import {
   getLogin,
   postLogin,
@@ -38,30 +23,44 @@ import {
 
 export const adminRouter = Router();
 
-// ============================================================
-// Routes publiques — pas de middleware
-// ============================================================
-
+// ---- Routes publiques ----
 adminRouter.get('/login', getLogin);
 adminRouter.post('/login', postLogin);
 
-// ============================================================
-// Routes protégées — requireAdmin sur toutes
-// ============================================================
-
+// ---- Routes protégées ----
 adminRouter.post('/logout', requireAdmin, postLogout);
 
 // Dashboard
 adminRouter.get('/dashboard', requireAdmin, getDashboard);
 
 // Projets
-adminRouter.post('/projects', requireAdmin, postCreateProject);
-adminRouter.post('/projects/:id', requireAdmin, postUpdateProject);
+adminRouter.post(
+  '/projects',
+  requireAdmin,
+  uploadImage.single('picture'),
+  postCreateProject
+);
+adminRouter.post(
+  '/projects/:id',
+  requireAdmin,
+  uploadImage.single('picture'),
+  postUpdateProject
+);
 adminRouter.post('/projects/:id/delete', requireAdmin, postDeleteProject);
 
 // Arbres
-adminRouter.post('/trees', requireAdmin, postCreateTree);
-adminRouter.post('/trees/:id', requireAdmin, postUpdateTree);
+adminRouter.post(
+  '/trees',
+  requireAdmin,
+  uploadImage.single('picture'),
+  postCreateTree
+);
+adminRouter.post(
+  '/trees/:id',
+  requireAdmin,
+  uploadImage.single('picture'),
+  postUpdateTree
+);
 adminRouter.post('/trees/:id/delete', requireAdmin, postDeleteTree);
 
 // Utilisateurs
