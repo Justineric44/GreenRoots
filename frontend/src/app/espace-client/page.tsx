@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation';
 import {
   CalendarDays,
   Mail,
@@ -17,21 +16,24 @@ import type { Order, User } from '@/types';
 //  et /api/users/me/orders (token JWT injecté par apiFetchPrivate).
 // ============================================================
 
-export default async function CustomerAreaPage() {
+export default async function CustomerAreaPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ payment?: string }>;
+}) {
+  const { payment } = await searchParams;
   let user: User;
   let orders: Order[];
 
   try {
-    // Appels parallèles : profil + commandes
-
     const [meRes, ordersRes] = await Promise.all([getMe(), getMyOrders()]);
 
     user = meRes.data;
     orders = ordersRes.data;
   } catch (err) {
-    // 401 / 403 / réseau → on renvoie vers la page de connexion
     console.error('[espace-client] API call failed:', err);
-    redirect('/authentification');
+
+    throw err;
   }
   function formatDate(iso: string): string {
     return new Date(iso).toLocaleDateString('fr-FR', {
@@ -60,6 +62,15 @@ export default async function CustomerAreaPage() {
 
             <LogoutButton />
           </header>
+          {payment === 'success' && (
+            <div className="rounded-2xl border border-primary/30 bg-card p-5 text-brand-dark">
+              <p className="font-semibold">Paiement validé</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Votre paiement a bien été confirmé. Votre dernière commande est
+                disponible dans la liste ci-dessous.
+              </p>
+            </div>
+          )}
 
           <section className="space-y-4">
             <h3 className="text-xl font-semibold flex items-center gap-2">

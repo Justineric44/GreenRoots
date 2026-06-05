@@ -9,18 +9,36 @@ import { errorHandler } from './middlewares/errorHandler.js';
 import { router } from './routers/index.router.js';
 import searchRouter from './routers/search.router.js';
 import { adminRouter } from './routers/admin.router.js';
+import { router as stripeWebhookRouter } from './routers/stripe-webhook.router.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
-app.use(cors());
+// Activation de CORS pour autoriser les appels du front-end vers l'API.
+// L'origine est définie par FRONTEND_URL en production, avec une valeur par défaut
+// locale pour les tests et le développement.
+// credentials: true est indispensable pour que les cookies d'authentification
+// soient envoyés et conservés par le navigateur lors des requêtes croisées.
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL ?? 'http://localhost:3000',
+    credentials: true,
+  })
+);
+
 app.use(
   helmet({
     // Nécessaire pour charger le CSS admin servi par Express
     contentSecurityPolicy: false,
   })
 );
+
+// Route dédiée aux webhooks Stripe.
+// Elle reçoit les événements envoyés par Stripe après un paiement,
+// sans passer par les routes API classiques, pour valider la commande.
+app.use('/api/webhooks', stripeWebhookRouter);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
