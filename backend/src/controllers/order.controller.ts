@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import { prisma } from '../lib/prisma.js';
 import { NotFoundError, ValidationError } from '../lib/errors.js';
+import { sseManager } from '../lib/sseManager.js';
 
 export const orderController = {
   async create(req: Request, res: Response): Promise<void> {
@@ -81,6 +82,12 @@ export const orderController = {
 
       return created;
     });
+
+    const stockUpdates = order.items.map((item) => ({
+      treeId: item.treeId,
+      projectId: item.projectId,
+    }));
+    sseManager.broadcast('stock:updated', stockUpdates);
 
     res.status(201).json({ data: order });
   },
