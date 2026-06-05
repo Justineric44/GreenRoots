@@ -50,6 +50,7 @@ export default function TreesCarousel({ trees }: { trees: Tree[] }) {
                   src={t.picture}
                   alt={t.commonName}
                   fill
+                  sizes="300px"
                   className="object-cover"
                 />
               </div>

@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import { createOrderAction } from '@/lib/actions/cart';
+import { useState } from 'react';
 import { Button } from '../ui/button';
 import {
   Dialog,
@@ -15,7 +14,6 @@ import {
 } from '@/components/ui/dialog';
 import { CartItem } from '@/types';
 import { formatPrice } from '@/lib/format';
-import Link from 'next/link';
 
 interface OrderModalProps {
   items: CartItem[];
@@ -23,17 +21,43 @@ interface OrderModalProps {
 }
 
 export default function OrderModal({ items, total }: OrderModalProps) {
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
   const [errMessage, setErrMessage] = useState('');
-  const [orderId, setOrderId] = useState(0);
-  function handleConfirm() {
-    startTransition(async () => {
-      const data = await createOrderAction();
-      if (!data.ok) {
-        return setErrMessage(data.message);
+
+  async function handleConfirm() {
+    setIsPending(true);
+    setErrMessage('');
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/payment/checkout-session`,
+        {
+          method: 'POST',
+          credentials: 'include',
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setErrMessage(
+          data.error?.message ?? 'Impossible de lancer le paiement'
+        );
+        setIsPending(false);
+        return;
       }
-      setOrderId(data.orderId);
-    });
+
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
+
+      setErrMessage('URL Stripe manquante');
+    } catch {
+      setErrMessage('Erreur lors de la redirection vers Stripe');
+    } finally {
+      setIsPending(false);
+    }
   }
 
   return (
@@ -43,47 +67,31 @@ export default function OrderModal({ items, total }: OrderModalProps) {
           Valider la commande
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-sm">
-        {orderId ? (
-          <>
-            <DialogHeader>
-              <DialogTitle>Votre commande #{orderId} est validée</DialogTitle>
 
-              <DialogDescription>
-                Merci pour votre achat ! Vous recevrez un email de confirmation
-                avec les détails de votre commande. Nous vous tiendrons
-                également informé de l&apos;avancement de la plantation de vos
-                arbres.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button asChild className="w-full bg-accent">
-                <Link href="/espace-client">Retour à mon espace client</Link>
-              </Button>
-            </DialogFooter>
-          </>
-        ) : (
-          <>
-            <DialogHeader>
-              <DialogTitle>Récapitulatif de votre commande</DialogTitle>
-              {items.map((item) => (
-                <DialogDescription key={item.id}>
-                  {item.tree.commonName} - {item.project.name} x {item.quantity}
-                </DialogDescription>
-              ))}
-            </DialogHeader>
-            <p className="text-lg font-semibold">{formatPrice(total)}</p>
-            {errMessage && <p>{errMessage}</p>}
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
-              </DialogClose>
-              <Button disabled={isPending} onClick={handleConfirm}>
-                {isPending ? 'Confirmation en cours' : 'Confirmer'}
-              </Button>
-            </DialogFooter>
-          </>
-        )}
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader>
+          <DialogTitle>Récapitulatif de votre commande</DialogTitle>
+
+          {items.map((item) => (
+            <DialogDescription key={item.id}>
+              {item.tree.commonName} - {item.project.name} x {item.quantity}
+            </DialogDescription>
+          ))}
+        </DialogHeader>
+
+        <p className="text-lg font-semibold">{formatPrice(total)}</p>
+
+        {errMessage && <p className="text-sm text-destructive">{errMessage}</p>}
+
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Annuler</Button>
+          </DialogClose>
+
+          <Button disabled={isPending} onClick={handleConfirm}>
+            {isPending ? 'Redirection en cours' : 'Confirmer et payer'}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
