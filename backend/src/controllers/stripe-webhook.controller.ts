@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import { prisma } from '../lib/prisma.js';
 import { ValidationError } from '../lib/errors.js';
 import { createOrderFromActiveCart } from '../services/order.service.js';
+import { sendOrderConfirmationEmail } from '../services/mail.service.js';
 
 // Gère l'appel envoyé par Stripe lorsqu'un paiement est finalisé.
 // Ce point d'entrée valide l'événement, puis déclenche la logique métier
@@ -59,11 +60,37 @@ export async function handleStripeWebhook(req: Request, res: Response) {
       throw new ValidationError('Missing Stripe metadata');
     }
 
-    // La création de la commande, la décrémentation du stock et la conversion
-    // du panier sont réalisées dans une transaction Prisma.
-    await prisma.$transaction((tx) =>
+    const existingOrder = await prisma.order.findUnique({
+      where: {
+        cartId,
+      },
+    });
+
+    if (existingOrder) {
+      return res.status(200).json({
+        received: true,
+        message: 'Order already exists for this cart',
+      });
+    }
+
+    // On transforme maintenant le panier actif en commande validée grâce à
+    // une transaction Prisma. Cette étape centralise la création de l'ordre
+    // et les mises à jour liées au panier dans une seule opération cohérente.
+    const order = await prisma.$transaction((tx) =>
       createOrderFromActiveCart(tx, userId, cartId)
     );
+
+    // Envoi du mail de confirmation après création de la commande.
+    // Si l'e-mail échoue, on ne bloque pas le webhook : la commande a déjà été créée.
+    try {
+      await sendOrderConfirmationEmail(
+        order.user.email,
+        order.user.firstName,
+        String(order.id)
+      );
+    } catch (error) {
+      console.error('Erreur lors de l’envoi du mail de confirmation', error);
+    }
 
     console.log('Order created after Stripe payment', {
       userId,
