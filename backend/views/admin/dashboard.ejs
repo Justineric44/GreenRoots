@@ -28,7 +28,7 @@
             <section class="section <%= activeSection === 'projects' ? 'active' : '' %>" id="section-projects">
               <div class="page-header">
                 <h2 class="page-title">Projets <span>(<%= projects.length %>)</span></h2>
-                <button class="btn btn-primary btn-sm" onclick="openCreateModal('project')">+ Nouveau projet</button>
+                <button class="btn btn-primary btn-create" onclick="openCreateModal('project')">+ Nouveau projet</button>
               </div>
               <div class="table-wrapper">
                 <table>
@@ -44,38 +44,29 @@
                   <tbody>
                     <% if (projects.length===0) { %>
                       <tr>
-                        <td colspan="5" class="td-muted" style="text-align:center; padding:32px;">Aucun projet pour le
-                          moment.</td>
+                        <td colspan="5" class="td-muted" style="text-align:center; padding:32px;">Aucun projet pour le moment.</td>
                       </tr>
                       <% } else { %>
                         <% projects.forEach(project=> { %>
                           <tr>
                             <td>
-                              <strong>
-                                <%= project.name %>
-                              </strong>
-                              <div class="td-muted">
-                                <%= project.slug %>
-                              </div>
+                              <strong><%= project.name %></strong>
+                              <div class="td-muted"><%= project.slug %></div>
                             </td>
-                            <td>
-                              <%= project.localisation %>
-                            </td>
+                            <td><%= project.localisation %></td>
                             <td>
                               <span class="badge <%= project.progress === 100 ? 'badge-green' : 'badge-muted' %>">
                                 <%= project.progress %>%
                               </span>
                             </td>
-                            <td class="td-muted">
-                              <%= new Date(project.createdAt).toLocaleDateString('fr-FR') %>
-                            </td>
+                            <td class="td-muted"><%= new Date(project.createdAt).toLocaleDateString('fr-FR') %></td>
                             <td>
                               <div style="display:flex; gap:6px;">
-                                <button class="btn btn-secondary btn-sm"
+                                <button class="btn btn-secondary btn-action"
                                   onclick="openEditModal('project', <%= JSON.stringify(project) %>)">Éditer</button>
                                 <form action="/admin/projects/<%= project.id %>/delete" method="POST"
                                   onsubmit="return confirm('Supprimer ce projet ?')">
-                                  <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                                  <button type="submit" class="btn btn-danger btn-action">Supprimer</button>
                                 </form>
                               </div>
                             </td>
@@ -93,38 +84,29 @@
             <section class="section <%= activeSection === 'trees' ? 'active' : '' %>" id="section-trees">
               <div class="page-header">
                 <h2 class="page-title">Arbres <span>(<%= trees.length %>)</span></h2>
-                <button class="btn btn-primary btn-sm" onclick="openCreateModal('tree')">+ Nouvel arbre</button>
+                <button class="btn btn-primary btn-create" onclick="openCreateModal('tree')">+ Nouvel arbre</button>
               </div>
 
-            <!-- Barre de recherche + tri -->
-<div style="display:flex; justify-content:flex-end; gap:10px; align-items:center; margin-bottom:16px; flex-wrap:wrap;">
-  <input
-    type="text"
-    id="tree-search"
-    placeholder="Rechercher par nom ou projet / stock..."
-    oninput="applyTreeFilters()"
-    style="padding:6px 12px; border:1px solid var(--border, #ddd); border-radius:6px; font-size:13px; width:280px;"
-  />
-  <select
-    id="tree-sort"
-    onchange="applyTreeFilters()"
-    style="padding:6px 12px; border:1px solid var(--border, #ddd); border-radius:6px; font-size:13px; width:280px;"
-  >
-    <option value="">— Ordre par défaut —</option>
-    <option value="asc">Nom A → Z</option>
-    <option value="desc">Nom Z → A</option>
-  </select>
-</div>
+              <!-- Barre de recherche -->
+              <div style="display:flex; justify-content:flex-end; margin-bottom:16px;">
+                <input
+                  type="text"
+                  id="tree-search"
+                  placeholder="Rechercher par nom ou projet / stock..."
+                  oninput="applyTreeFilters()"
+                  style="padding:6px 12px; border:1px solid rgba(33,42,37,0.2); border-radius:6px; font-size:13px; width:280px; color:var(--brand-dark); background:var(--brand-white);"
+                />
+              </div>
 
               <div class="table-wrapper">
                 <table>
                   <thead>
                     <tr>
                       <th>Réf.</th>
-                      <th>Nom commun</th>
-                      <th>Nom scientifique</th>
-                      <th>Famille</th>
-                      <th>Prix</th>
+                      <th class="sortable" data-col="name">Nom commun</th>
+                      <th class="sortable" data-col="scientific">Nom scientifique</th>
+                      <th class="sortable" data-col="family">Famille</th>
+                      <th class="sortable" data-col="price">Prix</th>
                       <th>Projets / Stock</th>
                       <th>Actions</th>
                     </tr>
@@ -132,66 +114,48 @@
                   <tbody id="trees-tbody">
                     <% if (trees.length===0) { %>
                       <tr>
-                        <td colspan="7" class="td-muted" style="text-align:center; padding:32px;">Aucun arbre pour le
-                          moment.</td>
+                        <td colspan="7" class="td-muted" style="text-align:center; padding:32px;">Aucun arbre pour le moment.</td>
                       </tr>
                       <% } else { %>
                         <% trees.forEach(tree=> { %>
                           <tr>
-                            <td class="td-muted">#<%= tree.id %>
-                            </td>
+                            <td class="td-muted">#<%= tree.id %></td>
                             <td>
-                              <strong>
-                                <%= tree.commonName %>
-                              </strong>
-                              <div class="td-muted">
-                                <%= tree.slug %>
-                              </div>
+                              <strong><%= tree.commonName %></strong>
+                              <div class="td-muted"><%= tree.slug %></div>
                             </td>
-                            <td class="td-muted"><em>
-                                <%= tree.scientificName %>
-                              </em></td>
-                            <td>
-                              <%= tree.family %>
-                            </td>
-                            <td><span class="badge badge-green">
-                                <%= Number(tree.price).toFixed(2) %> €
-                              </span></td>
+                            <td class="td-muted"><em><%= tree.scientificName %></em></td>
+                            <td><%= tree.family %></td>
+                            <td><span class="badge badge-green"><%= Number(tree.price).toFixed(2) %> €</span></td>
                             <td>
                               <% if (tree.projects.length===0) { %>
                                 <span class="td-muted">—</span>
                                 <% } else { %>
-                                  <% const totalStock=tree.projects.reduce((sum, ph)=> sum + ph.stock, 0);
-                                    %>
-                                    <% tree.projects.forEach(ph=> { %>
-                                      <div style="font-size:12px; margin-bottom:2px;">
-                                        <strong>
-                                          <%= ph.project.name %>
-                                        </strong>
-                                        <span class="badge badge-muted" style="margin-left:4px;"
-                                          data-stock-tree="<%= tree.id %>" data-stock-project="<%= ph.projectId %>">
-                                          <%= ph.stock %> plants
-                                        </span>
-                                      </div>
-                                      <% }) %>
-                                        <div
-                                          style="font-size:11px; margin-top:4px; color: var(--color-text-muted, #888);">
-                                          Total : <strong>
-                                            <%= totalStock %> plants
-                                          </strong>
-                                        </div>
-                                        <% } %>
+                                  <% const totalStock=tree.projects.reduce((sum, ph)=> sum + ph.stock, 0); %>
+                                  <% tree.projects.forEach(ph=> { %>
+                                    <div style="font-size:12px; margin-bottom:2px;">
+                                      <strong><%= ph.project.name %></strong>
+                                      <span class="badge badge-muted" style="margin-left:4px;"
+                                        data-stock-tree="<%= tree.id %>" data-stock-project="<%= ph.projectId %>">
+                                        <%= ph.stock %> plants
+                                      </span>
+                                    </div>
+                                  <% }) %>
+                                  <div style="font-size:11px; margin-top:4px; color: var(--color-text-muted, #888);">
+                                    Total : <strong><%= totalStock %> plants</strong>
+                                  </div>
+                                <% } %>
                             </td>
                             <td>
                               <div style="display:flex; gap:6px; flex-wrap:wrap;">
                                 <a href="http://localhost:3000/arbres/<%= tree.slug %>" target="_blank"
-                                  class="btn btn-secondary btn-sm">Voir</a>
-                                <button class="btn btn-secondary btn-sm"
+                                  class="btn btn-secondary btn-action">Voir</a>
+                                <button class="btn btn-secondary btn-action"
                                   onclick="openEditModal('tree', JSON.parse(this.dataset.tree))"
                                   data-tree="<%- JSON.stringify(tree).replace(/"/g, '&quot;') %>">Éditer</button>
                                 <form action="/admin/trees/<%= tree.id %>/delete" method="POST"
                                   onsubmit="return confirm('Supprimer cet arbre ?')">
-                                  <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                                  <button type="submit" class="btn btn-danger btn-action">Supprimer</button>
                                 </form>
                               </div>
                             </td>
@@ -201,7 +165,7 @@
                   </tbody>
                 </table>
                 <!-- Message aucun résultat -->
-                <div id="trees-no-result" style="display:none; text-align:center; padding:32px; color: var(--color-text-muted, #888); font-size:13px;">
+                <div id="trees-no-result" style="display:none; text-align:center; padding:32px; color:var(--brand-muted); font-size:13px;">
                   Aucun arbre ne correspond à votre recherche.
                 </div>
               </div>
@@ -229,37 +193,25 @@
                   <tbody>
                     <% if (orders.length===0) { %>
                       <tr>
-                        <td colspan="6" class="td-muted" style="text-align:center; padding:32px;">Aucune commande pour
-                          le moment.</td>
+                        <td colspan="6" class="td-muted" style="text-align:center; padding:32px;">Aucune commande pour le moment.</td>
                       </tr>
                       <% } else { %>
                         <% orders.forEach(order=> { %>
                           <tr>
-                            <td class="td-muted">#<%= order.id %>
-                            </td>
+                            <td class="td-muted">#<%= order.id %></td>
                             <td>
-                              <strong>
-                                <%= order.user.firstName %>
-                                  <%= order.user.lastName %>
-                              </strong>
-                              <div class="td-muted">
-                                <%= order.user.email %>
-                              </div>
+                              <strong><%= order.user.firstName %> <%= order.user.lastName %></strong>
+                              <div class="td-muted"><%= order.user.email %></div>
                             </td>
-                            <td><strong>
-                                <%= Number(order.amount).toFixed(2) %> €
-                              </strong></td>
+                            <td><strong><%= Number(order.amount).toFixed(2) %> €</strong></td>
                             <td>
                               <span class="badge <%= order.status === 'validated' ? 'badge-green' : 'badge-red' %>">
                                 <%= order.status==='validated' ? 'Validée' : 'Annulée' %>
                               </span>
                             </td>
-                            <td class="td-muted">
-                              <%= new Date(order.createdAt).toLocaleDateString('fr-FR') %>
-                            </td>
+                            <td class="td-muted"><%= new Date(order.createdAt).toLocaleDateString('fr-FR') %></td>
                             <td>
-                              <button class="btn btn-secondary btn-sm"
-                                onclick="toggleOrderDetail(<%= order.id %>)">Voir</button>
+                              <button class="btn btn-secondary btn-action" onclick="toggleOrderDetail(<%= order.id %>)">Voir</button>
                             </td>
                           </tr>
                           <tr id="order-detail-<%= order.id %>" style="display:none;">
@@ -277,18 +229,10 @@
                                 <tbody>
                                   <% order.items.forEach(item=> { %>
                                     <tr>
-                                      <td style="font-size:13px;">
-                                        <%= item.treeCommonName %>
-                                      </td>
-                                      <td style="font-size:13px;">
-                                        <%= item.quantity %>
-                                      </td>
-                                      <td style="font-size:13px;">
-                                        <%= Number(item.unitPrice).toFixed(2) %> €
-                                      </td>
-                                      <td style="font-size:13px;">
-                                        <%= (item.quantity * Number(item.unitPrice)).toFixed(2) %> €
-                                      </td>
+                                      <td style="font-size:13px;"><%= item.treeCommonName %></td>
+                                      <td style="font-size:13px;"><%= item.quantity %></td>
+                                      <td style="font-size:13px;"><%= Number(item.unitPrice).toFixed(2) %> €</td>
+                                      <td style="font-size:13px;"><%= (item.quantity * Number(item.unitPrice)).toFixed(2) %> €</td>
                                     </tr>
                                     <% }) %>
                                 </tbody>
@@ -324,39 +268,29 @@
                   <tbody>
                     <% if (users.length===0) { %>
                       <tr>
-                        <td colspan="6" class="td-muted" style="text-align:center; padding:32px;">Aucun utilisateur pour
-                          le moment.</td>
+                        <td colspan="6" class="td-muted" style="text-align:center; padding:32px;">Aucun utilisateur pour le moment.</td>
                       </tr>
                       <% } else { %>
                         <% users.forEach(user=> { %>
                           <tr>
-                            <td><strong>
-                                <%= user.firstName %>
-                                  <%= user.lastName %>
-                              </strong></td>
-                            <td class="td-muted">
-                              <%= user.email %>
-                            </td>
-                            <td><span class="badge badge-muted">
-                                <%= user.type %>
-                              </span></td>
+                            <td><strong><%= user.firstName %> <%= user.lastName %></strong></td>
+                            <td class="td-muted"><%= user.email %></td>
+                            <td><span class="badge badge-muted"><%= user.type %></span></td>
                             <td>
                               <span class="badge <%= user.role === 'admin' ? 'badge-green' : 'badge-muted' %>">
                                 <%= user.role %>
                               </span>
                             </td>
-                            <td class="td-muted">
-                              <%= new Date(user.createdAt).toLocaleDateString('fr-FR') %>
-                            </td>
+                            <td class="td-muted"><%= new Date(user.createdAt).toLocaleDateString('fr-FR') %></td>
                             <td>
                               <% if (user.role !=='admin' ) { %>
                                 <form action="/admin/users/<%= user.id %>/delete" method="POST"
                                   onsubmit="return confirm('Supprimer cet utilisateur ?')">
-                                  <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                                  <button type="submit" class="btn btn-danger btn-action">Supprimer</button>
                                 </form>
                                 <% } else { %>
                                   <span class="td-muted" style="font-size:12px;">—</span>
-                                  <% } %>
+                                <% } %>
                             </td>
                           </tr>
                           <% }) %>
@@ -405,7 +339,7 @@
             <textarea id="cp-longDescription" name="longDescription" style="min-height:120px;"></textarea>
           </div>
           <div class="form-group full">
-            <label for="cp-picture">URL image</label>
+            <label for="cp-picture">Image</label>
             <input type="file" id="cp-picture" name="picture" accept="image/jpeg,image/png,image/webp" required />
           </div>
         </div>
@@ -453,7 +387,7 @@
             <textarea id="ep-longDescription" name="longDescription" style="min-height:120px;"></textarea>
           </div>
           <div class="form-group full">
-            <label for="ep-picture">URL image</label>
+            <label for="ep-picture">Image</label>
             <input type="file" id="ep-picture" name="picture" accept="image/jpeg,image/png,image/webp" />
             <p class="td-muted" style="font-size:11px; margin-top:4px;">Laisser vide pour conserver l'image actuelle</p>
             <div id="ep-picture-preview" style="margin-top:8px; display:none;">
@@ -514,11 +448,9 @@
             <textarea id="ct-longDescription" name="longDescription" style="min-height:120px;"></textarea>
           </div>
           <div class="form-group full">
-            <label for="ct-picture">URL image</label>
+            <label for="ct-picture">Image</label>
             <input type="file" id="ct-picture" name="picture" accept="image/jpeg,image/png,image/webp" required />
           </div>
-
-          <!-- Projets associés -->
           <div class="form-group full">
             <label>Projets associés &amp; stock</label>
             <div id="ct-projects-list" style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
@@ -532,10 +464,9 @@
                   <input type="number" id="ct-stock-<%= project.id %>" name="stocks[<%= project.id %>]" min="0"
                     value="0" placeholder="Stock" disabled style="width:80px; opacity:0.4;" />
                 </div>
-                <% }) %>
+              <% }) %>
             </div>
           </div>
-
         </div>
         <div class="form-actions">
           <button type="button" class="btn btn-secondary" onclick="closeModal('modal-create-tree')">Annuler</button>
@@ -589,7 +520,7 @@
             <textarea id="et-longDescription" name="longDescription" style="min-height:120px;"></textarea>
           </div>
           <div class="form-group full">
-            <label for="et-picture">URL image</label>
+            <label for="et-picture">Image</label>
             <input type="file" id="et-picture" name="picture" accept="image/jpeg,image/png,image/webp" />
             <p class="td-muted" style="font-size:11px; margin-top:4px;">Laisser vide pour conserver l'image actuelle</p>
             <div id="et-picture-preview" style="margin-top:8px; display:none;">
@@ -597,8 +528,6 @@
               <img id="et-picture-img" src="" alt="aperçu" style="height:60px; border-radius:4px; object-fit:cover;" />
             </div>
           </div>
-
-          <!-- Projets associés -->
           <div class="form-group full">
             <label>Projets associés &amp; stock</label>
             <div id="et-projects-list" style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
@@ -612,10 +541,9 @@
                   <input type="number" id="et-stock-<%= project.id %>" name="stocks[<%= project.id %>]" min="0"
                     value="0" placeholder="Stock" disabled style="width:80px; opacity:0.4;" />
                 </div>
-                <% }) %>
+              <% }) %>
             </div>
           </div>
-
         </div>
         <div class="form-actions">
           <button type="button" class="btn btn-secondary" onclick="closeModal('modal-edit-tree')">Annuler</button>
@@ -626,7 +554,7 @@
   </div>
 
   <!-- ============================================================
-     JAVASCRIPT — Navigation + Modals + Recherche + SSE
+     JAVASCRIPT — Navigation + Modals + Recherche + Tri + SSE
      ============================================================ -->
   <script>
     // ---- Navigation sections ----
@@ -748,10 +676,38 @@
       }
     }
 
-    // ---- Recherche + Tri — Section Arbres ----
+    // ---- Recherche + Tri colonnes — Section Arbres ----
+    let currentSort = { col: null, dir: null };
+
+    document.querySelectorAll('#section-trees thead th.sortable').forEach(th => {
+      th.addEventListener('click', () => {
+        const col = th.dataset.col;
+        if (currentSort.col === col) {
+          currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
+        } else {
+          currentSort.col = col;
+          currentSort.dir = 'asc';
+        }
+        document.querySelectorAll('#section-trees thead th.sortable').forEach(t => {
+          t.classList.remove('sort-asc', 'sort-desc');
+        });
+        th.classList.add(currentSort.dir === 'asc' ? 'sort-asc' : 'sort-desc');
+        applyTreeFilters();
+      });
+    });
+
+    function getColValue(row, col) {
+      switch (col) {
+        case 'name':       return row.querySelector('td:nth-child(2) strong')?.textContent.trim() ?? '';
+        case 'scientific': return row.querySelector('td:nth-child(3) em')?.textContent.trim() ?? '';
+        case 'family':     return row.querySelector('td:nth-child(4)')?.textContent.trim() ?? '';
+        case 'price':      return parseFloat(row.querySelector('td:nth-child(5) .badge')?.textContent ?? '0');
+        default:           return '';
+      }
+    }
+
     function applyTreeFilters() {
       const search = document.getElementById('tree-search').value.toLowerCase().trim();
-      const sort = document.getElementById('tree-sort').value;
       const tbody = document.getElementById('trees-tbody');
       const noResult = document.getElementById('trees-no-result');
       const rows = Array.from(tbody.querySelectorAll('tr'));
@@ -766,20 +722,23 @@
         row.style.display = (!search || name.includes(search) || stock.includes(search)) ? '' : 'none';
       });
 
-      // Tri alphabétique sur les lignes visibles
-      if (sort) {
+      // Tri
+      if (currentSort.col) {
         const visibleRows = rows.filter(r => r.style.display !== 'none');
         visibleRows.sort((a, b) => {
-          const nameA = a.querySelector('td:nth-child(2) strong')?.textContent.trim() ?? '';
-          const nameB = b.querySelector('td:nth-child(2) strong')?.textContent.trim() ?? '';
-          return sort === 'asc'
-            ? nameA.localeCompare(nameB, 'fr')
-            : nameB.localeCompare(nameA, 'fr');
+          const valA = getColValue(a, currentSort.col);
+          const valB = getColValue(b, currentSort.col);
+          if (typeof valA === 'number') {
+            return currentSort.dir === 'asc' ? valA - valB : valB - valA;
+          }
+          return currentSort.dir === 'asc'
+            ? valA.localeCompare(valB, 'fr')
+            : valB.localeCompare(valA, 'fr');
         });
         visibleRows.forEach(row => tbody.appendChild(row));
       }
 
-      // Message "aucun résultat"
+      // Message aucun résultat
       const anyVisible = rows.some(r => r.style.display !== 'none');
       noResult.style.display = anyVisible ? 'none' : 'block';
     }
