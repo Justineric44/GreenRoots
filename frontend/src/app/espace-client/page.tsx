@@ -10,18 +10,14 @@ import Title from '@/components/layout/Title';
 import LogoutButton from '@/components/layout/LogoutButton';
 import { getMe, getMyOrders } from '@/lib/api';
 import type { Order, User } from '@/types';
+import { redirect } from 'next/dist/client/components/navigation';
 
 // ============================================================
 //  Espace client — données récupérées via /api/users/me
 //  et /api/users/me/orders (token JWT injecté par apiFetchPrivate).
 // ============================================================
 
-export default async function CustomerAreaPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ payment?: string }>;
-}) {
-  const { payment } = await searchParams;
+export default async function CustomerAreaPage() {
   let user: User;
   let orders: Order[];
 
@@ -32,8 +28,7 @@ export default async function CustomerAreaPage({
     orders = ordersRes.data;
   } catch (err) {
     console.error('[espace-client] API call failed:', err);
-
-    throw err;
+    redirect('/authentification');
   }
   function formatDate(iso: string): string {
     return new Date(iso).toLocaleDateString('fr-FR', {
@@ -62,15 +57,6 @@ export default async function CustomerAreaPage({
 
             <LogoutButton />
           </header>
-          {payment === 'success' && (
-            <div className="rounded-2xl border border-primary/30 bg-card p-5 text-brand-dark">
-              <p className="font-semibold">Paiement validé</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Votre paiement a bien été confirmé. Votre dernière commande est
-                disponible dans la liste ci-dessous.
-              </p>
-            </div>
-          )}
 
           <section className="space-y-4">
             <h3 className="text-xl font-semibold flex items-center gap-2">
