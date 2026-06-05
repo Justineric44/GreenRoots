@@ -47,8 +47,6 @@ export default async function TreeDetailsPage({
       stock: pt.stock,
     })) ?? [];
 
-  const totalStock = allProjects.reduce((sum, pt) => sum + pt.stock, 0);
-
   const projectsForPurchase = allProjects
     .filter((pt) => pt.stock > 0)
     .map((pt) => ({
@@ -107,35 +105,6 @@ export default async function TreeDetailsPage({
                   / arbre
                 </span>
               </p>
-
-              {/* PROJETS / STOCK */}
-              <div className="text-sm">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
-                  Projets / Stock
-                </p>
-                <div className="flex flex-col gap-1">
-                  {allProjects.length > 0 ? (
-                    allProjects.map((pt) => (
-                      <div
-                        key={pt.id}
-                        className="flex justify-between items-center"
-                      >
-                        <span className="text-muted-foreground">{pt.name}</span>
-                        <span className="bg-muted text-muted-foreground text-xs px-2 py-0.5 rounded-full">
-                          {pt.stock} plants
-                        </span>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-muted-foreground text-xs">
-                      Aucun projet associé
-                    </p>
-                  )}
-                  <p className="text-xs text-muted-foreground mt-1 border-t border-brand-bg/20 pt-1">
-                    Total : {totalStock} plants
-                  </p>
-                </div>
-              </div>
 
               <p className="text-sm text-muted-foreground">
                 Description : <br /> {treeData.shortDescription}
