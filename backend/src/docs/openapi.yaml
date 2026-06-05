@@ -12,7 +12,8 @@ tags:
     description: Routes liées à l'utilisateur connecté
   - name: Orders
     description: Création et gestion des commandes
-
+  - name: Arbres
+    description: Routes liées aux arbres
 components:
   securitySchemes:
     bearerAuth:
@@ -37,10 +38,13 @@ paths:
   /api/orders:
     $ref: './orders.openapi.yaml#/paths/~1api~1orders'
   
-   # ============================================================
-  # TREES — Routes importées de trees.openapi.yaml
+  # ============================================================
+  # TREES
   # ============================================================
   /api/trees:
-    $ref: './trees.openapi.yaml#/paths/~1api~1trees'
+    get:
+      $ref: './trees.openapi.yaml#/paths/~1api~1trees/get'
+
   /api/trees/{slug}:
-    $ref: './trees.openapi.yaml#/paths/~1api~1trees~1{slug}'
+    get:
+      $ref: './trees.openapi.yaml#/paths/~1api~1trees~1{slug}/get'
