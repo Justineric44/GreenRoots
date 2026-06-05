@@ -4,6 +4,7 @@ import {
   addToCart,
   changeCartItemQuantity,
   clearCart,
+  createOrder,
   deleteCartItem,
 } from '@/lib/api';
 import { ApiError } from '@/lib/errors';
@@ -21,6 +22,9 @@ import { revalidatePath } from 'next/cache';
 // Format returned to client components: either success or an error message
 // Format retourné aux composants clients : succès ou message d'erreur
 type ActionResult = { ok: true } | { ok: false; message: string };
+type OrderActionResult =
+  | { ok: true; orderId: number }
+  | { ok: false; message: string };
 
 /**
  * Modifie la quantité d'un item du panier.
@@ -97,6 +101,19 @@ export async function addToCartAction(
     await addToCart(treeId, projectId, quantity);
     revalidatePath('/panier');
     return { ok: true };
+  } catch (error) {
+    if (error instanceof ApiError) {
+      return { ok: false, message: error.message };
+    }
+    return { ok: false, message: 'Une erreur est survenue' };
+  }
+}
+
+export async function createOrderAction(): Promise<OrderActionResult> {
+  try {
+    const { data: order } = await createOrder();
+    revalidatePath('/panier');
+    return { ok: true, orderId: order.id };
   } catch (error) {
     if (error instanceof ApiError) {
       return { ok: false, message: error.message };

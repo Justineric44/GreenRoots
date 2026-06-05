@@ -1,17 +1,14 @@
-import { Button } from '@/components/ui/button';
 import { getCart } from '@/lib/api';
 import Image from 'next/image';
 import CartItemQuantity from '@/components/layout/CartItemQuantity';
 import CartEmpty from '@/components/layout/CartEmpty';
 import CartDeleteItem from '@/components/layout/CartDeleteItem';
+import OrderModal from '@/components/layout/OrderModal';
+import { formatPrice } from '@/lib/format';
 
 export default async function CartPage() {
   const { data, meta } = await getCart();
-  const formatPrice = (value: number) =>
-    new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'EUR',
-    }).format(value);
+
   return (
     <main className="min-h-screen bg-brand-bg text-brand-dark">
       <section className="relative isolate min-h-screen overflow-hidden">
@@ -86,9 +83,7 @@ export default async function CartPage() {
                 </p>
               </div>
               <div className="flex justify-end">
-                <Button className="w-full bg-brand-accent hover:bg-brand-accent/90 sm:w-auto">
-                  Passer commande
-                </Button>
+                <OrderModal items={data.items} total={meta.total} />
               </div>
             </div>
             {data.items.length > 0 && <CartEmpty />}
