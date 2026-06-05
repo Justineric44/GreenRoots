@@ -136,7 +136,13 @@ export async function postCreateProject(
   }
 
   try {
-    await prisma.project.create({ data: result.data });
+    const { longDescription, ...rest } = result.data;
+    await prisma.project.create({
+      data: {
+        ...rest,
+        ...(longDescription != null && { longDescription }),
+      },
+    });
     res.redirect(
       '/admin/dashboard?section=projects&success=Projet+cr%C3%A9%C3%A9+avec+succ%C3%A8s'
     );
@@ -180,7 +186,12 @@ export async function postUpdateProject(
   }
 
   try {
-    await prisma.project.update({ where: { id }, data: result.data });
+    await prisma.project.update({
+      where: { id },
+      data: Object.fromEntries(
+        Object.entries(result.data).filter(([, v]) => v !== undefined)
+      ),
+    });
     res.redirect(
       '/admin/dashboard?section=projects&success=Projet+mis+%C3%A0+jour'
     );
@@ -277,7 +288,14 @@ export async function postCreateTree(
 
   try {
     await prisma.$transaction(async (tx) => {
-      const tree = await tx.tree.create({ data: result.data });
+      const { longDescription, origin, ...rest } = result.data;
+      const tree = await tx.tree.create({
+        data: {
+          ...rest,
+          ...(longDescription != null && { longDescription }),
+          ...(origin != null && { origin }),
+        },
+      });
 
       if (projectIds && projectIds.length > 0) {
         await tx.projectHasTree.createMany({
@@ -351,7 +369,12 @@ export async function postUpdateTree(
 
   try {
     await prisma.$transaction(async (tx) => {
-      await tx.tree.update({ where: { id }, data: result.data });
+      await tx.tree.update({
+        where: { id },
+        data: Object.fromEntries(
+          Object.entries(result.data).filter(([, v]) => v !== undefined)
+        ),
+      });
       await tx.projectHasTree.deleteMany({ where: { treeId: id } });
 
       if (projectIds && projectIds.length > 0) {

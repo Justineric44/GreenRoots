@@ -16,8 +16,8 @@ export const createTreeSchema = z.object({
   scientificName: z.string().min(1, 'Le nom scientifique est requis'),
   family: z.string().min(1, 'La famille est requise'),
   shortDescription: z.string().min(1, 'La description courte est requise'),
-  longDescription: z.string().optional(),
-  origin: z.string().optional(),
+  longDescription: z.string().nullish(),
+  origin: z.string().nullish(),
   price: z.coerce.number().positive('Le prix doit être supérieur à 0'),
   picture: z.string().min(1, "L'image est requise"),
 });
