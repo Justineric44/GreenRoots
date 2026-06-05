@@ -6,12 +6,7 @@ import CartDeleteItem from '@/components/layout/CartDeleteItem';
 import OrderModal from '@/components/layout/OrderModal';
 import { formatPrice } from '@/lib/format';
 
-export default async function CartPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ payment?: string }>;
-}) {
-  const { payment } = await searchParams;
+export default async function CartPage() {
   const { data, meta } = await getCart();
 
   return (
@@ -28,15 +23,6 @@ export default async function CartPage({
 
         <div className="relative z-10">
           <section className="flex flex-col gap-6 min-h-screen items-center justify-center px-4 pt-28 pb-10 md:pt-36">
-            {payment === 'cancelled' && (
-              <div className="w-full max-w-4xl rounded-2xl border border-brand-accent/30 bg-brand-white px-5 py-4 text-brand-dark shadow-sm">
-                <p className="font-semibold">Paiement annulé</p>
-                <p className="mt-1 text-sm text-brand-muted">
-                  Votre paiement n&apos;a pas été finalisé. Votre panier a été
-                  conservé.
-                </p>
-              </div>
-            )}
             {data.items.map((item) => (
               <div
                 key={item.id}
