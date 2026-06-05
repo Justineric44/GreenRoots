@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation';
 import {
   CalendarDays,
   Mail,
@@ -11,6 +10,7 @@ import Title from '@/components/layout/Title';
 import LogoutButton from '@/components/layout/LogoutButton';
 import { getMe, getMyOrders } from '@/lib/api';
 import type { Order, User } from '@/types';
+import { redirect } from 'next/dist/client/components/navigation';
 
 // ============================================================
 //  Espace client — données récupérées via /api/users/me
@@ -22,14 +22,11 @@ export default async function CustomerAreaPage() {
   let orders: Order[];
 
   try {
-    // Appels parallèles : profil + commandes
-
     const [meRes, ordersRes] = await Promise.all([getMe(), getMyOrders()]);
 
     user = meRes.data;
     orders = ordersRes.data;
   } catch (err) {
-    // 401 / 403 / réseau → on renvoie vers la page de connexion
     console.error('[espace-client] API call failed:', err);
     redirect('/authentification');
   }

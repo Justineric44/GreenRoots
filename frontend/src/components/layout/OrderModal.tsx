@@ -43,6 +43,7 @@ export default function OrderModal({ items, total }: OrderModalProps) {
           Valider la commande
         </Button>
       </DialogTrigger>
+
       <DialogContent className="sm:max-w-sm">
         {orderId ? (
           <>

@@ -29,13 +29,8 @@
      ==================================================== -->
 <section class="section <%= activeSection === 'projects' ? 'active' : '' %>" id="section-projects">
   <div class="page-header">
-    <h2 class="page-title">
-      Projets <span>(<%= projects.length %>)</span>
-    </h2>
-
-    <button class="btn btn-primary btn-sm" onclick="openCreateModal('project')">
-      + Nouveau projet
-    </button>
+    <h2 class="page-title">Projets <span>(<%= projects.length %>)</span></h2>
+    <button class="btn btn-primary btn-create" onclick="openCreateModal('project')">+ Nouveau projet</button>
   </div>
 
   <div class="table-wrapper">
@@ -72,17 +67,13 @@
               <td><%= project.localisation %></td>
 
               <td>
-                <span
-                  class="badge <%= project.progress === 100 ? 'badge-green' : 'badge-muted' %>"
-                >
+                <span class="badge <%= project.progress === 100 ? 'badge-green' : 'badge-muted' %>">
                   <%= project.progress %>%
                 </span>
               </td>
 
               <td>
-                <span class="badge badge-muted">
-                  <%= totalStock %> plants
-                </span>
+                <span class="badge badge-muted"><%= totalStock %> plants</span>
               </td>
 
               <td>
@@ -92,7 +83,6 @@
                   <% project.trees.forEach(ph => { %>
                     <div style="font-size:12px; margin-bottom:2px;">
                       <strong><%= ph.tree.commonName %></strong>
-
                       <span class="badge badge-muted" style="margin-left:4px;">
                         <%= ph.stock %> plants
                       </span>
@@ -110,13 +100,13 @@
                   <a
                     href="http://localhost:3000/projets/<%= project.slug %>"
                     target="_blank"
-                    class="btn btn-secondary btn-sm"
+                    class="btn btn-secondary btn-action"
                   >
                     Voir
                   </a>
 
                   <button
-                    class="btn btn-secondary btn-sm"
+                    class="btn btn-secondary btn-action"
                     onclick="openEditModal('project', <%= JSON.stringify(project) %>)"
                   >
                     Éditer
@@ -127,9 +117,7 @@
                     method="POST"
                     onsubmit="return confirm('Supprimer ce projet ?')"
                   >
-                    <button type="submit" class="btn btn-danger btn-sm">
-                      Supprimer
-                    </button>
+                    <button type="submit" class="btn btn-danger btn-action">Supprimer</button>
                   </form>
                 </div>
               </td>
@@ -141,7 +129,7 @@
   </div>
 </section>
 
-    <!-- ====================================================
+  <!-- ====================================================
          SECTION — ARBRES
          ==================================================== -->
     <section class="section <%= activeSection === 'trees' ? 'active' : '' %>" id="section-trees">
@@ -347,90 +335,88 @@
       <h3 class="modal-title">Nouveau projet</h3>
       <button class="modal-close" onclick="closeModal('modal-create-project')">✕</button>
     </div>
+
     <form action="/admin/projects" method="POST" enctype="multipart/form-data">
-  <div class="form-grid">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="cp-name">Nom</label>
+          <input type="text" id="cp-name" name="name" required />
+        </div>
 
-    <!-- Champs principaux du projet -->
-    <div class="form-group">
-      <label for="cp-name">Nom</label>
-      <input type="text" id="cp-name" name="name" required />
-    </div>
+        <div class="form-group">
+          <label for="cp-slug">Slug</label>
+          <input type="text" id="cp-slug" name="slug" required placeholder="ex: reforestation-amazonie" />
+        </div>
 
-    <div class="form-group">
-      <label for="cp-slug">Slug</label>
-      <input type="text" id="cp-slug" name="slug" required placeholder="ex: reforestation-amazonie" />
-    </div>
+        <div class="form-group">
+          <label for="cp-localisation">Localisation</label>
+          <input type="text" id="cp-localisation" name="localisation" required />
+        </div>
 
-    <div class="form-group">
-      <label for="cp-localisation">Localisation</label>
-      <input type="text" id="cp-localisation" name="localisation" required />
-    </div>
+        <div class="form-group">
+          <label for="cp-progress">Progression (%)</label>
+          <input type="number" id="cp-progress" name="progress" min="0" max="100" value="0" required />
+        </div>
 
-    <div class="form-group">
-      <label for="cp-progress">Progression (%)</label>
-      <input type="number" id="cp-progress" name="progress" min="0" max="100" value="0" required />
-    </div>
+        <div class="form-group full">
+          <label for="cp-shortDescription">Description courte</label>
+          <textarea id="cp-shortDescription" name="shortDescription" required></textarea>
+        </div>
 
-    <div class="form-group full">
-      <label for="cp-shortDescription">Description courte</label>
-      <textarea id="cp-shortDescription" name="shortDescription" required></textarea>
-    </div>
+        <div class="form-group full">
+          <label for="cp-longDescription">Description longue</label>
+          <textarea id="cp-longDescription" name="longDescription" style="min-height:120px;"></textarea>
+        </div>
 
-    <div class="form-group full">
-      <label for="cp-longDescription">Description longue</label>
-      <textarea id="cp-longDescription" name="longDescription" style="min-height:120px;"></textarea>
-    </div>
+        <div class="form-group full">
+          <label for="cp-picture">Image</label>
+          <input type="file" id="cp-picture" name="picture" accept="image/jpeg,image/png,image/webp" required />
+        </div>
 
-    <div class="form-group full">
-      <label for="cp-picture">Image</label>
-      <input type="file" id="cp-picture" name="picture" accept="image/jpeg,image/png,image/webp" required />
-    </div>
+        <!-- Arbres associés au projet -->
+        <div class="form-group full">
+          <label>Arbres associés &amp; stock</label>
 
-    <!-- Arbres associés au projet -->
-    <div class="form-group full">
-      <label>Arbres associés &amp; stock</label>
+          <div id="cp-trees-list" style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
+            <% trees.forEach(tree => { %>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <input
+                  type="checkbox"
+                  id="cp-tree-<%= tree.id %>"
+                  name="treeIds"
+                  value="<%= tree.id %>"
+                  onchange="toggleStockInput('cp-stock-<%= tree.id %>', this.checked)"
+                />
 
-      <div id="cp-trees-list" style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
-        <% trees.forEach(tree => { %>
-          <div style="display:flex; align-items:center; gap:10px;">
-            <input
-              type="checkbox"
-              id="cp-tree-<%= tree.id %>"
-              name="treeIds"
-              value="<%= tree.id %>"
-              onchange="toggleStockInput('cp-stock-<%= tree.id %>', this.checked)"
-            />
+                <label for="cp-tree-<%= tree.id %>" style="margin:0; font-weight:normal; flex:1;">
+                  <%= tree.commonName %>
+                </label>
 
-            <label for="cp-tree-<%= tree.id %>" style="margin:0; font-weight:normal; flex:1;">
-              <%= tree.commonName %>
-            </label>
-
-            <input
-              type="number"
-              id="cp-stock-<%= tree.id %>"
-              name="stocks[t<%= tree.id %>]"
-              min="0"
-              value="0"
-              placeholder="Stock"
-              disabled
-              style="width:80px; opacity:0.4;"
-            />
+                <input
+                  type="number"
+                  id="cp-stock-<%= tree.id %>"
+                  name="stocks[t<%= tree.id %>]"
+                  min="0"
+                  value="0"
+                  placeholder="Stock"
+                  disabled
+                  style="width:80px; opacity:0.4;"
+                />
+              </div>
+            <% }) %>
           </div>
-        <% }) %>
+        </div>
       </div>
-    </div>
 
-  </div>
-
-  <div class="form-actions">
-    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-create-project')">Annuler</button>
-    <button type="submit" class="btn btn-primary">Créer le projet</button>
-  </div>
-</form>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-create-project')">Annuler</button>
+        <button type="submit" class="btn btn-primary">Créer le projet</button>
+      </div>
+    </form>
   </div>
 </div>
 
-<!-- ============================================================
+  <!-- ============================================================
      MODAL — ÉDITER PROJET
      ============================================================ -->
 <div class="modal-overlay" id="modal-edit-project">
@@ -439,80 +425,84 @@
       <h3 class="modal-title">Éditer le projet</h3>
       <button class="modal-close" onclick="closeModal('modal-edit-project')">✕</button>
     </div>
+
     <form id="form-edit-project" action="" method="POST" enctype="multipart/form-data">
       <div class="form-grid">
         <div class="form-group">
           <label for="ep-name">Nom</label>
           <input type="text" id="ep-name" name="name" required />
         </div>
+
         <div class="form-group">
           <label for="ep-slug">Slug</label>
           <input type="text" id="ep-slug" name="slug" required />
         </div>
+
         <div class="form-group">
           <label for="ep-localisation">Localisation</label>
           <input type="text" id="ep-localisation" name="localisation" required />
         </div>
+
         <div class="form-group">
           <label for="ep-progress">Progression (%)</label>
           <input type="number" id="ep-progress" name="progress" min="0" max="100" required />
         </div>
+
         <div class="form-group full">
           <label for="ep-shortDescription">Description courte</label>
           <textarea id="ep-shortDescription" name="shortDescription" required></textarea>
         </div>
+
         <div class="form-group full">
           <label for="ep-longDescription">Description longue</label>
           <textarea id="ep-longDescription" name="longDescription" style="min-height:120px;"></textarea>
         </div>
+
         <div class="form-group full">
-          <label for="ep-picture">image du projet</label>
+          <label for="ep-picture">Image</label>
           <input type="file" id="ep-picture" name="picture" accept="image/jpeg,image/png,image/webp" />
           <p class="td-muted" style="font-size:11px; margin-top:4px;">Laisser vide pour conserver l'image actuelle</p>
+
           <div id="ep-picture-preview" style="margin-top:8px; display:none;">
             <p style="font-size:11px; color:#666;">Image actuelle :</p>
             <img id="ep-picture-img" src="" alt="aperçu" style="height:60px; border-radius:4px; object-fit:cover;" />
           </div>
         </div>
+
         <!-- Arbres associés au projet -->
-<div class="form-group full">
-  <label>Arbres associés &amp; stock</label>
+        <div class="form-group full">
+          <label>Arbres associés &amp; stock</label>
 
-  <div
-    id="ep-trees-list"
-    style="display:flex; flex-direction:column; gap:8px; margin-top:4px;"
-  >
-    <% trees.forEach(tree => { %>
-      <div style="display:flex; align-items:center; gap:10px;">
-        <input
-          type="checkbox"
-          id="ep-tree-<%= tree.id %>"
-          name="treeIds"
-          value="<%= tree.id %>"
-          onchange="toggleStockInput('ep-stock-<%= tree.id %>', this.checked)"
-        />
+          <div id="ep-trees-list" style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
+            <% trees.forEach(tree => { %>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <input
+                  type="checkbox"
+                  id="ep-tree-<%= tree.id %>"
+                  name="treeIds"
+                  value="<%= tree.id %>"
+                  onchange="toggleStockInput('ep-stock-<%= tree.id %>', this.checked)"
+                />
 
-        <label
-          for="ep-tree-<%= tree.id %>"
-          style="margin:0; font-weight:normal; flex:1;"
-        >
-          <%= tree.commonName %>
-        </label>
+                <label for="ep-tree-<%= tree.id %>" style="margin:0; font-weight:normal; flex:1;">
+                  <%= tree.commonName %>
+                </label>
 
-        <input
-          type="number"
-          id="ep-stock-<%= tree.id %>"
-          name="stocks[t<%= tree.id %>]"
-          min="0"
-          value="0"
-          disabled
-          style="width:80px; opacity:0.4;"
-        />
+                <input
+                  type="number"
+                  id="ep-stock-<%= tree.id %>"
+                  name="stocks[t<%= tree.id %>]"
+                  min="0"
+                  value="0"
+                  disabled
+                  style="width:80px; opacity:0.4;"
+                />
+              </div>
+            <% }) %>
+          </div>
+        </div>
       </div>
-    <% }) %>
-  </div>
-</div>
-      </div>
+
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" onclick="closeModal('modal-edit-project')">Annuler</button>
         <button type="submit" class="btn btn-primary">Enregistrer</button>
@@ -521,7 +511,7 @@
   </div>
 </div>
 
-<!-- ============================================================
+  <!-- ============================================================
      MODAL — CRÉER ARBRE
      ============================================================ -->
 <div class="modal-overlay" id="modal-create-tree">
@@ -756,14 +746,16 @@
 
     if (type === 'project') {
       document.getElementById('form-edit-project').action = '/admin/projects/' + data.id;
-      document.getElementById('ep-name').value             = data.name || '';
-      document.getElementById('ep-slug').value             = data.slug || '';
-      document.getElementById('ep-localisation').value     = data.localisation || '';
-      document.getElementById('ep-progress').value         = data.progress ?? 0;
+      document.getElementById('ep-name').value = data.name || '';
+      document.getElementById('ep-slug').value = data.slug || '';
+      document.getElementById('ep-localisation').value = data.localisation || '';
+      document.getElementById('ep-progress').value = data.progress ?? 0;
       document.getElementById('ep-shortDescription').value = data.shortDescription || '';
-      document.getElementById('ep-longDescription').value  = data.longDescription || '';
+      document.getElementById('ep-longDescription').value = data.longDescription || '';
+
       const previewP = document.getElementById('ep-picture-preview');
       const previewImgP = document.getElementById('ep-picture-img');
+
       if (data.picture) {
         previewImgP.src = data.picture;
         previewP.style.display = 'block';
@@ -771,36 +763,38 @@
         previewP.style.display = 'none';
       }
 
-       // Préremplissage des arbres associés au projet
-  const existingTrees = data.trees || [];
+      // Préremplissage des arbres associés au projet
+      const existingTrees = data.trees || [];
 
-  document.querySelectorAll('#modal-edit-project input[type="checkbox"]').forEach(cb => {
-    const match = existingTrees.find(ph => String(ph.treeId) === cb.value);
+      document.querySelectorAll('#modal-edit-project input[type="checkbox"]').forEach(cb => {
+        const match = existingTrees.find(ph => String(ph.treeId) === cb.value);
 
-    cb.checked = !!match;
+        cb.checked = !!match;
 
-    const stockInput = document.getElementById('ep-stock-' + cb.value);
+        const stockInput = document.getElementById('ep-stock-' + cb.value);
 
-    if (stockInput) {
-      stockInput.disabled = !match;
-      stockInput.style.opacity = match ? '1' : '0.4';
-      stockInput.value = match ? match.stock : '0';
-    }
-  });
+        if (stockInput) {
+          stockInput.disabled = !match;
+          stockInput.style.opacity = match ? '1' : '0.4';
+          stockInput.value = match ? match.stock : '0';
+        }
+      });
     }
 
     if (type === 'tree') {
-      document.getElementById('form-edit-tree').action       = '/admin/trees/' + data.id;
-      document.getElementById('et-commonName').value         = data.commonName || '';
-      document.getElementById('et-slug').value               = data.slug || '';
-      document.getElementById('et-scientificName').value     = data.scientificName || '';
-      document.getElementById('et-family').value             = data.family || '';
-      document.getElementById('et-price').value              = data.price || '';
-      document.getElementById('et-origin').value             = data.origin || '';
-      document.getElementById('et-shortDescription').value   = data.shortDescription || '';
-      document.getElementById('et-longDescription').value    = data.longDescription || '';
+      document.getElementById('form-edit-tree').action = '/admin/trees/' + data.id;
+      document.getElementById('et-commonName').value = data.commonName || '';
+      document.getElementById('et-slug').value = data.slug || '';
+      document.getElementById('et-scientificName').value = data.scientificName || '';
+      document.getElementById('et-family').value = data.family || '';
+      document.getElementById('et-price').value = data.price || '';
+      document.getElementById('et-origin').value = data.origin || '';
+      document.getElementById('et-shortDescription').value = data.shortDescription || '';
+      document.getElementById('et-longDescription').value = data.longDescription || '';
+
       const preview = document.getElementById('et-picture-preview');
       const previewImg = document.getElementById('et-picture-img');
+
       if (data.picture) {
         previewImg.src = data.picture;
         preview.style.display = 'block';
@@ -808,13 +802,15 @@
         preview.style.display = 'none';
       }
 
-      // ✅ FIX : utiliser ph.projectId (champ direct sur ProjectHasTree)
-      //    au lieu de ph.project.id (relation imbriquée, absente après JSON.parse)
       const existingProjects = data.projects || [];
+
       document.querySelectorAll('#modal-edit-tree input[type="checkbox"]').forEach(cb => {
         const match = existingProjects.find(ph => String(ph.projectId) === cb.value);
+
         cb.checked = !!match;
+
         const stockInput = document.getElementById('et-stock-' + cb.value);
+
         if (stockInput) {
           stockInput.disabled = !match;
           stockInput.style.opacity = match ? '1' : '0.4';
