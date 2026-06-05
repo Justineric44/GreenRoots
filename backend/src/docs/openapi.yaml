@@ -36,3 +36,11 @@ paths:
   # ============================================================
   /api/orders:
     $ref: './orders.openapi.yaml#/paths/~1api~1orders'
+  
+   # ============================================================
+  # TREES — Routes importées de trees.openapi.yaml
+  # ============================================================
+  /api/trees:
+    $ref: './trees.openapi.yaml#/paths/~1api~1trees'
+  /api/trees/{slug}:
+    $ref: './trees.openapi.yaml#/paths/~1api~1trees~1{slug}'

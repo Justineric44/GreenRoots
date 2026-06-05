@@ -1,0 +1,33 @@
+openapi: 3.0.3
+info:
+  title: GreenRoots API
+  version: 1.0.0
+  description: API de la plateforme de reforestation GreenRoots
+
+servers:
+  - url: http://localhost:3001/api
+    description: Serveur de développement
+
+paths:
+
+  /trees:
+    get:
+      summary: Récupérer tous les arbres (paginés)
+      tags:
+        - Arbres
+      parameters:
+        - name: page
+          in: query
+          description: Numéro de page (défaut 1)
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: search
+          in: query
+          description: Recherche par nom commun (insensible à la casse)
+          required: false
+          schema:
+            type: string
+            example: chêne
+        - name: min
