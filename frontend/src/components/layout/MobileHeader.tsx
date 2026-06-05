@@ -1,30 +1,34 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { Menu, ShoppingCart, User } from 'lucide-react';
 
 interface MobileHeaderProps {
   onOpen: () => void;
+  isLoggedIn: boolean;
 }
 
-export default function MobileHeader({ onOpen }: MobileHeaderProps) {
+export default function MobileHeader({
+  onOpen,
+  isLoggedIn,
+}: MobileHeaderProps) {
   return (
     <header className="flex items-center justify-between w-full px-4 py-3 bg-brand-dark/70 font-heading">
-      <Link href="/" className="flex items-center">
-        <div className="w-12 h-12 overflow-hidden flex items-center justify-center">
-          <Image
-            src="/images/Logo_blanc_transparent.svg"
-            alt="GreenRoots Logo"
-            width={1000}
-            height={1000}
-            className="object-contain"
-          />
-        </div>
+      <Link href={isLoggedIn ? '/espace-client' : '/authentification'}>
+        <button
+          className={
+            isLoggedIn
+              ? 'p-2 text-brand-accent hover:opacity-80'
+              : 'p-2 text-white hover:text-[#88B75D]'
+          }
+          title={isLoggedIn ? 'Mon espace client' : 'Connexion'}
+        >
+          <User size={25} />
+        </button>
       </Link>
 
       <div className="flex items-center gap-2">
-        <Link href="/connexion">
+        <Link href="/authentification">
           <button className="text-white hover:text-[#88B75D] p-2">
             <User size={25} />
           </button>

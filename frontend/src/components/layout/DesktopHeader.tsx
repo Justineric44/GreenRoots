@@ -1,18 +1,19 @@
 'use client';
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from '@/components/ui/input-group';
-import { Search, ShoppingCart, User } from 'lucide-react';
+
+import { ShoppingCart, User } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import DesktopSearch from './DesktopSearch';
 
 interface DesktopHeaderProps {
   menu: { label: string; href: string }[];
+  isLoggedIn: boolean;
 }
 
-export default function DesktopHeader({ menu }: DesktopHeaderProps) {
+export default function DesktopHeader({
+  menu,
+  isLoggedIn,
+}: DesktopHeaderProps) {
   return (
     <nav className="flex items-center justify-between px-4 py-4 absolute top-0 left-0 right-0 z-50 font-heading bg-brand-dark/70">
       {/* Logo */}
@@ -47,20 +48,19 @@ export default function DesktopHeader({ menu }: DesktopHeaderProps) {
           ))}
         </ul>
 
-        {/* Recherche */}
-        <InputGroup className="w-48">
-          <InputGroupInput
-            placeholder="Rechercher..."
-            className="border-white/30 text-white placeholder:text-white/60"
-          />
-          <InputGroupAddon>
-            <Search className="w-5 h-5 text-white" />
-          </InputGroupAddon>
-        </InputGroup>
+        {/* Recherche avec dropdown */}
+        <DesktopSearch />
 
-        {/* Connexion */}
-        <Link href="/connexion">
-          <button className="text-white hover:text-[#88B75D] p-2">
+        {/* Authentification */}
+        <Link href={isLoggedIn ? '/espace-client' : '/authentification'}>
+          <button
+            className={
+              isLoggedIn
+                ? 'p-2 text-brand-accent hover:opacity-80'
+                : 'p-2 text-white hover:text-[#88B75D]'
+            }
+            title={isLoggedIn ? 'Mon espace client' : 'Connexion'}
+          >
             <User size={25} />
           </button>
         </Link>

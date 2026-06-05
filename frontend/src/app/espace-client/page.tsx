@@ -7,55 +7,36 @@ import {
 } from 'lucide-react';
 
 import Title from '@/components/layout/Title';
+import LogoutButton from '@/components/layout/LogoutButton';
+import { getMe, getMyOrders } from '@/lib/api';
+import type { Order, User } from '@/types';
+import { redirect } from 'next/dist/client/components/navigation';
 
 // ============================================================
-//  Espace client — version statique (non branchée au backend).
-//  Les données ci-dessous sont des mocks et seront remplacées
-//  par des appels API quand les endpoints /api/users/me et
-//  /api/users/me/orders seront disponibles.
+//  Espace client — données récupérées via /api/users/me
+//  et /api/users/me/orders (token JWT injecté par apiFetchPrivate).
 // ============================================================
 
-const mockUser = {
-  firstName: 'Thomas',
-  lastName: 'Martin',
-  email: 'thomas.martin@email.fr',
-  type: 'particulier',
-  address: '45 avenue des Chênes',
-  postalCode: '69001',
-  city: 'Lyon',
-  phone: '0612345678',
-  companyName: null as string | null,
-  siret: null as string | null,
-};
+export default async function CustomerAreaPage() {
+  let user: User;
+  let orders: Order[];
 
-const mockOrders = [
-  {
-    id: 1042,
-    status: 'validated' as const,
-    amount: 89.5,
-    createdAt: '2026-04-12T10:00:00.000Z',
-    items: [{ id: 1 }, { id: 2 }, { id: 3 }],
-  },
-  {
-    id: 1018,
-    status: 'canceled' as const,
-    amount: 24.0,
-    createdAt: '2026-03-02T15:30:00.000Z',
-    items: [{ id: 4 }],
-  },
-];
+  try {
+    const [meRes, ordersRes] = await Promise.all([getMe(), getMyOrders()]);
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('fr-FR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
-
-export default function CustomerAreaPage() {
-  const user = mockUser;
-  const orders = mockOrders;
+    user = meRes.data;
+    orders = ordersRes.data;
+  } catch (err) {
+    console.error('[espace-client] API call failed:', err);
+    redirect('/authentification');
+  }
+  function formatDate(iso: string): string {
+    return new Date(iso).toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  }
 
   return (
     <main>
@@ -63,11 +44,18 @@ export default function CustomerAreaPage() {
 
       <section className="bg-brand-bg px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
         <div className="mx-auto max-w-4xl space-y-10 text-brand-dark">
-          <header>
-            <h2 className="text-3xl font-bold">Bonjour {user.firstName} 👋</h2>
-            <p className="text-muted-foreground mt-1">
-              Votre espace personnel GreenRoots.
-            </p>
+          <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-3xl font-bold">
+                Bonjour {user.firstName} 👋
+              </h2>
+
+              <p className="text-muted-foreground mt-1">
+                Votre espace personnel GreenRoots.
+              </p>
+            </div>
+
+            <LogoutButton />
           </header>
 
           <section className="space-y-4">
@@ -150,32 +138,59 @@ export default function CustomerAreaPage() {
               {orders.map((order) => (
                 <li
                   key={order.id}
-                  className="rounded-2xl border border-border p-4 bg-card flex items-center justify-between gap-4 flex-wrap"
+                  className="rounded-2xl border border-border p-4 bg-card space-y-3"
                 >
-                  <div>
-                    <p className="font-semibold">Commande #{order.id}</p>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-1">
-                      <CalendarDays className="size-3.5" aria-hidden="true" />
-                      {formatDate(order.createdAt)}
-                      {' · '}
-                      {order.items.length} article
-                      {order.items.length > 1 ? 's' : ''}
-                    </p>
+                  {/* En-tête de la commande */}
+                  <div className="flex items-center justify-between gap-4 flex-wrap">
+                    <div>
+                      <p className="font-semibold">Commande #{order.id}</p>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-1">
+                        <CalendarDays className="size-3.5" aria-hidden="true" />
+                        {formatDate(order.createdAt)}
+                        {' · '}
+                        {order.items.length} article
+                        {order.items.length > 1 ? 's' : ''}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={
+                          order.status === 'validated'
+                            ? 'rounded-full bg-brand-accent text-brand-white px-3 py-1 text-xs font-medium'
+                            : 'rounded-full bg-destructive/10 text-destructive px-3 py-1 text-xs font-medium'
+                        }
+                      >
+                        {order.status === 'validated' ? 'Validée' : 'Annulée'}
+                      </span>
+                      <span className="font-semibold">
+                        {Number(order.amount).toFixed(2)} €
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={
-                        order.status === 'validated'
-                          ? 'rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-medium'
-                          : 'rounded-full bg-destructive/10 text-destructive px-3 py-1 text-xs font-medium'
-                      }
-                    >
-                      {order.status === 'validated' ? 'Validée' : 'Annulée'}
-                    </span>
-                    <span className="font-semibold">
-                      {order.amount.toFixed(2)} €
-                    </span>
-                  </div>
+
+                  {/* Détail des items */}
+                  <ul className="border-t border-border pt-3 space-y-2">
+                    {order.items.map((item) => (
+                      <li
+                        key={item.id}
+                        className="flex items-start justify-between gap-3 text-sm"
+                      >
+                        <div className="flex-1">
+                          <p className="text-muted-foreground">
+                            {item.treeCommonName}{' '}
+                            <span className="text-xs">× {item.quantity}</span>
+                          </p>
+
+                          <p className="text-xs text-muted-foreground/70 italic mt-0.5">
+                            Projet : {item.project.name}
+                          </p>
+                        </div>
+                        <span className="font-mono text-muted-foreground whitespace-nowrap">
+                          {Number(item.unitPrice).toFixed(2)} €
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 </li>
               ))}
             </ul>

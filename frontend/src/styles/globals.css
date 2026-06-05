@@ -16,6 +16,7 @@
   --brand-white: #ffffff;
 
   /* Tokens shadcn — surchargés avec la charte */
+  --progress-indicator: oklch(0.68 0.13 128);
   --background: oklch(0.95 0.008 92);
   --foreground: oklch(0.19 0.018 155);
   --card: oklch(1 0 0);
@@ -160,4 +161,61 @@ a {
   html {
     @apply font-sans;
   }
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ===== TARTE AU CITRON - GREENROOTS ===== */
+
+#tarteaucitronRoot {
+  font-family: inherit !important;
+}
+
+#tarteaucitronRoot #tarteaucitronAlertBig {
+  background: #447355 !important;
+  color: #f4f6f3 !important;
+  border-radius: 20px !important;
+  margin: 16px !important;
+  padding: 10px 20px !important;
+  min-height: auto !important;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 20%) !important;
+}
+
+#tarteaucitronRoot button {
+  border-radius: 999px !important;
+  transition: all 0.2s ease !important;
+}
+
+#tarteaucitronRoot #tarteaucitronAllAllowed {
+  background: #88b75d !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+#tarteaucitronRoot #tarteaucitronAllDenied,
+#tarteaucitronRoot .tarteaucitronDeny {
+  background: transparent !important;
+  color: #88b75d !important;
+  border: 1px solid #88b75d !important;
+}
+
+#tarteaucitronRoot #tarteaucitronPersonalize2 {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+#tarteaucitronRoot a {
+  color: #a8d67f !important;
+}
+
+#tarteaucitronRoot .tarteaucitronTitle {
+  color: #88b75d !important;
 }

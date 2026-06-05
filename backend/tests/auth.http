@@ -1,46 +1,49 @@
-#
----------------------------------------------
+@baseUrl = http://localhost:3002/api
+@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjgsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzgwMzg4Mzg0LCJleHAiOjE3ODA0NzQ3ODR9.fvfFSW0fNfsXnH8PiKOhaKbOamZftvj-6uO7ma1ljvQ
+
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjcsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc4MDM4ODQwNCwiZXhwIjoxNzgwNDc0ODA0fQ.KinWq--P6j6l-pFSTeu3VZ8CgyXmNJCa4qYpNNBVBYU
+#############################################
 ## LOGIN
----------------------------------------------
+#############################################
 
 ### Login - admin seedé
-POST http://localhost:3002/api/auth/login
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
   "email": "admin@greenroots.fr",
-  "password": "password123"
+  "password": "Password123@"
 }
 
 ### Login - utilisateur particulier seedé Thomas
-POST http://localhost:3002/api/auth/login
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
   "email": "thomas.martin@email.fr",
-  "password": "password123"
+  "password": "Password123@"
 }
 
 ### Login - utilisateur particulier seedé Sophie
-POST http://localhost:3002/api/auth/login
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
   "email": "sophie.bernard@email.fr",
-  "password": "password123"
+  "password": "Password123@"
 }
 
 ### Login - entreprise seedée
-POST http://localhost:3002/api/auth/login
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
   "email": "contact@ecoentreprise.fr",
-  "password": "password123"
+  "password": "Password123@"
 }
 
 ### Login - mauvais mot de passe
-POST http://localhost:3002/api/auth/login
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
@@ -48,31 +51,35 @@ Content-Type: application/json
   "password": "WrongPassword123!"
 }
 
----------------------------------------------
+#############################################
 ## JWT MIDDLEWARE
----------------------------------------------
+#############################################
 
-### Route protégée - sans token
-GET http://localhost:3002/api/auth/me
+### Profil utilisateur - sans token
+GET {{baseUrl}}/users/me
 
-### Route protégée - token invalide
-GET http://localhost:3002/api/auth/me
+### Profil utilisateur - token invalide
+GET {{baseUrl}}/users/me
 Authorization: Bearer mauvais_token
 
-### Route protégée - token valide utilisateur
-GET http://localhost:3002/api/auth/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzgwMDUyMzAwLCJleHAiOjE3ODAxMzg3MDB9.Nr9pIxvfSY4qFUCTtx4KA8n2TM4bF5ivZNi7NOVJ_7A
+### Profil utilisateur - token valide utilisateur
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{userToken}}
 
-### Route protégée - token valide admin
-GET http://localhost:3002/api/auth/me
-Authorization: Bearer 4258
+### Profil utilisateur - token valide admin
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{adminToken}}
 
----------------------------------------------
+### Commandes utilisateur - token valide utilisateur
+GET {{baseUrl}}/users/me/orders
+Authorization: Bearer {{userToken}}
+
+#############################################
 ## REGISTER
----------------------------------------------
+#############################################
 
 ### Register - particulier
-POST http://localhost:3002/api/auth/register
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
@@ -87,7 +94,7 @@ Content-Type: application/json
 }
 
 ### Register - email déjà utilisé
-POST http://localhost:3002/api/auth/register
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
@@ -102,7 +109,7 @@ Content-Type: application/json
 }
 
 ### Register - entreprise sans SIRET
-POST http://localhost:3002/api/auth/register
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
@@ -117,7 +124,7 @@ Content-Type: application/json
 }
 
 ### Register - entreprise valide
-POST http://localhost:3002/api/auth/register
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
@@ -133,9 +140,9 @@ Content-Type: application/json
   "companyName": "Entreprise Test"
 }
 
----------------------------------------------
+#############################################
 ## LOGOUT
----------------------------------------------
+#############################################
 
 ### Logout
-POST http://localhost:3002/api/auth/logout
+POST {{baseUrl}}/auth/logout
