@@ -9,6 +9,7 @@ import { errorHandler } from './middlewares/errorHandler.js';
 import { router } from './routers/index.router.js';
 import searchRouter from './routers/search.router.js';
 import { adminRouter } from './routers/admin.router.js';
+import { router as stripeWebhookRouter } from './routers/stripe-webhook.router.js';
 
 import swaggerUi from 'swagger-ui-express';
 import SwaggerParser from '@apidevtools/swagger-parser';
@@ -21,19 +22,32 @@ const swaggerDocument = await SwaggerParser.bundle(
 );
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-app.use(cors());
+
+// Activation de CORS pour autoriser les appels du front-end vers l'API.
+// FRONTEND_URL permet d'adapter l'origine autorisée selon l'environnement.
+// credentials: true est indispensable pour envoyer les cookies d'authentification.
 const corsOptions = {
-  origin: ['http://localhost:3000', 'http://localhost:3001'],
+  origin: [
+    process.env.FRONTEND_URL ?? 'http://localhost:3000',
+    'http://localhost:3001',
+  ],
   credentials: true,
 };
 
 app.use(cors(corsOptions));
+
 app.use(
   helmet({
     contentSecurityPolicy: false,
     crossOriginResourcePolicy: false, // Autorise le chargement des ressources statiques cross-origin
   })
 );
+
+// Route dédiée aux webhooks Stripe.
+// Elle reçoit les événements envoyés par Stripe après un paiement,
+// sans passer par les routes API classiques, pour valider la commande.
+app.use('/api/webhooks', stripeWebhookRouter);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
