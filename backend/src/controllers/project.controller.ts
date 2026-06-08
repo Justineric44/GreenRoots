@@ -58,7 +58,10 @@ export async function getAllProjects(req: Request, res: Response) {
         where,
       }),
     ]);
-    if (projects.length === 0) {
+    if (projects.length === 0 && total > 0) {
+      throw new NotFoundError();
+    }
+    if (total === 0) {
       return res.status(200).json({ projects: [], total, limit });
     }
     res.status(200).json({ projects, total, limit });
