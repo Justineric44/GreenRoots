@@ -12,6 +12,8 @@ tags:
     description: Routes liées à l'utilisateur connecté
   - name: Orders
     description: Création et gestion des commandes
+  - name: Projects
+    description: Routes liées aux projets de reforestation
 
 components:
   securitySchemes:
@@ -36,6 +38,20 @@ paths:
   # ============================================================
   /api/orders:
     $ref: './orders.openapi.yaml#/paths/~1api~1orders'
+
+  # ============================================================
+  # PROJECTS — Routes importées de projects.openapi.yaml
+  # ============================================================
+  /api/projects:
+    $ref: './projects.openapi.yaml#/paths/~1api~1projects'
+  /api/projects/localisations:
+    $ref: './projects.openapi.yaml#/paths/~1api~1projects~1localisations'
+  /api/projects/{slug}:
+    $ref: './projects.openapi.yaml#/paths/~1api~1projects~1{slug}'
+  /api/projects/{slug}/trees:
+    $ref: './projects.openapi.yaml#/paths/~1api~1projects~1{slug}~1trees'
+
+
  # ============================================================
   # CARTS
   # ============================================================
@@ -45,3 +61,4 @@ paths:
     $ref: './carts.openapi.yaml#/paths/~1api~1carts~1items'
   /api/carts/items/{id}:
     $ref: './carts.openapi.yaml#/paths/~1api~1carts~1items~1{id}'
+
