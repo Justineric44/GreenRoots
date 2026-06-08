@@ -135,41 +135,38 @@
           <form
             method="GET"
             action="/admin/dashboard"
-            style="display:flex; flex-direction:column; gap:8px;"
+            id="form-tree-search"
+            style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"
           >
             <input type="hidden" name="section" value="trees" />
             <input type="hidden" name="treeSortBy" value="<%= sortBy %>" />
             <input type="hidden" name="treeSortOrder" value="<%= sortOrder %>" />
 
-            <!-- Ligne 1 : recherche par nom -->
-            <div style="display:flex; align-items:center; gap:8px;">
-              <input
-                type="text"
-                name="treeSearch"
-                value="<%= treeSearch %>"
-                placeholder="Rechercher par nom commun…"
-                style="padding:6px 10px; border:1px solid var(--border, #ddd); border-radius:6px; font-size:13px; width:180px;"
-              />
-            </div>
+            <input
+              type="text"
+              name="treeSearch"
+              value="<%= treeSearch %>"
+              placeholder="Rechercher un arbre…"
+              style="padding:6px 10px; border:1px solid var(--border, #ddd); border-radius:6px; font-size:13px; width:180px;"
+              oninput="clearTimeout(window._treeSearchTimer); window._treeSearchTimer = setTimeout(() => document.getElementById('form-tree-search').submit(), 400)"
+            />
 
-            <!-- Ligne 2 : filtre par projet + bouton -->
-            <div style="display:flex; align-items:center; gap:8px;">
-              <select
-                name="treeProjectId"
-                style="padding:6px 10px; border:1px solid var(--border, #ddd); border-radius:6px; font-size:13px; max-width:200px;"
-              >
-                <option value="">Tous les projets</option>
-                <% projects.forEach(project => { %>
-                  <option value="<%= project.id %>" <%= String(treeProjectId) === String(project.id) ? 'selected' : '' %>>
-                    <%= project.name %>
-                  </option>
-                <% }) %>
-              </select>
-              <button type="submit" class="btn btn-secondary btn-sm">Valider</button>
-              <% if (treeSearch || treeProjectId) { %>
-                <a href="/admin/dashboard?section=trees" class="btn btn-secondary btn-sm">✕ Réinitialiser</a>
-              <% } %>
-            </div>
+            <select
+              name="treeProjectId"
+              style="padding:6px 10px; border:1px solid var(--border, #ddd); border-radius:6px; font-size:13px; max-width:200px;"
+              onchange="document.getElementById('form-tree-search').submit()"
+            >
+              <option value="">Tous les projets</option>
+              <% projects.forEach(project => { %>
+                <option value="<%= project.id %>" <%= String(treeProjectId) === String(project.id) ? 'selected' : '' %>>
+                  <%= project.name %>
+                </option>
+              <% }) %>
+            </select>
+
+            <% if (treeSearch || treeProjectId) { %>
+              <a href="/admin/dashboard?section=trees" class="btn btn-secondary btn-sm">✕ Réinitialiser</a>
+            <% } %>
           </form>
         </div>
 
