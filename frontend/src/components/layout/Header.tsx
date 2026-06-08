@@ -7,6 +7,7 @@ import MobileSearch from './MobileSearch';
 import Link from 'next/link';
 
 const MENU = [
+  { label: 'Accueil', href: '/' },
   { label: 'Arbres', href: '/arbres' },
   { label: 'Projets', href: '/projets' },
   { label: 'A propos', href: '/a-propos' },

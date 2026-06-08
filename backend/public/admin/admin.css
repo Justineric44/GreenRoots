@@ -360,10 +360,16 @@ tbody td {
   background: var(--danger-hover);
 }
 
-.btn-sm {
+.btn-action {
   padding: 5px 10px;
   font-size: 12px;
   border-radius: 6px;
+}
+
+.btn-create {
+  padding: 10px 20px;
+  font-size: 15px;
+  border-radius: 8px;
 }
 
 /* ============================================================
@@ -505,4 +511,39 @@ textarea {
 
 .logout-form {
   padding: 12px 20px;
+}
+
+/* ============================================================
+   TRI COLONNES — Icônes thead
+   ============================================================ */
+
+thead th.sortable {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+thead th.sortable:hover {
+  color: var(--brand-dark);
+}
+
+thead th.sortable::after {
+  content: ' ⇅';
+  font-size: 15px;
+  color: black;
+  opacity: 0.6;
+}
+
+thead th.sortable.sort-asc::after {
+  content: ' ▲';
+  font-size: 15px;
+  color: var(--brand-accent);
+  opacity: 1;
+}
+
+thead th.sortable.sort-desc::after {
+  content: ' ▼';
+  font-size: 15px;
+  color: var(--brand-accent);
+  opacity: 1;
 }
