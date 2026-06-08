@@ -536,7 +536,7 @@ async function main() {
       shortDescription: 'Projet de restauration forestière locale en Bretagne.',
       longDescription:
         'Ce projet vise à restaurer des zones forestières fragilisées en plantant des essences locales adaptées au climat breton.',
-      localisation: 'Bretagne, France',
+      localisation: 'Europe',
       picture: '/images/projects/reforestation-bretagne.webp',
       progress: 45,
     },
@@ -549,7 +549,7 @@ async function main() {
       shortDescription: 'Projet de reboisement en zone sèche.',
       longDescription:
         'Ce projet contribue à lutter contre la désertification grâce à la plantation d’essences adaptées aux zones arides.',
-      localisation: 'Sahel',
+      localisation: 'Afrique',
       picture: '/images/projects/reboisement-sahel.webp',
       progress: 30,
     },
@@ -562,7 +562,7 @@ async function main() {
       shortDescription: 'Projet de reforestation en zone montagneuse.',
       longDescription:
         'Ce projet vise à renforcer les écosystèmes forestiers alpins et à protéger les sols contre l’érosion.',
-      localisation: 'Alpes, France',
+      localisation: 'Europe',
       picture: '/images/projects/restauration-alpes.webp',
       progress: 60,
     },
@@ -576,7 +576,7 @@ async function main() {
         'Projet de plantation et restauration en zone tropicale.',
       longDescription:
         'Ce projet contribue à la restauration d’espaces naturels dégradés et au maintien de la biodiversité amazonienne.',
-      localisation: 'Amazonie',
+      localisation: 'Amérique du Sud',
       picture: '/images/projects/preservation-amazonie.webp',
       progress: 25,
     },
@@ -589,7 +589,7 @@ async function main() {
       shortDescription: 'Projet de restauration écologique des zones côtières.',
       longDescription:
         'Ce projet vise à restaurer les mangroves afin de protéger les littoraux et favoriser la biodiversité marine.',
-      localisation: 'Zones côtières tropicales',
+      localisation: 'Asie',
       picture: '/images/projects/restauration-mangroves.webp',
       progress: 70,
     },
@@ -605,7 +605,7 @@ async function main() {
         'Projet de plantation d’essences méditerranéennes en Provence.',
       longDescription:
         'Ce projet renforce les écosystèmes méditerranéens en plantant des essences locales résistantes à la sécheresse.',
-      localisation: 'Provence, France',
+      localisation: 'Europe',
       picture: '/images/projects/foret-mediterraneenne-provence.webp',
       progress: 55,
     },
@@ -619,7 +619,7 @@ async function main() {
         'Projet de restauration des forêts feuillues auvergnates.',
       longDescription:
         'Ce projet vise à restaurer les forêts feuillues d’Auvergne en favorisant les essences locales et la biodiversité.',
-      localisation: 'Auvergne, France',
+      localisation: 'Europe',
       picture: '/images/projects/restauration-foret-auvergne.webp',
       progress: 40,
     },
@@ -633,7 +633,7 @@ async function main() {
         'Projet de reforestation en zone montagneuse pyrénéenne.',
       longDescription:
         'Ce projet contribue à la préservation des écosystèmes pyrénéens grâce à la plantation d’essences adaptées à l’altitude.',
-      localisation: 'Pyrénées, France',
+      localisation: 'Europe',
       picture: '/images/projects/reforestation-pyrenees.webp',
       progress: 35,
     },
@@ -646,7 +646,7 @@ async function main() {
       shortDescription: 'Projet de restauration du massif forestier landais.',
       longDescription:
         'Ce projet vise à restaurer le massif landais après les épisodes climatiques en diversifiant les essences plantées.',
-      localisation: 'Landes, France',
+      localisation: 'Europe',
       picture: '/images/projects/restauration-foret-landaise.webp',
       progress: 50,
     },
@@ -660,7 +660,7 @@ async function main() {
         'Projet de plantation pour renforcer les haies bocagères normandes.',
       longDescription:
         'Ce projet soutient la replantation de haies bocagères en Normandie pour favoriser la biodiversité locale.',
-      localisation: 'Normandie, France',
+      localisation: 'Europe',
       picture: '/images/projects/projet-ecologique-normandie.webp',
       progress: 65,
     },
@@ -674,7 +674,7 @@ async function main() {
         'Projet de reboisement des zones impactées par les incendies.',
       longDescription:
         'Ce projet contribue à la régénération des massifs corses touchés par les incendies grâce à des essences locales.',
-      localisation: 'Corse, France',
+      localisation: 'Europe',
       picture: '/images/projects/reboisement-corse.webp',
       progress: 28,
     },
@@ -687,7 +687,7 @@ async function main() {
       shortDescription: 'Projet de plantation d’une forêt mixte en Bourgogne.',
       longDescription:
         'Ce projet vise à créer une forêt mixte résiliente face au changement climatique sur les terres bourguignonnes.',
-      localisation: 'Bourgogne, France',
+      localisation: 'Europe',
       picture: '/images/projects/foret-mixte-bourgogne.webp',
       progress: 42,
     },
@@ -701,7 +701,7 @@ async function main() {
         'Projet de restauration des forêts de conifères vosgiennes.',
       longDescription:
         'Ce projet soutient la restauration des forêts vosgiennes touchées par les scolytes et la sécheresse.',
-      localisation: 'Vosges, France',
+      localisation: 'Europe',
       picture: '/images/projects/projet-foret-vosgienne.webp',
       progress: 38,
     },
@@ -717,7 +717,7 @@ async function main() {
         'Projet de reforestation des zones dégradées de Madagascar.',
       longDescription:
         'Ce projet contribue à la restauration des forêts malgaches en collaboration avec les communautés locales.',
-      localisation: 'Madagascar',
+      localisation: 'Afrique',
       picture: '/images/projects/reforestation-madagascar.webp',
       progress: 22,
     },
@@ -731,7 +731,7 @@ async function main() {
         'Projet de restauration écologique des savanes kényanes.',
       longDescription:
         'Ce projet aide à restaurer les paysages dégradés du Kenya tout en soutenant la faune et les communautés.',
-      localisation: 'Kenya',
+      localisation: 'Afrique',
       picture: '/images/projects/restauration-savanes-kenya.webp',
       progress: 33,
     },
@@ -745,7 +745,7 @@ async function main() {
         'Projet de préservation des forêts tropicales de Bornéo.',
       longDescription:
         'Ce projet contribue à la protection des forêts primaires de Bornéo et à la replantation des zones déforestées.',
-      localisation: 'Bornéo, Indonésie',
+      localisation: 'Asie',
       picture: '/images/projects/preservation-borneo.webp',
       progress: 18,
     },
@@ -759,7 +759,7 @@ async function main() {
         'Projet de reboisement et de corridors écologiques au Costa Rica.',
       longDescription:
         'Ce projet recrée des corridors écologiques entre les parcs nationaux costariciens pour faciliter la migration des espèces.',
-      localisation: 'Costa Rica',
+      localisation: 'Amérique Centrale',
       picture: '/images/projects/reboisement-costa-rica.webp',
       progress: 75,
     },
@@ -773,7 +773,7 @@ async function main() {
         'Projet de restauration de la forêt atlantique brésilienne.',
       longDescription:
         'Ce projet contribue à la restauration de la Mata Atlantica, l’une des forêts les plus menacées au monde.',
-      localisation: 'Brésil',
+      localisation: 'Amérique du Sud',
       picture: '/images/projects/restauration-mata-atlantica.webp',
       progress: 47,
     },
