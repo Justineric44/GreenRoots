@@ -36,3 +36,12 @@ paths:
   # ============================================================
   /api/orders:
     $ref: './orders.openapi.yaml#/paths/~1api~1orders'
+ # ============================================================
+  # CARTS
+  # ============================================================
+  /api/carts:
+    $ref: './carts.openapi.yaml#/paths/~1api~1carts'
+  /api/carts/items:
+    $ref: './carts.openapi.yaml#/paths/~1api~1carts~1items'
+  /api/carts/items/{id}:
+    $ref: './carts.openapi.yaml#/paths/~1api~1carts~1items~1{id}'

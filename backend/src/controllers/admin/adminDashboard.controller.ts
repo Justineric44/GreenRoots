@@ -364,7 +364,6 @@ export async function postCreateTree(
           data: projectIds.map((projectId) => ({
             treeId: tree.id,
             projectId: Number(projectId),
-            // ✅ FIX : le EJS envoie stocks[p14], la clé est donc "p14"
             stock: stocks?.[`p${projectId}`] ?? 0,
           })),
         });
