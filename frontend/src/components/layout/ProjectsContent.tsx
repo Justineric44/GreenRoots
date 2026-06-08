@@ -26,20 +26,50 @@ export default async function ProjectsContent({
   // Récupérer le numéro de page à partir des paramètres de recherche avec await pour s'assurer que les données sont disponibles avant de continuer
   const { page, localisation, search, sortBy, sortOrder } = await searchParams;
   const currentPage = Number(page) || 1;
-  const { projects, total, limit } = await getProjects(
-    currentPage,
-    localisation,
-    search,
-    sortBy,
-    sortOrder
-  );
-  const { localisations } = await getProjectsLocalisations();
+
+  let projects: Project[] | null = null;
+  let localisations: string[] = []; // adapte le type si localisations n'est pas string[]
+  let total = 0;
+  let limit = 0;
+
+  try {
+    const projectsData = await getProjects(
+      currentPage,
+      localisation,
+      search,
+      sortBy,
+      sortOrder
+    );
+    projects = projectsData.projects;
+    total = projectsData.total;
+    limit = projectsData.limit;
+
+    const localisationsData = await getProjectsLocalisations();
+    localisations = localisationsData.localisations;
+  } catch (error) {
+    console.error(
+      'Erreur lors de la récupération des données des projets :',
+      error
+    );
+  }
+
   const totalPages = Math.ceil(total / limit);
-  return !projects || projects.length === 0 ? (
+  return !projects ? (
+    // Cas 1 : API injoignable
     <p className="text-center text-lg mt-10">
-      Aucun projet ne correspond à votre recherche.
+      Les projets ne sont pas disponibles pour le moment.
     </p>
+  ) : projects.length === 0 ? (
+    // Cas 2 : recherche sans résultat
+    <>
+      <ProjectsFilters localisations={localisations} />
+
+      <p className="text-center text-lg mt-10">
+        Aucun projet ne correspond à votre recherche.
+      </p>
+    </>
   ) : (
+    // Cas 3 : affichage normal
     <>
       <ProjectsFilters localisations={localisations} />
       <div className="flex flex-row flex-wrap gap-4 mb-8">
@@ -60,13 +90,11 @@ export default async function ProjectsContent({
               priority
               className="relative z-20 aspect-video w-full object-cover"
             />
-
             <CardHeader>
               <CardTitle>{project.name}</CardTitle>
               <CardDescription className="min-h-[3rem]">
                 {project.shortDescription}
               </CardDescription>
-
               <Field className="w-full max-w-sm">
                 <FieldLabel htmlFor="progress-upload">
                   <span>Progression</span>
@@ -89,7 +117,6 @@ export default async function ProjectsContent({
           </Card>
         ))}
       </div>
-
       <ProjectsPagination currentPage={currentPage} totalPages={totalPages} />
     </>
   );
