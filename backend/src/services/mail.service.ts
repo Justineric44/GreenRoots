@@ -36,3 +36,19 @@ export async function sendOrderConfirmationEmail(
     `,
   });
 }
+
+export async function sendRegistrationConfirmationEmail(
+  to: string,
+  firstName: string
+) {
+  await transporter.sendMail({
+    from: process.env.MAIL_FROM,
+    to,
+    subject: 'Bienvenue sur GreenRoots 🌱',
+    html: `
+      <h1>Bienvenue ${firstName} 🌱</h1>
+      <p>Votre compte GreenRoots a bien été créé.</p>
+      <p>Vous pouvez maintenant vous connecter à votre espace client.</p>
+    `,
+  });
+}

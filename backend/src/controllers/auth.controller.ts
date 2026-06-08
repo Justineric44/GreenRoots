@@ -7,6 +7,7 @@ import {
   loginBodySchema,
   registerBodySchema,
 } from '../validators/auth.validator.js';
+import { sendRegistrationConfirmationEmail } from '../services/mail.service.js';
 
 export async function registerUser(req: Request, res: Response) {
   const data = registerBodySchema.parse(req.body);
@@ -66,6 +67,12 @@ export async function registerUser(req: Request, res: Response) {
       createdAt: true,
     },
   });
+
+  try {
+    await sendRegistrationConfirmationEmail(user.email, user.firstName);
+  } catch (error) {
+    console.error("Erreur lors de l'envoi du mail d'inscription :", error);
+  }
 
   return res
     .status(201)
