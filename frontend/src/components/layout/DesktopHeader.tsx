@@ -40,7 +40,7 @@ export default function DesktopHeader({
             <li key={item.href}>
               <Link
                 href={item.href}
-                className="hover:text-[#88B75D] transition-colors"
+                className="!text-white transition-colors hover:!text-brand-accent"
               >
                 {item.label}
               </Link>
