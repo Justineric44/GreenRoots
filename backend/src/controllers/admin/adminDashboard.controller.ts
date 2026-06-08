@@ -59,6 +59,35 @@ function resolvePicture(req: Request): string | undefined {
 
 export async function getDashboard(req: Request, res: Response): Promise<void> {
   try {
+    const treeSearch = (req.query.treeSearch as string | undefined)?.trim();
+    const treeProjectId = req.query.treeProjectId
+      ? Number(req.query.treeProjectId)
+      : undefined;
+
+    const allowedSortFields = [
+      'commonName',
+      'scientificName',
+      'family',
+      'price',
+    ] as const;
+    type SortField = (typeof allowedSortFields)[number];
+    const rawSortBy = req.query.treeSortBy as string | undefined;
+    const treeSortBy: SortField = allowedSortFields.includes(
+      rawSortBy as SortField
+    )
+      ? (rawSortBy as SortField)
+      : 'commonName';
+    const treeSortOrder = req.query.treeSortOrder === 'desc' ? 'desc' : 'asc';
+
+    const treeWhere = {
+      ...(treeSearch && {
+        commonName: { contains: treeSearch, mode: 'insensitive' as const },
+      }),
+      ...(treeProjectId && {
+        projects: { some: { projectId: treeProjectId } },
+      }),
+    };
+
     const [projects, trees, orders, users] = await Promise.all([
       prisma.project.findMany({
         orderBy: { createdAt: 'desc' },
@@ -66,11 +95,7 @@ export async function getDashboard(req: Request, res: Response): Promise<void> {
           trees: {
             include: {
               tree: {
-                select: {
-                  id: true,
-                  commonName: true,
-                  slug: true,
-                },
+                select: { id: true, commonName: true, slug: true },
               },
             },
           },
@@ -78,7 +103,8 @@ export async function getDashboard(req: Request, res: Response): Promise<void> {
       }),
 
       prisma.tree.findMany({
-        orderBy: { createdAt: 'desc' },
+        where: treeWhere,
+        orderBy: { [treeSortBy]: treeSortOrder },
         include: {
           projects: {
             include: {
@@ -94,11 +120,7 @@ export async function getDashboard(req: Request, res: Response): Promise<void> {
         orderBy: { createdAt: 'desc' },
         include: {
           user: {
-            select: {
-              firstName: true,
-              lastName: true,
-              email: true,
-            },
+            select: { firstName: true, lastName: true, email: true },
           },
           items: true,
         },
@@ -124,6 +146,10 @@ export async function getDashboard(req: Request, res: Response): Promise<void> {
       orders,
       users,
       query: req.query,
+      treeSearch: treeSearch ?? '',
+      treeProjectId: treeProjectId ?? '',
+      treeSortBy,
+      treeSortOrder,
     });
   } catch (error) {
     console.error('[adminDashboard] getDashboard error:', error);
@@ -150,7 +176,6 @@ export async function postCreateProject(
   }
 
   const treesResult = projectTreesSchema.safeParse(req.body);
-
   const { treeIds, stocks } = treesResult.success
     ? treesResult.data
     : { treeIds: [], stocks: {} };
@@ -218,17 +243,12 @@ export async function postUpdateProject(
   }
 
   const treesResult = projectTreesSchema.safeParse(req.body);
-
   const { treeIds, stocks } = treesResult.success
     ? treesResult.data
     : { treeIds: [], stocks: {} };
 
   try {
     await prisma.$transaction(async (tx) => {
-      // ============================================================
-      // Mise à jour du projet
-      // ============================================================
-
       await tx.project.update({
         where: { id },
         data: Object.fromEntries(
@@ -236,17 +256,7 @@ export async function postUpdateProject(
         ),
       });
 
-      // ============================================================
-      // Suppression des anciennes associations
-      // ============================================================
-
-      await tx.projectHasTree.deleteMany({
-        where: { projectId: id },
-      });
-
-      // ============================================================
-      // Création des nouvelles associations
-      // ============================================================
+      await tx.projectHasTree.deleteMany({ where: { projectId: id } });
 
       if (treeIds && treeIds.length > 0) {
         await tx.projectHasTree.createMany({
@@ -264,21 +274,18 @@ export async function postUpdateProject(
     );
   } catch (error) {
     console.error('[adminDashboard] postUpdateProject error:', error);
-
     if (hasPrismaCode(error, 'P2025')) {
       res.redirect(
         '/admin/dashboard?section=projects&error=Projet+introuvable'
       );
       return;
     }
-
     if (hasPrismaCode(error, 'P2002')) {
       res.redirect(
         '/admin/dashboard?section=projects&error=Ce+slug+existe+d%C3%A9j%C3%A0'
       );
       return;
     }
-
     res.redirect(
       '/admin/dashboard?section=projects&error=Erreur+lors+de+la+mise+%C3%A0+jour'
     );
@@ -338,7 +345,6 @@ export async function postCreateTree(
   }
 
   const projectsResult = treeProjectsSchema.safeParse(req.body);
-
   const { projectIds, stocks } = projectsResult.success
     ? projectsResult.data
     : { projectIds: [], stocks: {} };
@@ -358,7 +364,8 @@ export async function postCreateTree(
           data: projectIds.map((projectId) => ({
             treeId: tree.id,
             projectId: Number(projectId),
-            stock: stocks?.[projectId] ?? 0,
+            // ✅ FIX : le EJS envoie stocks[p14], la clé est donc "p14"
+            stock: stocks?.[`p${projectId}`] ?? 0,
           })),
         });
       }
@@ -405,7 +412,6 @@ export async function postUpdateTree(
   }
 
   const projectsResult = treeProjectsSchema.safeParse(req.body);
-
   const { projectIds, stocks } = projectsResult.success
     ? projectsResult.data
     : { projectIds: [], stocks: {} };
@@ -425,7 +431,8 @@ export async function postUpdateTree(
           data: projectIds.map((projectId) => ({
             treeId: id,
             projectId: Number(projectId),
-            stock: stocks?.[projectId] ?? 0,
+            // ✅ FIX : le EJS envoie stocks[p14], la clé est donc "p14"
+            stock: stocks?.[`p${projectId}`] ?? 0,
           })),
         });
       }
@@ -468,7 +475,6 @@ export async function postDeleteTree(
   }
 
   try {
-    // Vérifie si l'arbre est référencé dans des commandes existantes
     const ordersCount = await prisma.orderItem.count({ where: { treeId: id } });
 
     if (ordersCount > 0) {
@@ -479,9 +485,7 @@ export async function postDeleteTree(
     }
 
     await prisma.$transaction(async (tx) => {
-      // Supprime les associations arbre-projet (pas les projets eux-mêmes)
       await tx.projectHasTree.deleteMany({ where: { treeId: id } });
-      // Supprime l'arbre
       await tx.tree.delete({ where: { id } });
     });
 
@@ -533,19 +537,14 @@ export async function postDeleteUser(
     }
 
     await prisma.$transaction(async (tx) => {
-      // Récupère toutes les commandes de l'utilisateur
       const orders = await tx.order.findMany({ where: { userId: id } });
       const orderIds = orders.map((o) => o.id);
 
-      // Supprime les items des commandes
       if (orderIds.length > 0) {
         await tx.orderItem.deleteMany({ where: { orderId: { in: orderIds } } });
       }
 
-      // Supprime les commandes
       await tx.order.deleteMany({ where: { userId: id } });
-
-      // Supprime l'utilisateur
       await tx.user.delete({ where: { id } });
     });
 
