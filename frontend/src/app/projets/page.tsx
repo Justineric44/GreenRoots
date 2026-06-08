@@ -1,23 +1,9 @@
 import Title from '@/components/layout/Title';
-import Image from 'next/image';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import ProjectsPagination from '@/components/layout/ProjectsPagination';
-
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import Link from 'next/link';
 import { Metadata } from 'next';
-import type { Project } from '@/types/index';
-import { getProjects, getProjectsLocalisations } from '@/lib/api';
-import { Progress } from '@/components/ui/progress';
-import { Field, FieldLabel } from '@/components/ui/field';
-import ProjectsFilters from '@/components/layout/ProjectsFilters';
+import ProjectsContent from '@/components/layout/ProjectsContent';
+import { Suspense } from 'react';
+import ProjectsSkeleton from '@/components/layout/ProjectsSkeleton';
+import type { ProjectsSearchParams } from '@/types/index';
 
 export const metadata: Metadata = {
   title: 'Projets de reforestation - GreenRoots',
@@ -25,29 +11,11 @@ export const metadata: Metadata = {
     "Découvrez nos projets de reforestation à travers le monde. Participez à la lutte contre le changement climatique en soutenant nos initiatives de plantation d'arbres.",
 };
 
-export default async function ProjectsPage({
+export default function ProjectsPage({
   searchParams,
 }: {
-  searchParams: Promise<{
-    page?: string;
-    localisation?: string;
-    search?: string;
-    sortBy?: string;
-    sortOrder?: string;
-  }>;
+  searchParams: ProjectsSearchParams;
 }) {
-  // Récupérer le numéro de page à partir des paramètres de recherche avec await pour s'assurer que les données sont disponibles avant de continuer
-  const { page, localisation, search, sortBy, sortOrder } = await searchParams;
-  const currentPage = Number(page) || 1;
-  const { projects, total, limit } = await getProjects(
-    currentPage,
-    localisation,
-    search,
-    sortBy,
-    sortOrder
-  );
-  const { localisations } = await getProjectsLocalisations();
-  const totalPages = Math.ceil(total / limit);
   return (
     <main>
       <Title title="Nos projets" />
@@ -75,74 +43,9 @@ export default async function ProjectsPage({
       </section>
       <section className="bg-brand-bg px-4 pt-4 pb-16 sm:px-6 lg:px-8 lg:pt-4 lg:pb-20">
         <div className="mx-auto max-w-7xl p-8 text-brand-dark">
-          <ProjectsFilters localisations={localisations} />
-
-          {!projects || projects.length === 0 ? (
-            <p className="text-center text-lg mt-10">
-              Aucun projet ne correspond à votre recherche.
-            </p>
-          ) : (
-            <>
-              <div className="flex flex-row flex-wrap gap-4 mb-8">
-                {projects.map((project: Project) => (
-                  <Card
-                    key={project.id}
-                    className="relative mx-auto w-full max-w-sm pt-0"
-                  >
-                    <div className="absolute inset-0 z-30 aspect-video" />
-                    <Badge
-                      variant="secondary"
-                      className="absolute top-2 right-2 z-40"
-                    >
-                      {project.localisation}
-                    </Badge>
-                    <Image
-                      src={project.picture}
-                      alt={project.name}
-                      width={300}
-                      height={200}
-                      priority
-                      className="relative z-20 aspect-video w-full object-cover"
-                    />
-
-                    <CardHeader>
-                      <CardTitle>{project.name}</CardTitle>
-                      <CardDescription className="min-h-[3rem]">
-                        {project.shortDescription}
-                      </CardDescription>
-
-                      <Field className="w-full max-w-sm">
-                        <FieldLabel htmlFor="progress-upload">
-                          <span>Progression</span>
-                          <span className="ml-auto">{project.progress}%</span>
-                        </FieldLabel>
-                        <Progress
-                          value={project.progress}
-                          id="progress-upload"
-                          className="w-full"
-                        />
-                      </Field>
-                    </CardHeader>
-                    <CardFooter>
-                      <Button className="w-full bg-accent">
-                        <Link
-                          href={`/projets/${project.slug}`}
-                          className="w-full"
-                        >
-                          Voir le projet
-                        </Link>
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-
-              <ProjectsPagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-              />
-            </>
-          )}
+          <Suspense fallback={<ProjectsSkeleton />}>
+            <ProjectsContent searchParams={searchParams} />
+          </Suspense>
         </div>
       </section>
     </main>
