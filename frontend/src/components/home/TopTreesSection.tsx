@@ -9,8 +9,6 @@ import { Button } from '@/components/ui/button';
 import { getTrees } from '@/lib/api';
 
 export default async function TopTreesSection() {
-  await new Promise((resolve) => setTimeout(resolve, 2000)); // ← 2s de délai
-
   // Récupération des arbres depuis l'API backend.
   // On gardera les 3 premiers pour la section "arbres les plus vendus".
   const { trees } = await getTrees(1);
