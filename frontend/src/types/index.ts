@@ -36,6 +36,15 @@ export interface Tree {
   longDescription?: string;
 }
 
+export type TreesSearchParams = Promise<{
+  page?: string;
+  search?: string;
+  minPrice?: string;
+  maxPrice?: string;
+  sortBy?: string;
+  sortOrder?: string;
+}>;
+
 // ============================================================
 // USER
 // ============================================================
