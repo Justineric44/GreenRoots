@@ -51,6 +51,8 @@ export async function registerUser(req: Request, res: Response) {
       ...(data.siret && { siret: data.siret }),
       ...(data.companyName && { companyName: data.companyName }),
       ...(data.phone && { phone: data.phone }),
+      acceptedTerms: true,
+      acceptedTermsAt: new Date(),
     },
 
     // Permet de limiter les données renvoyées au frontend.
