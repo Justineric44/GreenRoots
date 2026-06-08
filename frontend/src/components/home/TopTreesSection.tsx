@@ -9,10 +9,40 @@ import { Button } from '@/components/ui/button';
 import { getTrees } from '@/lib/api';
 
 export default async function TopTreesSection() {
-  // Récupération des arbres depuis l'API backend.
-  // On gardera les 3 premiers pour la section "arbres les plus vendus".
-  const { trees } = await getTrees(1);
-  const topTrees = trees.slice(0, 3);
+  let topTrees = null;
+
+  try {
+    // Récupération des arbres depuis l'API backend.
+    const { trees } = await getTrees(1);
+    // On gardera les 3 premiers pour la section "arbres les plus vendus".
+    topTrees = trees.slice(0, 3);
+  } catch (error) {
+    // En cas d'erreur, on logge pour le debug et on affiche un fallback
+    // plus bas sans planter la page.
+    console.error('[TopTreesSection] fetch échoué :', error);
+  }
+  if (!topTrees) {
+    return (
+      <section className="bg-brand-bg px-4 py-16 text-brand-dark sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <h2 className="text-center text-2xl font-bold sm:text-3xl">
+            Les arbres les plus vendus
+          </h2>
+          <p className="mx-auto max-w-2xl mt-12 text-center text-brand-dark">
+            Les arbres ne sont pas disponibles.
+          </p>
+          <div className="mt-12 text-center">
+            <p className="mx-auto max-w-2xl text-lg text-brand-dark">
+              Chaque arbre financé contribue à restaurer des écosystèmes,
+              soutenir les communautés locales et construire un avenir plus
+              durable.
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="bg-brand-bg px-4 py-16 text-brand-dark sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
