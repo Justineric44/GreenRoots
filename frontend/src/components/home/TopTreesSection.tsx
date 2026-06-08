@@ -6,20 +6,13 @@ import Link from 'next/link';
 
 import TreeCard from '@/components/home/TreeCard';
 import { Button } from '@/components/ui/button';
+import { getTrees } from '@/lib/api';
 
-type TopTreesSectionProps = {
-  trees: {
-    id: number;
-    commonName: string;
-    family: string;
-    origin: string;
-    slug: string;
-    picture: string;
-    price: number;
-  }[];
-};
-
-export default function TopTreesSection({ trees }: TopTreesSectionProps) {
+export default async function TopTreesSection() {
+  // Récupération des arbres depuis l'API backend.
+  // On gardera les 3 premiers pour la section "arbres les plus vendus".
+  const { trees } = await getTrees(1);
+  const topTrees = trees.slice(0, 3);
   return (
     <section className="bg-brand-bg px-4 py-16 text-brand-dark sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
@@ -28,8 +21,8 @@ export default function TopTreesSection({ trees }: TopTreesSectionProps) {
         </h2>
 
         <div className="mt-10 grid justify-center gap-6 sm:grid-cols-[repeat(2,18rem)] lg:grid-cols-[repeat(4,18rem)]">
-          {trees[0] && <TreeCard tree={trees[0]} />}
-          {trees[1] && <TreeCard tree={trees[1]} />}
+          {topTrees[0] && <TreeCard tree={topTrees[0]} />}
+          {topTrees[1] && <TreeCard tree={topTrees[1]} />}
 
           {/* Carte fixe dédiée aux entreprises */}
           <div className="relative flex h-[470px] w-72 flex-col justify-between overflow-hidden rounded-xl bg-brand-dark p-6 text-brand-white shadow-lg transition-shadow hover:shadow-xl">
@@ -69,7 +62,7 @@ export default function TopTreesSection({ trees }: TopTreesSectionProps) {
             </Button>
           </div>
 
-          {trees[2] && <TreeCard tree={trees[2]} />}
+          {topTrees[2] && <TreeCard tree={topTrees[2]} />}
         </div>
         <div className="mt-12 text-center">
           <p className="mx-auto max-w-2xl text-lg text-brand-darck">

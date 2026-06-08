@@ -1,20 +1,11 @@
 import Image from 'next/image';
-
-import { getProjects, getTrees } from '@/lib/api';
-import ProjectsCarousel from '@/components/home/ProjectsCarousel';
 import TopTreesSection from '@/components/home/TopTreesSection';
 import ImpactSection from '@/components/home/ImpactSection';
 import MissionSection from '@/components/home/MissionSection';
 import CompletedProjectsSection from '@/components/home/CompletedProjectsSection';
+import { ProjectsCarouselFetcher } from '@/components/home/ProjectCarousselFetcher';
 
 export default async function HomePage() {
-  // Récupération des projets depuis l'API backend.
-  // La page d'accueil les utilise dans le carrousel des projets.
-  const { projects } = await getProjects();
-  // Récupération des arbres depuis l'API backend.
-  // On gardera les 3 premiers pour la section "arbres les plus vendus".
-  const { trees } = await getTrees(1);
-  const topTrees = trees.slice(0, 3);
   return (
     <main className="min-h-screen bg-brand-bg text-brand-dark">
       <section className="relative isolate min-h-[680px] overflow-hidden px-4 py-24 text-brand-white sm:px-6 lg:px-8 lg:py-28">
@@ -41,9 +32,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <ProjectsCarousel projects={projects} />
+      <ProjectsCarouselFetcher />
       <MissionSection />
-      <TopTreesSection trees={topTrees} />
+      <TopTreesSection />
       <CompletedProjectsSection />
       <ImpactSection />
     </main>
