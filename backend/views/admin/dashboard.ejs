@@ -56,7 +56,8 @@
           </tr>
         <% } else { %>
           <% projects.forEach(project => { %>
-            <% const totalStock = project.trees.reduce((sum, ph) => sum + ph.stock, 0); %>
+            <% const projectTrees = project.trees || []; %>
+            <% const totalStock = projectTrees.reduce((sum, ph) => sum + ph.stock, 0); %>
 
             <tr>
               <td>
@@ -77,10 +78,10 @@
               </td>
 
               <td>
-                <% if (project.trees.length === 0) { %>
+                <% if (projectTrees.length === 0) { %>
                   <span class="td-muted">—</span>
                 <% } else { %>
-                  <% project.trees.forEach(ph => { %>
+                  <% projectTrees.forEach(ph => { %>
                     <div style="font-size:12px; margin-bottom:2px;">
                       <strong><%= ph.tree.commonName %></strong>
                       <span class="badge badge-muted" style="margin-left:4px;">
