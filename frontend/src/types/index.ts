@@ -12,8 +12,16 @@ export interface Project extends ProjectSummary {
   longDescription: string;
   description: string;
   createdAt: string;
-  trees?: []; // TODO: Ajouter le type arbre (voir Justine)
+  trees: Tree[];
 }
+
+export type ProjectsSearchParams = Promise<{
+  page?: string;
+  localisation?: string;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: string;
+}>;
 
 export interface Tree {
   id: number;
