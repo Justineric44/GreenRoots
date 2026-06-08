@@ -402,16 +402,26 @@ export async function postDeleteTree(
   }
 
   try {
-    await prisma.tree.delete({ where: { id } });
-    res.redirect('/admin/dashboard?section=trees&success=Arbre+supprim%C3%A9');
-  } catch (error) {
-    console.error('[adminDashboard] postDeleteTree error:', error);
-    if (hasPrismaCode(error, 'P2003')) {
+    // Vérifie si l'arbre est référencé dans des commandes existantes
+    const ordersCount = await prisma.orderItem.count({ where: { treeId: id } });
+
+    if (ordersCount > 0) {
       res.redirect(
-        '/admin/dashboard?section=trees&error=Impossible+de+supprimer+cet+arbre+car+il+est+utilis%C3%A9'
+        '/admin/dashboard?section=trees&error=Impossible+de+supprimer+cet+arbre+car+il+est+utilis%C3%A9+dans+des+commandes'
       );
       return;
     }
+
+    await prisma.$transaction(async (tx) => {
+      // Supprime les associations arbre-projet (pas les projets eux-mêmes)
+      await tx.projectHasTree.deleteMany({ where: { treeId: id } });
+      // Supprime l'arbre
+      await tx.tree.delete({ where: { id } });
+    });
+
+    res.redirect('/admin/dashboard?section=trees&success=Arbre+supprim%C3%A9');
+  } catch (error) {
+    console.error('[adminDashboard] postDeleteTree error:', error);
     if (hasPrismaCode(error, 'P2025')) {
       res.redirect('/admin/dashboard?section=trees&error=Arbre+introuvable');
       return;
@@ -456,7 +466,23 @@ export async function postDeleteUser(
       return;
     }
 
-    await prisma.user.delete({ where: { id } });
+    await prisma.$transaction(async (tx) => {
+      // Récupère toutes les commandes de l'utilisateur
+      const orders = await tx.order.findMany({ where: { userId: id } });
+      const orderIds = orders.map((o) => o.id);
+
+      // Supprime les items des commandes
+      if (orderIds.length > 0) {
+        await tx.orderItem.deleteMany({ where: { orderId: { in: orderIds } } });
+      }
+
+      // Supprime les commandes
+      await tx.order.deleteMany({ where: { userId: id } });
+
+      // Supprime l'utilisateur
+      await tx.user.delete({ where: { id } });
+    });
+
     res.redirect(
       '/admin/dashboard?section=users&success=Utilisateur+supprim%C3%A9'
     );
