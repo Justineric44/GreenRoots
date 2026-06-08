@@ -4,8 +4,11 @@ import ImpactSection from '@/components/home/ImpactSection';
 import MissionSection from '@/components/home/MissionSection';
 import CompletedProjectsSection from '@/components/home/CompletedProjectsSection';
 import { ProjectsCarouselFetcher } from '@/components/home/ProjectCarousselFetcher';
+import { Suspense } from 'react';
+import CarouselTreesSkeleton from '@/components/layout/CarousselTreesSkeleton';
+import CarouselProjectsSkeleton from '@/components/layout/CarousselProjectsSkeleton';
 
-export default async function HomePage() {
+export default function HomePage() {
   return (
     <main className="min-h-screen bg-brand-bg text-brand-dark">
       <section className="relative isolate min-h-[680px] overflow-hidden px-4 py-24 text-brand-white sm:px-6 lg:px-8 lg:py-28">
@@ -31,10 +34,14 @@ export default async function HomePage() {
           </p>
         </div>
       </section>
+      <Suspense fallback={<CarouselProjectsSkeleton />}>
+        <ProjectsCarouselFetcher />
+      </Suspense>
 
-      <ProjectsCarouselFetcher />
       <MissionSection />
-      <TopTreesSection />
+      <Suspense fallback={<CarouselTreesSkeleton />}>
+        <TopTreesSection />
+      </Suspense>
       <CompletedProjectsSection />
       <ImpactSection />
     </main>
