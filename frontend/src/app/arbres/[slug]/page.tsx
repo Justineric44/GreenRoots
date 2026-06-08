@@ -34,7 +34,13 @@ export default async function TreeDetailsPage({
   const treeData = tree.value;
 
   const { trees: otherTrees = [] } =
-    treesData.status === 'fulfilled' ? treesData.value : { trees: [] };
+    treesData.status === 'fulfilled'
+      ? treesData.value
+      : (console.error(
+          '[TreeDetailsPage] Erreur récupération arbres :',
+          treesData.reason
+        ),
+        { trees: [] });
 
   const suggestions = (otherTrees as Tree[]).filter((t) => t.slug !== slug);
 
