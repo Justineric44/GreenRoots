@@ -24,9 +24,6 @@ export default async function TreesContent({
   const { page, search, minPrice, maxPrice, sortBy, sortOrder } =
     await searchParams;
   const currentPage = Number(page) || 1;
-
-  await new Promise((resolve) => setTimeout(resolve, 2000)); // ← 2s de délai
-
   let trees: Tree[] | null = null;
   let total = 0;
   let limit = 0;
