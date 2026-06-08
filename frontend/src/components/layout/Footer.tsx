@@ -39,7 +39,12 @@ export default function Footer() {
           <ul>
             {companyLinks.map((link) => (
               <li key={link.href}>
-                <Link href={link.href}>{link.label}</Link>
+                <Link
+                  href={link.href}
+                  className="!text-brand-white transition-colors hover:!text-[#88B75D]"
+                >
+                  {link.label}
+                </Link>
               </li>
             ))}
           </ul>
@@ -49,7 +54,12 @@ export default function Footer() {
           <ul>
             {legalLinks.map((link) => (
               <li key={link.href}>
-                <Link href={link.href}>{link.label}</Link>
+                <Link
+                  href={link.href}
+                  className="!text-brand-white transition-colors hover:!text-[#88B75D]"
+                >
+                  {link.label}
+                </Link>
               </li>
             ))}
             <li>

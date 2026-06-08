@@ -32,6 +32,11 @@ export const registerBodySchema = z
       .optional(),
     companyName: z.string().trim().min(1).max(150).optional(),
     phone: z.string().trim().min(1).max(30).optional(),
+    acceptedTerms: z.literal(true, {
+      errorMap: () => ({
+        message: "Vous devez accepter les conditions d'utilisation.",
+      }),
+    }),
   })
   .refine(
     (data) =>
