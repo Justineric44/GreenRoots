@@ -145,6 +145,7 @@ describe('[POST] /api/auth/register', () => {
         postalCode: '01000',
         city: 'Bourg-en-Bresse',
         type: 'particulier',
+        acceptedTerms: true,
       }),
     });
 
@@ -170,6 +171,7 @@ describe('[POST] /api/auth/register', () => {
         postalCode: '01000',
         city: 'Bourg-en-Bresse',
         type: 'particulier',
+        acceptedTerms: true,
       }),
     });
 
@@ -185,6 +187,7 @@ describe('[POST] /api/auth/register', () => {
         postalCode: '01000',
         city: 'Bourg-en-Bresse',
         type: 'particulier',
+        acceptedTerms: true,
       }),
     });
 
@@ -211,6 +214,7 @@ describe('[POST] /api/auth/register', () => {
         type: 'entreprise',
         siret,
         companyName: 'Entreprise Test',
+        acceptedTerms: true,
       }),
     });
 
@@ -228,6 +232,7 @@ describe('[POST] /api/auth/register', () => {
         type: 'entreprise',
         siret,
         companyName: 'Entreprise Duplicate',
+        acceptedTerms: true,
       }),
     });
 
@@ -250,6 +255,7 @@ describe('[POST] /api/auth/register', () => {
         postalCode: '01000',
         city: 'Bourg-en-Bresse',
         type: 'entreprise',
+        acceptedTerms: true,
       }),
     });
 
