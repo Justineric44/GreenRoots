@@ -7,6 +7,11 @@ import type { ZodError } from 'zod';
 
 import { prisma } from '../../lib/prisma.js';
 
+type PrismaClient = typeof prisma;
+type TransactionClient = Parameters<
+  Parameters<PrismaClient['$transaction']>[0]
+>[0];
+
 import {
   createProjectSchema,
   updateProjectSchema,
@@ -180,7 +185,7 @@ export async function postCreateProject(
     : { treeIds: [], stocks: {} };
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: TransactionClient) => {
       const project = await tx.project.create({
         data: {
           ...result.data,
@@ -247,7 +252,7 @@ export async function postUpdateProject(
     : { treeIds: [], stocks: {} };
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: TransactionClient) => {
       await tx.project.update({
         where: { id },
         data: Object.fromEntries(
@@ -349,7 +354,7 @@ export async function postCreateTree(
     : { projectIds: [], stocks: {} };
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: TransactionClient) => {
       const tree = await tx.tree.create({
         data: {
           ...result.data,
@@ -415,7 +420,7 @@ export async function postUpdateTree(
     : { projectIds: [], stocks: {} };
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: TransactionClient) => {
       await tx.tree.update({
         where: { id },
         data: Object.fromEntries(
@@ -482,7 +487,7 @@ export async function postDeleteTree(
       return;
     }
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: TransactionClient) => {
       await tx.projectHasTree.deleteMany({ where: { treeId: id } });
       await tx.tree.delete({ where: { id } });
     });
@@ -534,9 +539,9 @@ export async function postDeleteUser(
       return;
     }
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: TransactionClient) => {
       const orders = await tx.order.findMany({ where: { userId: id } });
-      const orderIds = orders.map((o) => o.id);
+      const orderIds = orders.map((o: (typeof orders)[number]) => o.id);
 
       if (orderIds.length > 0) {
         await tx.orderItem.deleteMany({ where: { orderId: { in: orderIds } } });
