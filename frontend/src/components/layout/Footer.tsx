@@ -18,56 +18,62 @@ const legalLinks = [
 
 export default function Footer() {
   return (
-    <footer className="flex flex-col gap-4 items-center justify-between p-4 bg-brand-dark text-brand-white md:flex-row">
-      <Link href="/">
-        <div className="w-30 h-30 border-white/60 overflow-hidden flex items-center justify-center">
-          <Image
-            src="/images/Logo_blanc_transparent.svg"
-            alt="GreenRoots Logo"
-            width={100}
-            height={100}
-            className="object-cover"
-          />
+    <footer className="bg-brand-dark text-brand-white px-6 py-10">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 text-center md:grid-cols-[1.8fr_auto_auto] md:gap-x-24 md:items-start md:text-left">
+        <div className="flex flex-col items-center gap-4 md:flex-row md:items-center md:gap-6">
+          <Link href="/">
+            <Image
+              src="/images/Logo_blanc_transparent.svg"
+              alt="GreenRoots Logo"
+              width={160}
+              height={160}
+              className="object-cover"
+            />
+          </Link>
+          <p className="max-w-xs text-sm leading-relaxed text-brand-white/80">
+            GreenRoots accompagne des projets de reforestation accessibles aux
+            particuliers, entreprises et associations.
+          </p>
         </div>
-      </Link>
-      <div>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua.
-      </div>
-      <nav className="w-100 flex flex-row items-top justify-center gap-10">
-        <div>
-          <ul>
+        <nav>
+          <h2 className="mb-4 text-lg font-semibold">Navigation</h2>
+          <ul className="space-y-2">
             {companyLinks.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="!text-brand-white transition-colors hover:!text-[#88B75D]"
+                  className="!text-brand-white/80 transition-colors hover:!text-[#88B75D]"
                 >
                   {link.label}
                 </Link>
               </li>
             ))}
           </ul>
-        </div>
+        </nav>
 
-        <div>
-          <ul>
+        <nav aria-label="Liens légaux">
+          <h2 className="mb-4 text-lg font-semibold">Informations légales</h2>
+          <ul className="space-y-2">
             {legalLinks.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="!text-brand-white transition-colors hover:!text-[#88B75D]"
+                  className="!text-brand-white/80 transition-colors hover:!text-[#88B75D]"
                 >
                   {link.label}
                 </Link>
               </li>
             ))}
+
             <li>
               <CookieSettingsButton />
             </li>
           </ul>
-        </div>
-      </nav>
+        </nav>
+      </div>
+      <div className="mx-auto mt-10 max-w-7xl border-t border-brand-white/20 pt-6 text-center text-sm text-brand-white/60">
+        © 2026 GreenRoots. Tous droits réservés.
+      </div>
     </footer>
   );
 }
