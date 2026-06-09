@@ -6,6 +6,7 @@ import TreesCarousel from '@/components/layout/TreesCarousel';
 import ProjectTreePurchase from '@/components/layout/ProjectTreePurchase';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
+import { ApiError } from '@/lib/errors';
 
 type ProjectDetailPageProps = {
   params: Promise<{ slug: string }>;
@@ -42,21 +43,32 @@ export default async function ProjectDetailsPage({
     // Récupération du projet demandé via l’API backend.
     // Si l’appel échoue, la page renvoie une 404 naturelle.
     project = await getOneProject(slug);
-  } catch {
-    notFound();
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      notFound();
+    } else {
+      // Pour les autres erreurs, on renvoit une 500.
+      throw error;
+    }
   }
 
-  // Récupération des arbres liés au projet, sur la première page de pagination.
-  const treesResponse = await getProjectTrees(slug, 1);
-  // On extrait le tableau des arbres depuis la réponse de l'API.
-  // Conversion des arbres API en structure plus simple pour l’affichage front.
-  // Le prix est transformé en nombre, car il arrive en chaîne depuis l’API.
-  const trees: ProjectTree[] = treesResponse.trees.map(
-    (tree: ApiProjectTree) => ({
+  let trees: ProjectTree[] = [];
+
+  try {
+    // Récupération des arbres liés au projet, sur la première page de pagination.
+    const treesResponse = await getProjectTrees(slug, 1);
+    // On extrait le tableau des arbres depuis la réponse de l'API.
+    // Conversion des arbres API en structure plus simple pour l’affichage front.
+    // Le prix est transformé en nombre, car il arrive en chaîne depuis l’API.
+    trees = treesResponse.trees.map((tree: ApiProjectTree) => ({
       ...tree,
       price: Number(tree.price),
-    })
-  );
+    }));
+  } catch (error) {
+    console.error('[ProjectDetailsPage] Erreur récupération arbres :', error);
+    // En cas d’erreur lors de la récupération des arbres, on continue d’afficher la page projet sans les arbres.
+    trees = [];
+  }
 
   const {
     name,

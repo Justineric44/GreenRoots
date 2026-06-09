@@ -1,20 +1,14 @@
 import Image from 'next/image';
-
-import { getProjects, getTrees } from '@/lib/api';
-import ProjectsCarousel from '@/components/home/ProjectsCarousel';
 import TopTreesSection from '@/components/home/TopTreesSection';
 import ImpactSection from '@/components/home/ImpactSection';
 import MissionSection from '@/components/home/MissionSection';
 import CompletedProjectsSection from '@/components/home/CompletedProjectsSection';
+import { ProjectsCarouselFetcher } from '@/components/home/ProjectCarousselFetcher';
+import { Suspense } from 'react';
+import CarouselTreesSkeleton from '@/components/layout/CarousselTreesSkeleton';
+import CarouselProjectsSkeleton from '@/components/layout/CarousselProjectsSkeleton';
 
-export default async function HomePage() {
-  // Récupération des projets depuis l'API backend.
-  // La page d'accueil les utilise dans le carrousel des projets.
-  const { projects } = await getProjects();
-  // Récupération des arbres depuis l'API backend.
-  // On gardera les 3 premiers pour la section "arbres les plus vendus".
-  const { trees } = await getTrees(1);
-  const topTrees = trees.slice(0, 3);
+export default function HomePage() {
   return (
     <main className="min-h-screen bg-brand-bg text-brand-dark">
       <section className="relative isolate min-h-[680px] overflow-hidden px-4 py-24 text-brand-white sm:px-6 lg:px-8 lg:py-28">
@@ -40,10 +34,14 @@ export default async function HomePage() {
           </p>
         </div>
       </section>
+      <Suspense fallback={<CarouselProjectsSkeleton />}>
+        <ProjectsCarouselFetcher />
+      </Suspense>
 
-      <ProjectsCarousel projects={projects} />
       <MissionSection />
-      <TopTreesSection trees={topTrees} />
+      <Suspense fallback={<CarouselTreesSkeleton />}>
+        <TopTreesSection />
+      </Suspense>
       <CompletedProjectsSection />
       <ImpactSection />
     </main>
