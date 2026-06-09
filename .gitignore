@@ -76,5 +76,11 @@ Thumbs.db
 # ===========================
 /coverage
 
-public/uploads/*
-!public/uploads/.gitkeep
+
+# ===========================
+# Upload & images
+# ===========================
+backend/public/uploads/*
+!backend/public/uploads/.gitkeep
+!backend/public/uploads/seed/
+!backend/public/uploads/seed/**
