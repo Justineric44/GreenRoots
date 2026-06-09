@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import DesktopHeader from './DesktopHeader';
 import MobileHeader from './MobileHeader';
 import MobileSearch from './MobileSearch';
@@ -26,6 +26,10 @@ export default function Header({ isLoggedIn }: { isLoggedIn: boolean }) {
   // L'état est local au header car il ne concerne que l'affichage du menu déroulant.
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  // Référence utilisée pour détecter si le clic se produit à l'intérieur
+  // ou à l'extérieur de la zone mobile du header.
+
   // Le panier est fourni par le contexte global pour garder le badge à jour
   // sur toutes les pages sans avoir à propager cette donnée manuellement.
   const { cartCount } = useCart();
@@ -33,6 +37,27 @@ export default function Header({ isLoggedIn }: { isLoggedIn: boolean }) {
   // Prénom de l'utilisateur connecté, récupéré pour personnaliser l'en-tête desktop.
   // Si la requête échoue ou si l'utilisateur n'est pas authentifié, on n'affiche rien.
   const [userFirstName, setUserFirstName] = useState<string | null>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        mobileOpen &&
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target as Node)
+      ) {
+        setMobileOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [mobileOpen]);
+  // Ferme le menu mobile quand l'utilisateur clique en dehors de sa zone.
+  // Cela améliore l'expérience mobile en évitant de laisser le panneau ouvert
+  // lorsque l'on interagit avec le reste de la page.
 
   // Charge les informations du compte pour afficher un accueil personnalisé sur desktop.
   // Cette requête est conditionnée à l'état de connexion pour éviter des appels inutiles.
@@ -81,7 +106,8 @@ export default function Header({ isLoggedIn }: { isLoggedIn: boolean }) {
     // à la navigation, à la recherche et aux raccourcis compte/panier.
     <header className="sticky top-0 z-50">
       {/* Version mobile : bouton menu, recherche et navigation repliée */}
-      <div className="md:hidden">
+      <div ref={mobileMenuRef} className="md:hidden">
+        {/* Le conteneur mobile entier sert de zone de référence pour le clic extérieur. */}
         <MobileHeader
           isLoggedIn={isLoggedIn}
           cartCount={cartCount}
