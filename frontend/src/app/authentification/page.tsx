@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { SubmitEventHandler } from 'react';
@@ -598,21 +599,42 @@ function FormField({
 }: FormFieldProps) {
   // Composant utilitaire réutilisable pour chaque champ de saisie.
   // Il garantit un rendu homogène du label et de l'input partout dans la page.
+  const [showPassword, setShowPassword] = useState(false);
+
+  const isPasswordField = type === 'password';
+
   return (
     <div className="space-y-1.5">
       <label htmlFor={id} className="block text-sm text-brand-dark">
         {label}
       </label>
 
-      <Input
-        id={id}
-        name={id}
-        type={type}
-        required
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="h-11 rounded-md bg-brand-white"
-      />
+      <div className="relative">
+        <Input
+          id={id}
+          name={id}
+          type={isPasswordField ? (showPassword ? 'text' : 'password') : type}
+          required
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="h-11 rounded-md bg-brand-white pr-10"
+        />
+
+        {isPasswordField && (
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-brand-accent"
+            aria-label={
+              showPassword
+                ? 'Masquer le mot de passe'
+                : 'Afficher le mot de passe'
+            }
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
