@@ -16,10 +16,28 @@ const montserrat = Montserrat({
   variable: '--font-sans',
 });
 
+// Indexation pilotée par variable d'environnement.
+// Permet d'autoriser l'indexation uniquement sur un vrai site de production,
+// et de garder staging + déploiement de démo hors de l'index Google.
+// (variable à définir côté Vercel : NEXT_PUBLIC_ALLOW_INDEXING=true/false)
+const isIndexable = process.env.NEXT_PUBLIC_ALLOW_INDEXING === 'true';
+
 export const metadata: Metadata = {
-  title: 'GreenRoots - Votre boutique pour la reforestation ',
+  // Titre en cascade : toutes les pages héritent du template du layout racine.
+  title: {
+    default: 'GreenRoots - Votre boutique pour la reforestation', // si une page ne définit pas de titre
+    template: '%s - GreenRoots', // %s = le titre de la page enfant
+  },
+  // Description par défaut, héritée par les pages sans description propre.
   description:
-    "GreenRoots est une boutique en ligne dédiée à la reforestation. En achetant chez nous, vous contribuez directement à la plantation d'arbres et à la préservation de notre planète. Découvrez nos arbres et rejoignez notre mission pour un avenir plus vert !",
+    "GreenRoots est une boutique en ligne dédiée à la reforestation. En achetant chez nous, vous contribuez directement à la plantation d'arbres et à la préservation de notre planète.",
+  // Balise <meta name="robots"> appliquée à tout le site.
+  // index  : la page peut apparaître dans les résultats de recherche.
+  // follow : les liens de la page peuvent être suivis par le crawler.
+  // Ici piloté par l'environnement : tout passe en noindex hors prod réelle.
+  robots: isIndexable
+    ? { index: true, follow: true }
+    : { index: false, follow: false },
 };
 
 export default async function RootLayout({
