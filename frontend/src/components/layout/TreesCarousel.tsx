@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import type { Tree } from '@/types/index';
+import { getImageUrl } from '@/lib/images';
 
 export default function TreesCarousel({ trees }: { trees: Tree[] }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -47,7 +48,7 @@ export default function TreesCarousel({ trees }: { trees: Tree[] }) {
             <Card className="relative overflow-hidden pt-0 hover:shadow-lg transition-shadow text-center">
               <div className="relative h-48 w-full">
                 <Image
-                  src={t.picture}
+                  src={getImageUrl(t.picture)}
                   alt={t.commonName}
                   fill
                   sizes="300px"
