@@ -7,6 +7,7 @@ import ProjectTreePurchase from '@/components/layout/ProjectTreePurchase';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { ApiError } from '@/lib/errors';
+import { getImageUrl } from '@/lib/images';
 
 type ProjectDetailPageProps = {
   params: Promise<{ slug: string }>;
@@ -90,7 +91,7 @@ export default async function ProjectDetailsPage({
             {/* IMAGE PROJET */}
             <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-gray-100 lg:w-1/2">
               <Image
-                src={picture}
+                src={getImageUrl(picture)}
                 alt={name}
                 fill
                 priority

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { getImageUrl } from '@/lib/images';
 
 interface Tree {
   id: number;
@@ -150,7 +151,7 @@ export default function MobileSearch() {
                     >
                       <div className="w-10 h-10 relative shrink-0 bg-gray-100 rounded">
                         <Image
-                          src={tree.picture}
+                          src={getImageUrl(tree.picture)}
                           alt={tree.commonName}
                           fill
                           className="object-contain"
@@ -190,7 +191,7 @@ export default function MobileSearch() {
                     >
                       <div className="w-10 h-10 relative shrink-0 bg-gray-100 rounded">
                         <Image
-                          src={project.picture}
+                          src={getImageUrl(project.picture)}
                           alt={project.name}
                           fill
                           className="object-contain"

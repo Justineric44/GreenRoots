@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { getImageUrl } from '@/lib/images';
 
 type ProjectsCarouselProps = {
   projects: {
@@ -82,7 +83,7 @@ export default function ProjectsCarousel({ projects }: ProjectsCarouselProps) {
                 {/* Image du projet */}
                 <div className="relative h-48 w-full">
                   <Image
-                    src={project.picture}
+                    src={getImageUrl(project.picture)}
                     alt={project.name}
                     fill
                     sizes="288px"

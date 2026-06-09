@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { getImageUrl } from '@/lib/images';
 
 type TreeCardProps = {
   tree: {
@@ -26,7 +27,7 @@ export default function TreeCard({ tree }: TreeCardProps) {
       {/* Image de l'arbre */}
       <div className="relative h-48 w-full">
         <Image
-          src={tree.picture}
+          src={getImageUrl(tree.picture)}
           alt={tree.commonName}
           fill
           sizes="288px"

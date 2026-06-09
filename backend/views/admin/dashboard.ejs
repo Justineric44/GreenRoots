@@ -713,7 +713,7 @@
 
       const previewP = document.getElementById('ep-picture-preview');
       const previewImgP = document.getElementById('ep-picture-img');
-      if (data.picture) { previewImgP.src = data.picture; previewP.style.display = 'block'; }
+      if (data.picture) { previewImgP.src = '/uploads/' + data.picture; previewP.style.display = 'block'; }
       else { previewP.style.display = 'none'; }
 
       const existingTrees = data.trees || [];
@@ -742,7 +742,7 @@
 
       const preview = document.getElementById('et-picture-preview');
       const previewImg = document.getElementById('et-picture-img');
-      if (data.picture) { previewImg.src = data.picture; preview.style.display = 'block'; }
+      if (data.picture) { previewImg.src = '/uploads/' + data.picture; preview.style.display = 'block'; }
       else { preview.style.display = 'none'; }
 
       const existingProjects = data.projects || [];
