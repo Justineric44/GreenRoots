@@ -6,13 +6,15 @@ const apiUrl = new URL(
   process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
 );
 
+const isDev = process.env.NODE_ENV !== 'production';
+
 const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
   reactCompiler: true,
   images: {
-    dangerouslyAllowLocalIP: true, // autorise localhost en dev (SSRF protection Next 16)
+    dangerouslyAllowLocalIP: isDev, // ← seulement en dev autorise localhost (SSRF protection Next 16)
 
     // Autorise Next à optimiser les images servies par le backend (uploads).
     // remotePatterns est construit dynamiquement selon l'environnement (dev / prod).
