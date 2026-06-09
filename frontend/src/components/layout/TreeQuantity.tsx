@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { addToCartAction } from '@/lib/actions/cart';
+import { useCart } from '@/components/cart/CartProvider';
 
 // Type d'un projet auquel cet arbre peut être planté.
 type ProjectOption = {
@@ -37,6 +38,7 @@ export default function TreeQuantity({
   const [quantity, setQuantity] = useState(1);
   const [message, setMessage] = useState('');
   const [isPending, setIsPending] = useState(false);
+  const { refreshCart } = useCart();
 
   const selectedProject = projects.find((p) => p.id === selectedProjectId);
 
@@ -64,6 +66,7 @@ export default function TreeQuantity({
       setMessage(response.message);
       return;
     }
+    await refreshCart();
     setMessage('Arbre ajouté au panier ✅');
   }
 
