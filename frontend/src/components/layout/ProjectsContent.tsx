@@ -92,7 +92,7 @@ export default async function ProjectsContent({
             />
             <CardHeader>
               <CardTitle>{project.name}</CardTitle>
-              <CardDescription className="min-h-[3rem]">
+              <CardDescription className="min-h-[3rem] text-[var(--brand-dark)]">
                 {project.shortDescription}
               </CardDescription>
               <Field className="w-full max-w-sm">

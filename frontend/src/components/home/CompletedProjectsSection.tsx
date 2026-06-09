@@ -62,7 +62,7 @@ export default function CompletedProjectsSection() {
                   {project.trees}
                 </p>
 
-                <p className="text-brand-muted">arbres plantés</p>
+                <p className="text-brand-white">arbres plantés</p>
               </div>
             </div>
           ))}
