@@ -121,11 +121,11 @@ export default function ContactPage() {
         <div className="absolute inset-0 bg-black/40" />
 
         {/* CONTENT */}
-        <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-20">
-          <div className="w-full max-w-2xl rounded-[28px] bg-brand-white/95 p-8 shadow-sm backdrop-blur-sm">
-            <h1 className="text-3xl font-bold mb-6">Contact</h1>
+        <div className="relative z-10 flex min-h-screen items-center justify-center px-4 pt-36 pb-20">
+          <div className="w-full max-w-2xl rounded-[28px] bg-brand-white/95 p-6 shadow-sm backdrop-blur-sm md:p-7">
+            <h1 className="mb-4 text-3xl font-bold">Contact</h1>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {/* NOM / PRÉNOM */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Field
@@ -167,7 +167,7 @@ export default function ContactPage() {
                   id="message"
                   value={form.message}
                   onChange={(e) => updateField('message', e.target.value)}
-                  className="w-full min-h-[140px] rounded-md border border-gray-200 p-3 text-sm bg-white"
+                  className="min-h-[110px] w-full rounded-md border border-gray-200 bg-white p-3 text-sm"
                   placeholder="Écrivez votre message..."
                 />
               </div>

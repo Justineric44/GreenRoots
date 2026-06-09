@@ -29,45 +29,45 @@ export default function Footer() {
             className="object-cover"
           />
         </div>
-      </Link>
-      <div>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua.
-      </div>
-      <nav className="w-100 flex flex-row items-top justify-center gap-10">
-        <div>
-          <ul>
+        <nav>
+          <h2 className="mb-4 text-lg font-semibold">Navigation</h2>
+          <ul className="space-y-2">
             {companyLinks.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="!text-brand-white transition-colors hover:!text-[#88B75D]"
+                  className="!text-brand-white/80 transition-colors hover:!text-[#88B75D]"
                 >
                   {link.label}
                 </Link>
               </li>
             ))}
           </ul>
-        </div>
+        </nav>
 
-        <div>
-          <ul>
+        <nav aria-label="Liens légaux">
+          <h2 className="mb-4 text-lg font-semibold">Informations légales</h2>
+          <ul className="space-y-2">
             {legalLinks.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="!text-brand-white transition-colors hover:!text-[#88B75D]"
+                  className="!text-brand-white/80 transition-colors hover:!text-[#88B75D]"
                 >
                   {link.label}
                 </Link>
               </li>
             ))}
+
             <li>
               <CookieSettingsButton />
             </li>
           </ul>
-        </div>
-      </nav>
+        </nav>
+      </div>
+      <div className="mx-auto mt-10 max-w-7xl border-t border-brand-white/20 pt-6 text-center text-sm text-brand-white/60">
+        © 2026 GreenRoots. Tous droits réservés.
+      </div>
     </footer>
   );
 }
