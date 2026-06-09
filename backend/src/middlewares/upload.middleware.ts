@@ -6,9 +6,11 @@
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
 
 // Dossier de destination
-const uploadDir = path.join(process.cwd(), '../public/uploads');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const uploadDir = path.resolve(__dirname, '../../public/uploads');
 
 // Créer le dossier s'il n'existe pas
 if (!fs.existsSync(uploadDir)) {
