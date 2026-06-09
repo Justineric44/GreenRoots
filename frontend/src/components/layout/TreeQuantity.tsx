@@ -73,7 +73,7 @@ export default function TreeQuantity({
   return (
     <div className="flex flex-col gap-3 mt-2">
       {/* Sélecteur de projet */}
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1 w-full min-w-0">
         <label htmlFor="project-select" className="text-sm">
           Choisir le projet
         </label>
@@ -85,7 +85,7 @@ export default function TreeQuantity({
             setQuantity(1);
             setMessage('');
           }}
-          className="bg-brand-bg text-brand-dark px-2 py-1 text-sm rounded-md border-0 w-75"
+          className="bg-brand-bg text-brand-dark px-2 py-1 text-sm rounded-md border-0 w-full max-w-full min-w-0 truncate"
         >
           {projects.map((p) => (
             <option key={p.id} value={p.id}>

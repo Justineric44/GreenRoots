@@ -37,13 +37,13 @@ export default function TreesCarousel({ trees }: { trees: Tree[] }) {
       {/* Carrousel */}
       <div
         ref={ref}
-        className="flex gap-6 overflow-x-auto scroll-smooth scrollbar-hide px-12"
+        className="flex gap-6 overflow-x-auto scroll-smooth scrollbar-hide px-4 sm:px-12 snap-x snap-mandatory"
       >
         {trees.map((t) => (
           <Link
             href={`/arbres/${t.slug}`}
             key={t.id}
-            className="flex-shrink-0 w-64"
+            className="flex-shrink-0 w-64 snap-center"
           >
             <Card className="relative overflow-hidden pt-0 hover:shadow-lg transition-shadow text-center">
               <div className="relative h-48 w-full">
