@@ -3,7 +3,7 @@
 // Carrousel des projets de la page d'accueil.
 // Il affiche 4 projets à la fois, sans carte coupée, avec une navigation circulaire.
 
-import { useState } from 'react';
+import { useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -73,36 +73,19 @@ function ProjectCard({
 }
 
 export default function ProjectsCarousel({ projects }: ProjectsCarouselProps) {
-  const [startIndex, setStartIndex] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
 
   if (projects.length === 0) {
     return null;
   }
 
-  // Sélectionne 4 projets visibles à partir de startIndex.
-  // Le modulo permet de revenir au début une fois arrivé à la fin.
-  const visibleProjects = Array.from({ length: 4 }, (_, index) => {
-    return projects[(startIndex + index) % projects.length];
-  });
-
-  const mobileProject = projects[startIndex];
-
-  const tabletProjects = Array.from({ length: 2 }, (_, index) => {
-    return projects[(startIndex + index) % projects.length];
-  });
-
-  // Recule d'un projet, en revenant à la fin si on est au début.
-  const handlePrevious = () => {
-    setStartIndex((currentIndex) =>
-      currentIndex === 0 ? projects.length - 1 : currentIndex - 1
-    );
-  };
-
-  // Avance d'un projet, en revenant au début si on est à la fin.
-  const handleNext = () => {
-    setStartIndex((currentIndex) =>
-      currentIndex === projects.length - 1 ? 0 : currentIndex + 1
-    );
+  const scroll = (dir: 'left' | 'right') => {
+    if (ref.current) {
+      ref.current.scrollBy({
+        left: dir === 'left' ? -312 : 312,
+        behavior: 'smooth',
+      });
+    }
   };
 
   return (
@@ -120,36 +103,27 @@ export default function ProjectsCarousel({ projects }: ProjectsCarouselProps) {
           {/* Bouton gauche */}
           <button
             type="button"
-            onClick={handlePrevious}
+            onClick={() => scroll('left')}
             aria-label="Projet précédent"
             className="absolute -left-6 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-brand-accent text-2xl text-brand-white shadow transition hover:opacity-80"
           >
             ‹
           </button>
-
-          {/* Mobile : 1 projet */}
-          <div className="grid justify-center gap-6 sm:hidden">
-            <ProjectCard project={mobileProject} />
-          </div>
-
-          {/* Tablette : 2 projets */}
-          <div className="hidden justify-center gap-6 sm:grid sm:grid-cols-[repeat(2,18rem)] lg:hidden">
-            {tabletProjects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
-            ))}
-          </div>
-
-          {/* Desktop : 4 projets */}
-          <div className="hidden justify-center gap-6 lg:grid lg:grid-cols-[repeat(4,18rem)]">
-            {visibleProjects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
+          <div
+            ref={ref}
+            className="flex gap-6 overflow-x-auto scroll-smooth scrollbar-hide px-6 sm:px-12 snap-x snap-mandatory"
+          >
+            {projects.map((project) => (
+              <div key={project.id} className="flex-shrink-0 snap-center">
+                <ProjectCard project={project} />
+              </div>
             ))}
           </div>
 
           {/* Bouton droite */}
           <button
             type="button"
-            onClick={handleNext}
+            onClick={() => scroll('right')}
             aria-label="Projet suivant"
             className="absolute -right-6 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-brand-accent text-2xl text-brand-white shadow transition hover:opacity-80"
           >

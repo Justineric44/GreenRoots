@@ -19,7 +19,7 @@ export default function ProjectPagination({
   totalPages,
 }: ProjectPaginationProps) {
   return (
-    <Pagination>
+    <Pagination className="mt-12">
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
