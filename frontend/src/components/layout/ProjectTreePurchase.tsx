@@ -3,7 +3,11 @@
 import { useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { addToCartAction } from '@/lib/actions/cart';
+import { useCart } from '@/components/cart/CartProvider';
 
+// Type local décrivant les arbres disponibles à l'achat pour un projet.
+// Il regroupe les informations nécessaires au rendu et à l'ajout au panier,
+// sans exposer de données métier inutiles pour ce composant.
 type ProjectTree = {
   id: number;
   slug: string;
@@ -37,6 +41,9 @@ export default function ProjectTreePurchase({
   // Message affiché à l’utilisateur après une tentative d’ajout.
   const [message, setMessage] = useState('');
 
+  // Fonction globale qui permet de remettre à jour le badge panier après un ajout.
+  const { refreshCart } = useCart();
+
   // Arbre actuellement sélectionné, calculé à partir de l’état ci-dessus.
   const selectedTree = trees.find((tree) => tree.id === selectedTreeId);
 
@@ -51,13 +58,16 @@ export default function ProjectTreePurchase({
     // L’ajout au panier est lancé dans une transition
     //  pour obtenir l'état isPending et ne pas bloquer l'interface pendant l'appel serveur
     startTransition(async () => {
+      // On efface le message précédent avant de traiter une nouvelle tentative.
       setMessage('');
       if (!isLoggedIn) {
+        // Un utilisateur non connecté doit d'abord s'authentifier avant d'ajouter un arbre.
         setMessage('Connectez-vous pour ajouter un arbre au panier.');
         return;
       }
 
       if (!selectedTree) {
+        // Sécurité supplémentaire si aucune option valide n'est disponible.
         setMessage('Veuillez choisir un arbre.');
         return;
       }
@@ -74,6 +84,9 @@ export default function ProjectTreePurchase({
         return;
       }
 
+      // Une fois l'ajout confirmé par le backend, on synchronise l'interface
+      // avec les nouvelles données du panier.
+      await refreshCart();
       setMessage('Arbre ajouté au panier.');
     });
   }
@@ -111,6 +124,7 @@ export default function ProjectTreePurchase({
       {/* Affichage conditionnel du détail de l’arbre sélectionné. */}
       {selectedTree && (
         <>
+          {/* Prix affiché en grand pour rendre l'information d'achat immédiatement visible. */}
           <p className="text-3xl font-bold">
             {Number(selectedTree.price).toFixed(2)} €
             <span className="text-base font-normal text-muted-foreground">
@@ -119,6 +133,7 @@ export default function ProjectTreePurchase({
             </span>
           </p>
 
+          {/* Rappel de disponibilité du stock pour éviter les commandes impossibles. */}
           <p className="text-sm">
             <span className="mr-2 rounded border border-brand-accent px-2 py-0.5 text-xs font-semibold text-brand-accent">
               En stock
@@ -130,6 +145,7 @@ export default function ProjectTreePurchase({
         </>
       )}
 
+      {/* Groupe d'actions principal : réglage de quantité puis ajout au panier. */}
       <div className="flex flex-wrap items-center gap-3">
         {/* Contrôles de quantité : augmentation, diminution et limite selon le stock. */}
         <div className="flex items-center gap-2">
@@ -193,6 +209,7 @@ export default function ProjectTreePurchase({
           panier.
         </p>
       )}
+
       {/* Message de retour utilisateur affiché après la tentative d’ajout au panier. */}
       {message && <p className="text-sm">{message}</p>}
 
