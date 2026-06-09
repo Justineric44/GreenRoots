@@ -9,6 +9,8 @@ interface DesktopHeaderProps {
   menu: { label: string; href: string }[];
   isLoggedIn: boolean;
   cartCount: number;
+  // Prénom du visiteur connecté, utilisé pour afficher une salutation personnalisée.
+  userFirstName: string | null;
 }
 
 // En-tête principal affiché sur desktop.
@@ -19,6 +21,7 @@ export default function DesktopHeader({
   menu,
   isLoggedIn,
   cartCount,
+  userFirstName,
 }: DesktopHeaderProps) {
   return (
     // Barre de navigation superposée au bandeau visuel de la page.
@@ -70,12 +73,21 @@ export default function DesktopHeader({
           <button
             className={
               isLoggedIn
-                ? 'p-2 text-brand-accent hover:opacity-80'
-                : 'p-2 text-white hover:text-[#88B75D]'
+                ? 'flex items-center gap-2 p-2 text-brand-accent hover:opacity-80'
+                : 'flex items-center gap-2 p-2 text-white hover:text-[#88B75D]'
             }
             title={isLoggedIn ? 'Mon espace client' : 'Connexion'}
           >
             <User size={25} />
+            {/* Le prénom apparaît uniquement quand il a été récupéré avec succès,
+                afin d'éviter d'afficher une salutation vide ou incohérente. */}
+            {/* Salutation affichée uniquement quand l'utilisateur est connecté
+                et que son prénom a bien été récupéré depuis l'API. */}
+            {isLoggedIn && userFirstName && (
+              <span className="text-sm font-medium">
+                Bonjour {userFirstName}
+              </span>
+            )}
           </button>
         </Link>
 
