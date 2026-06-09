@@ -8,6 +8,7 @@ import type { SubmitEventHandler } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import Link from 'next/link';
 
 // ================================================================
 // PAGE D'AUTHENTIFICATION
@@ -532,21 +533,21 @@ export default function AuthenticationPage() {
 
                       <span>
                         J&apos;ai lu et j&apos;accepte les{' '}
-                        <a
+                        <Link
                           href="/conditions-generales-utilisations"
                           target="_blank"
                           className="font-medium underline"
                         >
                           Conditions Générales d&apos;Utilisation
-                        </a>{' '}
+                        </Link>{' '}
                         ainsi que la{' '}
-                        <a
+                        <Link
                           href="/politique-confidentialite"
                           target="_blank"
                           className="font-medium underline"
                         >
                           Politique de confidentialité
-                        </a>
+                        </Link>
                         .
                       </span>
                     </label>

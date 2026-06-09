@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import Field from '@/components/layout/Field';
+import Link from 'next/link';
 
 export default function ContactPage() {
   const [form, setForm] = useState({
@@ -200,13 +201,13 @@ export default function ContactPage() {
                     J&apos;accepte que les informations saisies dans ce
                     formulaire soient utilisées pour me recontacter dans le
                     cadre de ma demande, conformément à la{' '}
-                    <a
+                    <Link
                       href="/politique-confidentialite"
                       target="_blank"
                       className="font-medium underline"
                     >
                       Politique de confidentialité
-                    </a>
+                    </Link>
                     .
                   </span>
                 </label>
