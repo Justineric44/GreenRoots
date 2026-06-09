@@ -41,9 +41,9 @@ export default function TreeCard({ tree }: TreeCardProps) {
       </CardHeader>
 
       <CardContent className="flex flex-1 flex-col space-y-3">
-        <p className="text-sm text-brand-muted">Famille : {tree.family}</p>
+        <p className="text-sm text-black">Famille : {tree.family}</p>
 
-        <p className="text-sm text-brand-muted">Origine : {tree.origin}</p>
+        <p className="text-sm text-black">Origine : {tree.origin}</p>
 
         {/* Bloc fixé en bas : prix + bouton */}
         <div className="mt-auto space-y-4">

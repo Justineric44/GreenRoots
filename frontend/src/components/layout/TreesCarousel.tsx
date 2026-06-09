@@ -57,7 +57,9 @@ export default function TreesCarousel({ trees }: { trees: Tree[] }) {
               </div>
               <CardHeader>
                 <CardTitle>{t.commonName}</CardTitle>
-                <CardDescription className="italic">{t.family}</CardDescription>
+                <CardDescription className="italic text-black">
+                  {t.family}
+                </CardDescription>
                 <p className="text-sm font-bold text-brand-dark">
                   {new Intl.NumberFormat('fr-FR', {
                     style: 'currency',
