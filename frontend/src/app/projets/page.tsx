@@ -22,22 +22,25 @@ export default function ProjectsPage({
       <section className="bg-brand-bg px-4 py-4 sm:px-4 lg:px-4 lg:py-2">
         <div className="mx-auto max-w-7xl p-8 text-brand-dark">
           <p className="pb-4">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat. Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-            culpa qui officia deserunt mollit anim id est laborum.
+            Chez GreenRoots, chaque projet de reforestation naît d&apos;un
+            partenariat avec des acteurs locaux engagés : associations,
+            coopératives agricoles et communautés qui connaissent leur
+            territoire mieux que quiconque. Nous sélectionnons des essences
+            indigènes, adaptées au climat et aux sols de chaque région, pour
+            garantir des plantations durables qui renforcent les écosystèmes
+            existants plutôt que de les fragiliser. De la pépinière à la mise en
+            terre, chaque arbre est suivi pour maximiser ses chances de
+            croissance et son impact réel sur la biodiversité.
           </p>
           <p className="pb-4">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat. Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-            culpa qui officia deserunt mollit anim id est laborum.
+            Au-delà de la plantation, nos projets soutiennent les populations
+            qui en prennent soin au quotidien. Restaurer une forêt, c&apos;est
+            aussi créer des emplois locaux, protéger les ressources en eau,
+            stabiliser les sols agricoles et capter durablement du carbone. En
+            finançant un projet GreenRoots, vous ne plantez pas seulement un
+            arbre : vous participez à une démarche concrète de régénération
+            environnementale et sociale, dont vous pouvez suivre
+            l&apos;avancement en toute transparence.
           </p>
         </div>
       </section>
