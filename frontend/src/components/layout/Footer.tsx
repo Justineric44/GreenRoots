@@ -19,7 +19,7 @@ const legalLinks = [
 export default function Footer() {
   return (
     <footer className="bg-brand-dark px-6 py-10 text-brand-white">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 text-center md:grid-cols-[1.8fr_auto_auto] md:items-center md:gap-x-24 md:text-left">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 text-center md:grid-cols-[1.8fr_auto_auto] md:items-start md:gap-x-24 md:text-left">
         <div className="flex flex-col items-center gap-4 md:flex-row md:items-center md:gap-6">
           <Link href="/">
             <Image
