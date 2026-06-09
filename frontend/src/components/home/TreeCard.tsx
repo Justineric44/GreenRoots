@@ -4,7 +4,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getImageUrl } from '@/lib/images';
@@ -47,13 +46,19 @@ export default function TreeCard({ tree }: TreeCardProps) {
 
         {/* Bloc fixé en bas : prix + bouton */}
         <div className="mt-auto space-y-4">
-          <Badge className="bg-brand-accent text-brand-dark">
-            {tree.price} €
-          </Badge>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-brand-dark">
+              {Number(tree.price).toLocaleString('fr-FR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}{' '}
+              €
+            </p>
+          </div>
 
           <Button
             asChild
-            className="w-full bg-brand-accent text-brand-dark hover:bg-brand-accent/80"
+            className="w-full bg-brand-accent !text-white hover:bg-brand-accent/80"
           >
             <Link href={`/arbres/${tree.slug}`}>Voir l&apos;arbre</Link>
           </Button>

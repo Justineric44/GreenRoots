@@ -62,7 +62,6 @@ export default async function TopTreesSection() {
               fill
               className="object-cover opacity-30"
             />
-
             <div className="relative z-10">
               <h3 className="text-lg font-bold">
                 Plantez au nom de votre entreprise

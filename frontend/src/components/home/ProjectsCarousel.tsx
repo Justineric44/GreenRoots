@@ -24,6 +24,54 @@ type ProjectsCarouselProps = {
   }[];
 };
 
+function ProjectCard({
+  project,
+}: {
+  project: ProjectsCarouselProps['projects'][number];
+}) {
+  return (
+    <Card className="flex h-[520px] w-72 overflow-hidden bg-brand-white pt-0 text-brand-dark transition-shadow hover:shadow-lg">
+      <div className="relative h-48 w-full shrink-0 overflow-hidden">
+        <Image
+          src={getImageUrl(project.picture)}
+          alt={project.name}
+          fill
+          sizes="288px"
+          className="object-cover"
+        />
+      </div>
+
+      <CardHeader>
+        <CardTitle>{project.name}</CardTitle>
+      </CardHeader>
+
+      <CardContent className="flex flex-1 flex-col space-y-4">
+        <p className="text-sm text-brand-muted">{project.shortDescription}</p>
+
+        <p className="text-sm font-medium">{project.localisation}</p>
+
+        <div className="mt-auto space-y-4">
+          <div>
+            <div className="mb-2 flex items-center justify-between text-sm">
+              <span>Progression</span>
+              <span>{project.progress}%</span>
+            </div>
+
+            <Progress value={project.progress} />
+          </div>
+
+          <Button
+            asChild
+            className="w-full bg-brand-accent text-brand-dark hover:bg-brand-accent/80"
+          >
+            <Link href={`/projets/${project.slug}`}>Voir le projet</Link>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function ProjectsCarousel({ projects }: ProjectsCarouselProps) {
   const [startIndex, setStartIndex] = useState(0);
 
@@ -34,6 +82,12 @@ export default function ProjectsCarousel({ projects }: ProjectsCarouselProps) {
   // Sélectionne 4 projets visibles à partir de startIndex.
   // Le modulo permet de revenir au début une fois arrivé à la fin.
   const visibleProjects = Array.from({ length: 4 }, (_, index) => {
+    return projects[(startIndex + index) % projects.length];
+  });
+
+  const mobileProject = projects[startIndex];
+
+  const tabletProjects = Array.from({ length: 2 }, (_, index) => {
     return projects[(startIndex + index) % projects.length];
   });
 
@@ -73,58 +127,22 @@ export default function ProjectsCarousel({ projects }: ProjectsCarouselProps) {
             ‹
           </button>
 
-          {/* Grille des 4 projets visibles */}
-          <div className="grid justify-center gap-6 sm:grid-cols-[repeat(2,18rem)] lg:grid-cols-[repeat(4,18rem)]">
+          {/* Mobile : 1 projet */}
+          <div className="grid justify-center gap-6 sm:hidden">
+            <ProjectCard project={mobileProject} />
+          </div>
+
+          {/* Tablette : 2 projets */}
+          <div className="hidden justify-center gap-6 sm:grid sm:grid-cols-[repeat(2,18rem)] lg:hidden">
+            {tabletProjects.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
+
+          {/* Desktop : 4 projets */}
+          <div className="hidden justify-center gap-6 lg:grid lg:grid-cols-[repeat(4,18rem)]">
             {visibleProjects.map((project) => (
-              <Card
-                key={project.id}
-                className="flex h-[470px] w-72 bg-brand-white pt-0 text-brand-dark transition-shadow hover:shadow-lg"
-              >
-                {/* Image du projet */}
-                <div className="relative h-48 w-full">
-                  <Image
-                    src={getImageUrl(project.picture)}
-                    alt={project.name}
-                    fill
-                    sizes="288px"
-                    className="object-cover"
-                  />
-                </div>
-
-                {/* Contenu principal du projet */}
-                <CardHeader>
-                  <CardTitle>{project.name}</CardTitle>
-                </CardHeader>
-
-                <CardContent className="flex flex-1 flex-col space-y-4">
-                  <p className="text-sm text-brand-black">
-                    {project.shortDescription}
-                  </p>
-
-                  <p className="text-sm font-medium">{project.localisation}</p>
-
-                  {/* Bloc fixé en bas : progression + bouton */}
-                  <div className="mt-auto space-y-4">
-                    <div>
-                      <div className="mb-2 flex items-center justify-between text-sm">
-                        <span>Progression</span>
-                        <span>{project.progress}%</span>
-                      </div>
-
-                      <Progress value={project.progress} />
-                    </div>
-
-                    <Button
-                      asChild
-                      className="w-full bg-brand-accent text-brand-dark hover:bg-brand-accent/80"
-                    >
-                      <Link href={`/projets/${project.slug}`}>
-                        Voir le projet
-                      </Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <ProjectCard key={project.id} project={project} />
             ))}
           </div>
 
