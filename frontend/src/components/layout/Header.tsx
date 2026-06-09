@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import DesktopHeader from './DesktopHeader';
 import MobileHeader from './MobileHeader';
 import MobileSearch from './MobileSearch';
@@ -29,6 +29,52 @@ export default function Header({ isLoggedIn }: { isLoggedIn: boolean }) {
   // Le panier est fourni par le contexte global pour garder le badge à jour
   // sur toutes les pages sans avoir à propager cette donnée manuellement.
   const { cartCount } = useCart();
+
+  // Prénom de l'utilisateur connecté, récupéré pour personnaliser l'en-tête desktop.
+  // Si la requête échoue ou si l'utilisateur n'est pas authentifié, on n'affiche rien.
+  const [userFirstName, setUserFirstName] = useState<string | null>(null);
+
+  // Charge les informations du compte pour afficher un accueil personnalisé sur desktop.
+  // Cette requête est conditionnée à l'état de connexion pour éviter des appels inutiles.
+  useEffect(() => {
+    async function fetchUser() {
+      if (!isLoggedIn) {
+        // Aucun utilisateur connecté : on efface toute donnée affichée précédemment.
+        setUserFirstName(null);
+        return;
+      }
+
+      try {
+        // La route /api/users/me renvoie les informations du compte courant.
+        // Ici, on ne récupère que le prénom pour personnaliser le header.
+        // Appel à l'API utilisateur afin de récupérer le prénom du compte courant.
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/users/me`,
+          {
+            credentials: 'include',
+          }
+        );
+
+        if (!response.ok) {
+          // Si le backend ne répond pas correctement, on retire le prénom affiché.
+          setUserFirstName(null);
+          return;
+        }
+
+        // Le prénom est ensuite conservé localement pour l'affichage de la salutation.
+        const result = await response.json();
+
+        // La salutation n'est affichée que sur desktop, dans le composant dédié.
+        setUserFirstName(result.data.firstName);
+      } catch {
+        // En cas d'erreur réseau ou d'exception, on revient à un état neutre.
+        setUserFirstName(null);
+      }
+    }
+
+    // Le chargement est déclenché à chaque changement d'état de connexion.
+    void fetchUser();
+  }, [isLoggedIn]);
 
   return (
     // Le header reste collé en haut de la page pour garantir un accès permanent
@@ -79,6 +125,8 @@ export default function Header({ isLoggedIn }: { isLoggedIn: boolean }) {
           menu={MENU}
           isLoggedIn={isLoggedIn}
           cartCount={cartCount}
+          // Le header desktop reçoit aussi le prénom pour afficher un salut personnalisé.
+          userFirstName={userFirstName}
         />
       </div>
     </header>
