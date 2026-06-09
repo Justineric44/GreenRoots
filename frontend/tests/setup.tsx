@@ -38,18 +38,28 @@ vi.mock('next/navigation', () => ({
   redirect: vi.fn(),
 }));
 
-// Mock de next/image : remplace par <img> classique (évite l'optimisation Next.js)
+// Mock de next/image : remplace par <img> classique (évite l'optimisation Next.js).
+// On filtre les props Next.js-spécifiques (priority, fill, etc.) pour éviter
+// les warnings React "non-boolean attribute".
+const NEXT_IMAGE_INTERNAL_PROPS = new Set([
+  'priority',
+  'fill',
+  'placeholder',
+  'blurDataURL',
+  'quality',
+  'loader',
+  'unoptimized',
+  'sizes',
+]);
+
 vi.mock('next/image', () => ({
-  default: ({
-    src,
-    alt,
-    ...rest
-  }: {
-    src: string;
-    alt: string;
-    [key: string]: unknown;
-  }) => {
+  default: (props: { src: string; alt: string; [key: string]: unknown }) => {
+    const cleanedProps = Object.fromEntries(
+      Object.entries(props).filter(
+        ([key]) => !NEXT_IMAGE_INTERNAL_PROPS.has(key)
+      )
+    );
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={src} alt={alt} {...rest} />;
+    return <img {...cleanedProps} src={props.src} alt={props.alt} />;
   },
 }));
