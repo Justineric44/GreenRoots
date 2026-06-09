@@ -34,7 +34,7 @@ export default function DesktopHeader({
         <div className="w-17 h-17 border-white/60 overflow-hidden flex items-center justify-center">
           <Image
             src="/images/Logo_blanc_transparent.svg"
-            alt="GreenRoots Logo"
+            alt="Logo GreenRoots - Accueil plateforme de reforestation"
             width={3500}
             height={3500}
             className="object-cover"
@@ -76,7 +76,7 @@ export default function DesktopHeader({
                 ? 'flex items-center gap-2 p-2 text-brand-accent hover:opacity-80'
                 : 'flex items-center gap-2 p-2 text-white hover:text-[#88B75D]'
             }
-            title={isLoggedIn ? 'Mon espace client' : 'Connexion'}
+            aria-label={isLoggedIn ? 'Mon espace client' : 'Connexion'}
           >
             <User size={25} />
             {/* Le prénom apparaît uniquement quand il a été récupéré avec succès,
@@ -91,10 +91,12 @@ export default function DesktopHeader({
           </button>
         </Link>
 
-        {/* Panier : accès direct au récapitulatif d'achat. */}
-        <Link href="/panier" className="relative">
-          {/* Icône panier, avec changement de couleur au survol pour indiquer qu'elle est cliquable. */}
-          <button className="text-white hover:text-[#88B75D] p-2">
+        {/* Panier */}
+        <Link href="/panier">
+          <button
+            className="text-white hover:text-[#88B75D] p-2"
+            aria-label="Panier"
+          >
             <ShoppingCart size={25} />
           </button>
 

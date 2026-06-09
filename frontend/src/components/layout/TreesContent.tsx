@@ -81,7 +81,7 @@ export default async function TreesContent({
             />
             <CardHeader className="text-center">
               <CardTitle>{tree.commonName}</CardTitle>
-              <CardDescription className="min-h-[3rem] italic text-center">
+              <CardDescription className="min-h-[3rem] italic text-center text-black">
                 {tree.family}
               </CardDescription>
               <p className="text-2xl font-bold text-brand-dark text-center">

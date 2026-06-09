@@ -27,7 +27,7 @@ export default function MobileHeader({
         <div className="flex h-14 w-14 items-center justify-center overflow-hidden">
           <Image
             src="/images/Logo_blanc_transparent.svg"
-            alt="GreenRoots Logo"
+            alt="Logo GreenRoots - Aller à l'accueil"
             width={80}
             height={80}
             className="object-contain"
@@ -50,16 +50,18 @@ export default function MobileHeader({
                 ? 'p-2 text-brand-accent hover:opacity-80'
                 : 'p-2 text-white hover:text-[#88B75D]'
             }
-            title={isLoggedIn ? 'Mon espace client' : 'Connexion'}
+            aria-label={isLoggedIn ? 'Mon espace client' : 'Connexion'}
           >
             <User size={25} />
           </button>
         </Link>
 
-        {/* Accès direct au panier avec affichage du total d'articles. */}
-        <Link href="/panier" className="relative">
-          {/* Bouton d'accès rapide au panier depuis mobile. */}
-          <button type="button" className="p-2 text-white hover:text-[#88B75D]">
+        <Link href="/panier">
+          <button
+            type="button"
+            className="p-2 text-white hover:text-[#88B75D]"
+            aria-label="Panier"
+          >
             <ShoppingCart size={25} />
           </button>
 

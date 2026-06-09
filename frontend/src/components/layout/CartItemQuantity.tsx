@@ -47,6 +47,7 @@ export default function CartItemQuantity({
       {/* Groupe de boutons permettant de diminuer ou d'augmenter la quantité. */}
       <div className="flex items-center gap-2">
         <button
+          aria-label="Diminuer la quantité"
           onClick={() => handleChange(quantity - 1)}
           disabled={quantity <= 1}
           className="w-8 h-8 rounded-full bg-brand-accent text-white flex items-center justify-center hover:opacity-80 disabled:opacity-40"
@@ -62,6 +63,7 @@ export default function CartItemQuantity({
 
         {/* Bouton d'augmentation : il réutilise la même logique de mise à jour. */}
         <button
+          aria-label="Augmenter la quantité"
           onClick={() => handleChange(quantity + 1)}
           className="w-8 h-8 rounded-full bg-brand-accent text-white flex items-center justify-center hover:opacity-80"
         >

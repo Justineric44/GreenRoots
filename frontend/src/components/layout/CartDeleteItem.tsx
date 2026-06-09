@@ -31,6 +31,7 @@ export default function CartDeleteItem({ cartItemId }: { cartItemId: number }) {
   return (
     // Bouton visuel compact, pensé pour être utilisé directement à côté d'une ligne panier.
     <button
+      aria-label="Supprimer du panier"
       onClick={handleClear}
       className="text-brand-dark hover:text-red-600 p-2 rounded-full bg-white/80 p-2 hover:bg-white shadow-md "
     >

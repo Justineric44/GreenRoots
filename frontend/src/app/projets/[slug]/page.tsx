@@ -130,7 +130,7 @@ export default async function ProjectDetailsPage({
 
                     <Image
                       src="/images/projects/details/tree-progress.svg"
-                      alt="Progression"
+                      alt={`Icone d'arbre indiquant la progression actuelle du projet à ${progress}%`}
                       width={40}
                       height={40}
                       className="absolute -top-2 -translate-x-1/2"
@@ -141,7 +141,7 @@ export default async function ProjectDetailsPage({
                   <div className="absolute right-5 -top-5">
                     <Image
                       src="/images/projects/details/forest-goal.svg"
-                      alt="Objectif forêt"
+                      alt="Objectif de forêt - Symbole représentant le but de reforestation du projet"
                       width={110}
                       height={70}
                       className="h-auto w-[110px]"

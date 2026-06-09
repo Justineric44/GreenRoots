@@ -29,6 +29,7 @@ export default function TreesCarousel({ trees }: { trees: Tree[] }) {
       {/* Bouton gauche */}
       <button
         onClick={() => scroll('left')}
+        aria-label="Arbres précédents"
         className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-brand-accent text-white flex items-center justify-center hover:opacity-80 shadow"
       >
         ‹
@@ -57,7 +58,9 @@ export default function TreesCarousel({ trees }: { trees: Tree[] }) {
               </div>
               <CardHeader>
                 <CardTitle>{t.commonName}</CardTitle>
-                <CardDescription className="italic">{t.family}</CardDescription>
+                <CardDescription className="italic text-black">
+                  {t.family}
+                </CardDescription>
                 <p className="text-sm font-bold text-brand-dark">
                   {new Intl.NumberFormat('fr-FR', {
                     style: 'currency',
@@ -73,6 +76,7 @@ export default function TreesCarousel({ trees }: { trees: Tree[] }) {
       {/* Bouton droite */}
       <button
         onClick={() => scroll('right')}
+        aria-label="Arbres suivants"
         className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-brand-accent text-white flex items-center justify-center hover:opacity-80 shadow"
       >
         ›

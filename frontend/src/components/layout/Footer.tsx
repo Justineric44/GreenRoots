@@ -18,23 +18,25 @@ const legalLinks = [
 
 export default function Footer() {
   return (
-    <footer className="bg-brand-dark text-brand-white px-6 py-10">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 text-center md:grid-cols-[1fr_1fr_1fr] md:text-left md:items-start">
-        <div className="flex flex-col items-center gap-4 md:items-start">
+    <footer className="bg-brand-dark px-6 py-10 text-brand-white">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 text-center md:grid-cols-[1.8fr_auto_auto] md:items-center md:gap-x-24 md:text-left">
+        <div className="flex flex-col items-center gap-4 md:flex-row md:items-center md:gap-6">
           <Link href="/">
             <Image
               src="/images/Logo_blanc_transparent.svg"
-              alt="GreenRoots Logo"
-              width={100}
-              height={100}
+              alt="Logo GreenRoots - Plateforme de reforestation et d'achat d'arbres"
+              width={140}
+              height={140}
               className="object-cover"
             />
           </Link>
-          <p className="max-w-xs text-sm leading-relaxed text-brand-white/80">
+
+          <p className="max-w-sm text-sm leading-relaxed text-brand-white/80">
             GreenRoots accompagne des projets de reforestation accessibles aux
             particuliers, entreprises et associations.
           </p>
         </div>
+
         <nav>
           <h2 className="mb-4 text-lg font-semibold">Navigation</h2>
           <ul className="space-y-2">
@@ -71,6 +73,7 @@ export default function Footer() {
           </ul>
         </nav>
       </div>
+
       <div className="mx-auto mt-10 max-w-7xl border-t border-brand-white/20 pt-6 text-center text-sm text-brand-white/60">
         © 2026 GreenRoots. Tous droits réservés.
       </div>

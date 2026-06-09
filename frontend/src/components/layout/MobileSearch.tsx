@@ -116,6 +116,7 @@ export default function MobileSearch() {
 
         {query && (
           <button
+            aria-label="Effacer la recherche"
             onClick={() => {
               setQuery('');
               setResults({ trees: [], projects: [] });
