@@ -97,6 +97,7 @@ export default function TreeQuantity({
         <div className="flex items-center gap-2">
           <button
             type="button"
+            aria-label="Diminuer la quantité"
             disabled={!isLoggedIn || isPending}
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
             className="w-8 h-8 rounded-full bg-brand-accent text-white flex items-center justify-center hover:opacity-80 disabled:opacity-50"
@@ -108,6 +109,7 @@ export default function TreeQuantity({
           </span>
           <button
             type="button"
+            aria-label="Augmenter la quantité"
             disabled={
               !isLoggedIn ||
               isPending ||

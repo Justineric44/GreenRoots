@@ -25,6 +25,7 @@ export default function CartItemQuantity({
     <div className="flex flex-col gap-1">
       <div className="flex items-center gap-2">
         <button
+          aria-label="Diminuer la quantité"
           onClick={() => handleChange(quantity - 1)}
           disabled={quantity <= 1}
           className="w-8 h-8 rounded-full bg-brand-accent text-white flex items-center justify-center hover:opacity-80 disabled:opacity-40"
@@ -35,6 +36,7 @@ export default function CartItemQuantity({
           {quantity}
         </span>
         <button
+          aria-label="Augmenter la quantité"
           onClick={() => handleChange(quantity + 1)}
           className="w-8 h-8 rounded-full bg-brand-accent text-white flex items-center justify-center hover:opacity-80"
         >

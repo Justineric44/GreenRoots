@@ -111,7 +111,7 @@ export default function ContactPage() {
         {/* IMAGE DE FOND */}
         <Image
           src="/images/background-image-main.jpg"
-          alt="Forêt"
+          alt="Forêt luxuriante servant de fond à la page de contact GreenRoots"
           fill
           priority
           className="object-cover object-center"

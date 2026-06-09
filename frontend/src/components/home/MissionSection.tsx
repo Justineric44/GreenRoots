@@ -27,7 +27,7 @@ export default function MissionSection() {
             <div className="flex justify-start">
               <Image
                 src="/images/home/mission/mosaic-ter.jpg"
-                alt="Reforestation"
+                alt="Projet de reforestation montrant une mosaïque de zones plantées d'arbres et de végétation restaurée"
                 width={420}
                 height={270}
                 className="rounded-[28px]"

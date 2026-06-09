@@ -23,7 +23,7 @@ export default function Footer() {
         <div className="w-30 h-30 border-white/60 overflow-hidden flex items-center justify-center">
           <Image
             src="/images/Logo_blanc_transparent.svg"
-            alt="GreenRoots Logo"
+            alt="Logo GreenRoots - Plateforme de reforestation et d'achat d'arbres"
             width={100}
             height={100}
             className="object-cover"

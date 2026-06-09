@@ -97,7 +97,7 @@ export default function AboutPage() {
               <div className="relative h-40 w-full overflow-hidden rounded-2xl">
                 <Image
                   src="/images/a-propos/aditya-sethia-kRtRPB3v9Ts-unsplash.jpg"
-                  alt="Forêt"
+                  alt="Vue aérienne d'une forêt dense avec canopée verdoyante"
                   fill
                   className="object-cover"
                 />
@@ -105,7 +105,7 @@ export default function AboutPage() {
               <div className="relative h-40 w-full overflow-hidden rounded-2xl">
                 <Image
                   src="/images/a-propos/alexey-demidov-Z-5ctVlACa4-unsplash.jpg"
-                  alt="Plantation"
+                  alt="Équipe de bénévoles plantant de jeunes arbres en terre"
                   fill
                   className="object-cover"
                 />
@@ -113,7 +113,7 @@ export default function AboutPage() {
               <div className="relative h-40 w-full overflow-hidden rounded-2xl">
                 <Image
                   src="/images/a-propos/gregor-scheithauer-0uO6qhd6Bi8-unsplash.jpg"
-                  alt="Arbres"
+                  alt="Jeunes plants d'arbres en pépinière prêts à être transplantés"
                   fill
                   className="object-cover"
                 />

@@ -135,6 +135,7 @@ export default function ProjectTreePurchase({
         <div className="flex items-center gap-2">
           <button
             type="button"
+            aria-label="Diminuer la quantité"
             disabled={!isLoggedIn}
             // Le bouton moins réduit la quantité à 1 minimum.
             // Il reste désactivé si l’utilisateur n’est pas connecté.
@@ -150,6 +151,7 @@ export default function ProjectTreePurchase({
 
           <button
             type="button"
+            aria-label="Augmenter la quantité"
             disabled={
               !isLoggedIn ||
               (selectedTree ? quantity >= selectedTree.stock : true)
