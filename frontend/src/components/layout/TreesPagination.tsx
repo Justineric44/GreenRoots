@@ -19,7 +19,7 @@ export default function TreesPagination({
   totalPages,
 }: TreesPaginationProps) {
   return (
-    <Pagination>
+    <Pagination className="mt-12">
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
