@@ -19,14 +19,14 @@ const legalLinks = [
 export default function Footer() {
   return (
     <footer className="bg-brand-dark text-brand-white px-6 py-10">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 text-center md:grid-cols-[1fr_1fr_1fr] md:text-left md:items-start">
-        <div className="flex flex-col items-center gap-4 md:items-start">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 text-center md:grid-cols-[1.8fr_auto_auto] md:gap-x-24 md:items-start md:text-left">
+        <div className="flex flex-col items-center gap-4 md:flex-row md:items-center md:gap-6">
           <Link href="/">
             <Image
               src="/images/Logo_blanc_transparent.svg"
               alt="GreenRoots Logo"
-              width={100}
-              height={100}
+              width={160}
+              height={160}
               className="object-cover"
             />
           </Link>
