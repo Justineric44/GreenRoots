@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { getImageUrl } from '@/lib/images';
 
 type ProjectsCarouselProps = {
   projects: {
@@ -32,7 +33,7 @@ function ProjectCard({
     <Card className="flex h-[520px] w-72 overflow-hidden bg-brand-white pt-0 text-brand-dark transition-shadow hover:shadow-lg">
       <div className="relative h-48 w-full shrink-0 overflow-hidden">
         <Image
-          src={project.picture}
+          src={getImageUrl(project.picture)}
           alt={project.name}
           fill
           sizes="288px"

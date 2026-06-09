@@ -20,7 +20,6 @@ import {
 } from '../../validators/admin/adminTree.validator.js';
 
 import { deleteUserSchema } from '../../validators/admin/adminUser.validator.js';
-import { UPLOADS_BASE_URL } from '../../middlewares/upload.middleware.js';
 
 // ============================================================
 // Helpers
@@ -48,7 +47,7 @@ function hasPrismaCode(error: unknown, code: string): boolean {
 
 function resolvePicture(req: Request): string | undefined {
   if (req.file) {
-    return `${UPLOADS_BASE_URL}/uploads/${req.file.filename}`;
+    return req.file.filename;
   }
   return req.body.picture || undefined;
 }

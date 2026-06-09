@@ -6,6 +6,7 @@ import type { Tree } from '@/types/index';
 import TreesCarousel from '@/components/layout/TreesCarousel';
 import TreeQuantity from '@/components/layout/TreeQuantity';
 import { cookies } from 'next/headers';
+import { getImageUrl } from '@/lib/images';
 
 type ProjectHasTree = {
   projectId: number;
@@ -75,7 +76,7 @@ export default async function TreeDetailsPage({
             {/* IMAGE */}
             <div className="relative w-full lg:w-1/2 aspect-square rounded-2xl overflow-hidden bg-gray-100">
               <Image
-                src={treeData.picture}
+                src={getImageUrl(treeData.picture)}
                 alt={treeData.commonName}
                 fill
                 sizes="(min-width: 1024px) 50vw, 100vw"
