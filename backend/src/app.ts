@@ -65,7 +65,7 @@ app.use(
 // ---- Fichiers statiques uploads ----
 app.use(
   '/uploads',
-  express.static(path.join(process.cwd(), '../public/uploads'), {
+  express.static(path.join(__dirname, '../public/uploads'), {
     setHeaders: (res) => {
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');

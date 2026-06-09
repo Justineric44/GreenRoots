@@ -13,6 +13,7 @@ import type { Tree, TreesSearchParams } from '@/types/index';
 import { getTrees } from '@/lib/api';
 import TreesPagination from './TreesPagination';
 import TreesFilters from './TreesFilters';
+import { getImageUrl } from '@/lib/images';
 
 interface TreesContentProps {
   searchParams: TreesSearchParams;
@@ -71,7 +72,7 @@ export default async function TreesContent({
               {tree.origin}
             </Badge>
             <Image
-              src={tree.picture}
+              src={getImageUrl(tree.picture)}
               alt={tree.commonName}
               width={300}
               height={200}

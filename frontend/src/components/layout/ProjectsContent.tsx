@@ -16,6 +16,7 @@ import { Progress } from '@/components/ui/progress';
 import { Field, FieldLabel } from '@/components/ui/field';
 import type { ProjectsSearchParams } from '@/types/index';
 import ProjectsFilters from '@/components/layout/ProjectsFilters';
+import { getImageUrl } from '@/lib/images';
 
 interface ProjectsContentProps {
   searchParams: ProjectsSearchParams;
@@ -83,7 +84,7 @@ export default async function ProjectsContent({
               {project.localisation}
             </Badge>
             <Image
-              src={project.picture}
+              src={getImageUrl(project.picture)}
               alt={project.name}
               width={300}
               height={200}
