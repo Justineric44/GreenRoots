@@ -200,6 +200,7 @@ export async function getDashboard(req: Request, res: Response): Promise<void> {
       projectTreeId: projectTreeId ?? '',
       projectSortBy,
       projectSortOrder,
+      frontendUrl: process.env.FRONTEND_URL ?? 'http://localhost:3000',
     });
   } catch (error) {
     console.error('[adminDashboard] getDashboard error:', error);
