@@ -80,7 +80,7 @@ Thumbs.db
 # ===========================
 # Upload & images
 # ===========================
-public/uploads/*
-!public/uploads/.gitkeep
-!public/uploads/seed/
-!public/uploads/seed/**
+backend/public/uploads/*
+!backend/public/uploads/.gitkeep
+!backend/public/uploads/seed/
+!backend/public/uploads/seed/**
