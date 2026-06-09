@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import Field from '@/components/layout/Field';
 import Link from 'next/link';
 
-export default function ContactPage() {
+export default function ContactForm() {
   const [form, setForm] = useState({
     lastName: '',
     firstName: '',
