@@ -6,7 +6,7 @@ import ProjectsSkeleton from '@/components/layout/ProjectsSkeleton';
 import type { ProjectsSearchParams } from '@/types/index';
 
 export const metadata: Metadata = {
-  title: 'Projets de reforestation - GreenRoots',
+  title: 'Nos projets de reforestation',
   description:
     "Découvrez nos projets de reforestation à travers le monde. Participez à la lutte contre le changement climatique en soutenant nos initiatives de plantation d'arbres.",
 };

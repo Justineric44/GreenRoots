@@ -6,6 +6,7 @@ import type { Tree } from '@/types/index';
 import TreesCarousel from '@/components/layout/TreesCarousel';
 import TreeQuantity from '@/components/layout/TreeQuantity';
 import { cookies } from 'next/headers';
+import { Metadata } from 'next';
 
 type ProjectHasTree = {
   projectId: number;
@@ -16,6 +17,30 @@ type ProjectHasTree = {
     name: string;
   };
 };
+
+// NOTE SEO — déduplication possible (évolution)
+// generateMetadata et le composant page appellent tous deux getOneTree(slug),
+// ce qui déclenche 2 fetchs. Acceptable pour le MVP (coût négligeable sur une
+// fiche produit). Optimisation future : wrapper getOneTree avec cache() de React
+// pour mémoïser le résultat sur la durée d'un seul render serveur.
+//   import { cache } from 'react'
+//   const getCachedTree = cache((slug: string) => getOneTree(slug))
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const tree = await getOneTree(slug);
+
+  if (!tree) return { title: 'Arbre introuvable' };
+
+  return {
+    title: tree.commonName,
+    // Optimisation post MVP : meta descriptions dédiées et optimisées, distinctes du contenu de page
+    description: tree.shortDescription,
+  };
+}
 
 export default async function TreeDetailsPage({
   params,

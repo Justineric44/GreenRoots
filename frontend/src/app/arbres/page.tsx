@@ -6,7 +6,7 @@ import TreesContent from '@/components/layout/TreesContent';
 import TreesSkeleton from '@/components/layout/TreesSkeleton';
 
 export const metadata: Metadata = {
-  title: 'Nos arbres - GreenRoots',
+  title: 'Nos arbres',
   description:
     "Découvrez notre sélection d'arbres à planter à travers le monde. Participez à la reforestation en choisissant l'arbre qui vous correspond.",
 };
