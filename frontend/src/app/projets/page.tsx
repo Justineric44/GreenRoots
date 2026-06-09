@@ -11,6 +11,12 @@ export const metadata: Metadata = {
     "Découvrez nos projets de reforestation à travers le monde. Participez à la lutte contre le changement climatique en soutenant nos initiatives de plantation d'arbres.",
 };
 
+const paragraph1 =
+  "GreenRoots s'engage aux côtés de partenaires locaux pour financer et suivre des projets de reforestation à travers l'Europe et au-delà. Chaque projet est rigoureusement sélectionné selon des critères environnementaux stricts : choix d'essences indigènes adaptées au territoire, engagement des communautés locales, et suivi de la croissance des arbres sur le long terme. Nous croyons que la reforestation est l'un des leviers les plus puissants pour restaurer la biodiversité, protéger les sols et lutter efficacement contre le dérèglement climatique.";
+
+const paragraph2 =
+  "En choisissant de soutenir un projet sur notre plateforme, vous participez concrètement à la restauration d'écosystèmes fragilisés par la déforestation, les incendies ou l'agriculture intensive. Que ce soit en Bourgogne, en Provence ou dans les Vosges, chaque arbre planté contribue à reconstituer un couvert forestier essentiel pour la faune, la flore et les populations locales. Transparence, traçabilité et impact mesurable : GreenRoots vous donne les outils pour agir en toute confiance pour la planète.";
+
 export default function ProjectsPage({
   searchParams,
 }: {
@@ -21,24 +27,8 @@ export default function ProjectsPage({
       <Title title="Nos projets" />
       <section className="bg-brand-bg px-4 py-4 sm:px-4 lg:px-4 lg:py-2">
         <div className="mx-auto max-w-7xl p-8 text-brand-dark">
-          <p className="pb-4">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat. Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-            culpa qui officia deserunt mollit anim id est laborum.
-          </p>
-          <p className="pb-4">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat. Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-            culpa qui officia deserunt mollit anim id est laborum.
-          </p>
+          <p className="pb-4">{paragraph1}</p>
+          <p className="pb-4">{paragraph2}</p>
         </div>
       </section>
       <section className="bg-brand-bg px-4 pt-4 pb-16 sm:px-6 lg:px-8 lg:pt-4 lg:pb-20">

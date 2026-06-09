@@ -58,7 +58,7 @@ export default async function TopTreesSection() {
           <div className="relative flex h-[470px] w-72 flex-col justify-between overflow-hidden rounded-xl bg-brand-dark p-6 text-brand-white shadow-lg transition-shadow hover:shadow-xl">
             <Image
               src="/images/impact/impact-6.jpg"
-              alt="Forêt"
+              alt="Forêt illustrant la section dédiée aux offres d'entreprise de reforestation"
               fill
               className="object-cover opacity-30"
             />

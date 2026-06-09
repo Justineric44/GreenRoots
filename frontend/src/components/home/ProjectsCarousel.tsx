@@ -97,7 +97,7 @@ export default function ProjectsCarousel({ projects }: ProjectsCarouselProps) {
                 </CardHeader>
 
                 <CardContent className="flex flex-1 flex-col space-y-4">
-                  <p className="text-sm text-brand-muted">
+                  <p className="text-sm text-brand-black">
                     {project.shortDescription}
                   </p>
 

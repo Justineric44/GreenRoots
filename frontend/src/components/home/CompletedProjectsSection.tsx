@@ -31,7 +31,7 @@ export default function CompletedProjectsSection() {
           Des projets déjà réalisés à travers le monde
         </h2>
 
-        <p className="mx-auto mt-6 max-w-3xl text-center leading-relaxed text-brand-muted">
+        <p className="mx-auto mt-6 max-w-3xl text-center leading-relaxed text-brand-white">
           Grâce au soutien de notre communauté, plusieurs opérations de
           reforestation ont déjà été menées à terme dans différentes régions du
           monde.
@@ -62,7 +62,7 @@ export default function CompletedProjectsSection() {
                   {project.trees}
                 </p>
 
-                <p className="text-brand-muted">arbres plantés</p>
+                <p className="text-brand-white">arbres plantés</p>
               </div>
             </div>
           ))}

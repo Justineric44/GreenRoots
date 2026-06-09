@@ -18,22 +18,16 @@ const legalLinks = [
 
 export default function Footer() {
   return (
-    <footer className="bg-brand-dark text-brand-white px-6 py-10">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 text-center md:grid-cols-[1.8fr_auto_auto] md:gap-x-24 md:items-start md:text-left">
-        <div className="flex flex-col items-center gap-4 md:flex-row md:items-center md:gap-6">
-          <Link href="/">
-            <Image
-              src="/images/Logo_blanc_transparent.svg"
-              alt="GreenRoots Logo"
-              width={160}
-              height={160}
-              className="object-cover"
-            />
-          </Link>
-          <p className="max-w-xs text-sm leading-relaxed text-brand-white/80">
-            GreenRoots accompagne des projets de reforestation accessibles aux
-            particuliers, entreprises et associations.
-          </p>
+    <footer className="flex flex-col gap-4 items-center justify-between p-4 bg-brand-dark text-brand-white md:flex-row">
+      <Link href="/">
+        <div className="w-30 h-30 border-white/60 overflow-hidden flex items-center justify-center">
+          <Image
+            src="/images/Logo_blanc_transparent.svg"
+            alt="Logo GreenRoots - Plateforme de reforestation et d'achat d'arbres"
+            width={100}
+            height={100}
+            className="object-cover"
+          />
         </div>
         <nav>
           <h2 className="mb-4 text-lg font-semibold">Navigation</h2>
