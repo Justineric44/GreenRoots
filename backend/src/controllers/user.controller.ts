@@ -57,32 +57,59 @@ export const userController = {
   },
 
   /**
-   * DELETE /api/users/me — suppression du compte (soft-delete + anonymisation).
+   * DELETE /api/users/me — suppression du compte (conditionnelle).
    *
-   * On ne fait pas un vrai DELETE : les commandes du user doivent rester
-   * en base (traçabilité comptable + onDelete: Restrict sur Order.user).
-   * À la place, on anonymise les données perso et on marque deletedAt.
-   * L'auth.controller refusera ensuite tout login sur ce compte.
+   * Logique RGPD :
+   * - Si l'utilisateur n'a AUCUNE commande, on supprime complètement son
+   *   compte. Son panier actif est supprimé en cascade automatiquement
+   *   (Cart.user_id est en ON DELETE CASCADE).
+   * - Si l'utilisateur a des commandes, on anonymise ses données perso
+   *   pour respecter la traçabilité comptable (onDelete: Restrict sur
+   *   Order.user empêcherait sinon la suppression). Le panier actif est
+   *   supprimé en parallèle car il devient orphelin.
+   *
+   * Dans les deux cas, l'utilisateur ne pourra plus se connecter :
+   * - hard delete → plus d'enregistrement
+   * - anonymisation → auth.controller refuse le login si deletedAt !== null
    */
   async remove(req: Request, res: Response): Promise<void> {
     const userId = req.user!.userId;
 
-    await prisma.user.update({
-      where: { id: userId },
-      data: {
-        email: `deleted-${userId}@anonymized.local`,
-        lastName: 'Anonyme',
-        firstName: 'Utilisateur',
-        address: '',
-        postalCode: '',
-        city: '',
-        phone: null,
-        siret: null,
-        companyName: null,
-        password: '',
-        deletedAt: new Date(),
-      },
-    });
+    // Compte le nombre de commandes pour déterminer la stratégie.
+    const orderCount = await prisma.order.count({ where: { userId } });
+
+    // Cas 1 : pas de commandes → suppression complète.
+    // Le panier sera supprimé via la cascade définie dans le schéma.
+    if (orderCount === 0) {
+      await prisma.user.delete({ where: { id: userId } });
+      res.status(204).end();
+      return;
+    }
+
+    // Cas 2 : des commandes existent → anonymisation + nettoyage du panier.
+    // Le panier actif est supprimé car il deviendrait orphelin (l'utilisateur
+    // anonymisé ne pourra plus se connecter pour le récupérer).
+    await prisma.$transaction([
+      prisma.cart.deleteMany({
+        where: { userId, status: 'active' },
+      }),
+      prisma.user.update({
+        where: { id: userId },
+        data: {
+          email: `deleted-${userId}@anonymized.local`,
+          lastName: 'Anonyme',
+          firstName: 'Utilisateur',
+          address: '',
+          postalCode: '',
+          city: '',
+          phone: null,
+          siret: null,
+          companyName: null,
+          password: '',
+          deletedAt: new Date(),
+        },
+      }),
+    ]);
 
     res.status(204).end();
   },

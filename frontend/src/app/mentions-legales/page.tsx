@@ -1,4 +1,11 @@
 import Title from '@/components/layout/Title';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Mentions légales',
+  description:
+    'Découvrez les mentions légales du site GreenRoots et participez activement à des projets de reforestation.',
+};
 
 export default function LegalNoticePage() {
   return (

@@ -212,10 +212,57 @@ a {
   color: white !important;
 }
 
+#tarteaucitronRoot button {
+  border-radius: 999px !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+}
+
+#tarteaucitronRoot #tarteaucitronAllAllowed:hover {
+  background: #76a64c !important;
+}
+
+#tarteaucitronRoot #tarteaucitronAllDenied:hover,
+#tarteaucitronRoot .tarteaucitronDeny:hover {
+  background: #88b75d !important;
+  color: #ffffff !important;
+}
+
+#tarteaucitronRoot #tarteaucitronPersonalize2:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
 #tarteaucitronRoot a {
   color: #a8d67f !important;
 }
 
 #tarteaucitronRoot .tarteaucitronTitle {
   color: #88b75d !important;
+}
+
+@media (max-width: 768px) {
+  #tarteaucitronRoot #tarteaucitronAlertBig {
+    left: 1rem !important;
+    right: 1rem !important;
+    bottom: 1rem !important;
+    width: auto !important;
+    max-width: calc(100% - 2rem) !important;
+    padding: 1rem !important;
+    border-radius: 1.5rem !important;
+  }
+
+  #tarteaucitronRoot #tarteaucitronAlertBig #tarteaucitronDisclaimerAlert {
+    font-size: 1rem !important;
+    line-height: 1.3 !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  #tarteaucitronRoot #tarteaucitronAlertBig button {
+    display: block !important;
+    width: 100% !important;
+    max-width: 260px !important;
+    margin: 0.4rem auto !important;
+    font-size: 1rem !important;
+  }
 }

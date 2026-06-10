@@ -101,6 +101,9 @@ model User {
   updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz
 
+   acceptedTerms   Boolean   @default(false) @map("accepted_terms")
+  acceptedTermsAt DateTime? @map("accepted_terms_at") @db.Timestamptz
+
   // -------------------------
   // Nom réel de la table SQL
   // -------------------------

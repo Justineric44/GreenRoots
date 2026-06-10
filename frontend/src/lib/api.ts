@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { ApiError } from './errors';
-import { Cart } from '@/types';
+import { Cart, Project } from '@/types';
 
 // ================================================================
 // MODULE DE CENTRALISATION DES APPELS API
@@ -92,7 +92,7 @@ export async function getProjects(
   search?: string,
   sortBy?: string,
   sortOrder?: string
-) {
+): Promise<{ projects: Project[]; total: number; limit: number }> {
   if (!currentPage) {
     return apiFetch(`/api/projects`);
   }
@@ -131,6 +131,28 @@ export async function getOneProject(slug: string) {
  */
 export async function getProjectTrees(slug: string, currentPage: number) {
   return apiFetch(`/api/projects/${slug}/trees?page=${currentPage}`);
+}
+
+/**
+ * Récupère TOUS les arbres en parcourant toutes les pages.
+ * Utilisé pour le sitemap (build / revalidation), pas pour l'affichage.
+ * @returns Tableau complet de tous les arbres
+ */
+export async function getAllTrees() {
+  const allTrees = [];
+  let currentPage = 1;
+
+  while (true) {
+    const { trees } = await getTrees(currentPage);
+
+    // Plus rien à récupérer → on sort
+    if (!trees || trees.length === 0) break;
+
+    allTrees.push(...trees);
+    currentPage++;
+  }
+
+  return allTrees;
 }
 
 /**

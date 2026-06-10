@@ -6,6 +6,8 @@ import type { Tree } from '@/types/index';
 import TreesCarousel from '@/components/layout/TreesCarousel';
 import TreeQuantity from '@/components/layout/TreeQuantity';
 import { cookies } from 'next/headers';
+import { Metadata } from 'next';
+import { getImageUrl } from '@/lib/images';
 
 type ProjectHasTree = {
   projectId: number;
@@ -16,6 +18,30 @@ type ProjectHasTree = {
     name: string;
   };
 };
+
+// NOTE SEO — déduplication possible (évolution)
+// generateMetadata et le composant page appellent tous deux getOneTree(slug),
+// ce qui déclenche 2 fetchs. Acceptable pour le MVP (coût négligeable sur une
+// fiche produit). Optimisation future : wrapper getOneTree avec cache() de React
+// pour mémoïser le résultat sur la durée d'un seul render serveur.
+//   import { cache } from 'react'
+//   const getCachedTree = cache((slug: string) => getOneTree(slug))
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const tree = await getOneTree(slug);
+
+  if (!tree) return { title: 'Arbre introuvable' };
+
+  return {
+    title: tree.commonName,
+    // Optimisation post MVP : meta descriptions dédiées et optimisées, distinctes du contenu de page
+    description: tree.shortDescription,
+  };
+}
 
 export default async function TreeDetailsPage({
   params,
@@ -34,7 +60,13 @@ export default async function TreeDetailsPage({
   const treeData = tree.value;
 
   const { trees: otherTrees = [] } =
-    treesData.status === 'fulfilled' ? treesData.value : { trees: [] };
+    treesData.status === 'fulfilled'
+      ? treesData.value
+      : (console.error(
+          '[TreeDetailsPage] Erreur récupération arbres :',
+          treesData.reason
+        ),
+        { trees: [] });
 
   const suggestions = (otherTrees as Tree[]).filter((t) => t.slug !== slug);
 
@@ -69,7 +101,7 @@ export default async function TreeDetailsPage({
             {/* IMAGE */}
             <div className="relative w-full lg:w-1/2 aspect-square rounded-2xl overflow-hidden bg-gray-100">
               <Image
-                src={treeData.picture}
+                src={getImageUrl(treeData.picture)}
                 alt={treeData.commonName}
                 fill
                 sizes="(min-width: 1024px) 50vw, 100vw"
@@ -85,13 +117,13 @@ export default async function TreeDetailsPage({
                 </span>
               </div>
 
-              <p className="text-sm text-muted-foreground italic">
+              <p className="text-sm text-brand-white italic">
                 Famille de produits : {treeData.family}
               </p>
 
               <div>
                 <h2 className="text-3xl font-bold">{treeData.commonName}</h2>
-                <p className="text-sm italic text-muted-foreground">
+                <p className="text-sm italic text-brand-white">
                   {treeData.scientificName}
                 </p>
               </div>
@@ -101,13 +133,13 @@ export default async function TreeDetailsPage({
                   style: 'currency',
                   currency: 'EUR',
                 }).format(treeData.price)}
-                <span className="text-base font-normal text-muted-foreground">
+                <span className="text-base font-normal text-brand-white">
                   {' '}
                   / arbre
                 </span>
               </p>
 
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-brand-white">
                 Description : <br /> {treeData.shortDescription}
               </p>
 
@@ -118,7 +150,7 @@ export default async function TreeDetailsPage({
                 isLoggedIn={isLoggedIn}
               />
 
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-brand-white">
                 Réf. produit : {treeData.id}
               </p>
             </div>
