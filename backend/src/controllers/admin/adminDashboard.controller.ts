@@ -166,7 +166,12 @@ export async function getDashboard(req: Request, res: Response): Promise<void> {
         orderBy: { createdAt: 'desc' },
         include: {
           user: {
-            select: { firstName: true, lastName: true, email: true },
+            select: {
+              firstName: true,
+              lastName: true,
+              email: true,
+              deletedAt: true, // nécessaire pour afficher "Compte supprimé" dans le dashboard
+            },
           },
           items: true,
         },
@@ -182,6 +187,7 @@ export async function getDashboard(req: Request, res: Response): Promise<void> {
           type: true,
           role: true,
           createdAt: true,
+          deletedAt: true, // nécessaire pour afficher le statut actif/inactif
         },
       }),
     ]);
@@ -481,7 +487,6 @@ export async function postUpdateTree(
           data: projectIds.map((projectId) => ({
             treeId: id,
             projectId: Number(projectId),
-            // ✅ FIX : le EJS envoie stocks[p14], la clé est donc "p14"
             stock: stocks?.[`p${projectId}`] ?? 0,
           })),
         });
@@ -553,7 +558,11 @@ export async function postDeleteTree(
 }
 
 // ============================================================
-// POST /admin/users/:id/delete — Supprimer un utilisateur
+// POST /admin/users/:id/delete — Soft delete utilisateur
+// ============================================================
+// On ne supprime pas la ligne en base : on horodate deletedAt.
+// Les commandes sont conservées et affichent "Compte supprimé"
+// dans la colonne "Compte client" du dashboard.
 // ============================================================
 
 export async function postDeleteUser(
@@ -586,25 +595,26 @@ export async function postDeleteUser(
       return;
     }
 
-    await prisma.$transaction(async (tx: TransactionClient) => {
-      const orders = await tx.order.findMany({ where: { userId: id } });
-      const orderIds = orders.map((o: (typeof orders)[number]) => o.id);
+    if (user.deletedAt) {
+      res.redirect(
+        '/admin/dashboard?section=users&error=Utilisateur+d%C3%A9j%C3%A0+d%C3%A9sactiv%C3%A9'
+      );
+      return;
+    }
 
-      if (orderIds.length > 0) {
-        await tx.orderItem.deleteMany({ where: { orderId: { in: orderIds } } });
-      }
-
-      await tx.order.deleteMany({ where: { userId: id } });
-      await tx.user.delete({ where: { id } });
+    // Soft delete : on pose deletedAt sans toucher aux commandes.
+    await prisma.user.update({
+      where: { id },
+      data: { deletedAt: new Date() },
     });
 
     res.redirect(
-      '/admin/dashboard?section=users&success=Utilisateur+supprim%C3%A9'
+      '/admin/dashboard?section=users&success=Utilisateur+d%C3%A9sactiv%C3%A9'
     );
   } catch (error) {
     console.error('[adminDashboard] postDeleteUser error:', error);
     res.redirect(
-      '/admin/dashboard?section=users&error=Erreur+lors+de+la+suppression'
+      '/admin/dashboard?section=users&error=Erreur+lors+de+la+d%C3%A9sactivation'
     );
   }
 }

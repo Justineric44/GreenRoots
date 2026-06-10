@@ -29,235 +29,219 @@
     <%- include('partials/flash-message', { query }) %>
 
     <!-- ====================================================
-     SECTION — PROJETS
-     ==================================================== -->
-<%
-  const projectCurrentSortBy = projectSortBy || 'name';
-  const projectCurrentSortOrder = projectSortOrder || 'asc';
+         SECTION — PROJETS
+         ==================================================== -->
+    <%
+      const projectCurrentSortBy = projectSortBy || 'name';
+      const projectCurrentSortOrder = projectSortOrder || 'asc';
 
-  function projectSortUrl(col) {
-    const newOrder =
-      projectCurrentSortBy === col && projectCurrentSortOrder === 'asc'
-        ? 'desc'
-        : 'asc';
+      function projectSortUrl(col) {
+        const newOrder =
+          projectCurrentSortBy === col && projectCurrentSortOrder === 'asc'
+            ? 'desc'
+            : 'asc';
 
-    const params = new URLSearchParams({
-      section: 'projects',
-      ...(projectSearch ? { projectSearch } : {}),
-      ...(projectTreeId ? { projectTreeId: String(projectTreeId) } : {}),
-      projectSortBy: col,
-      projectSortOrder: newOrder,
-    });
+        const params = new URLSearchParams({
+          section: 'projects',
+          ...(projectSearch ? { projectSearch } : {}),
+          ...(projectTreeId ? { projectTreeId: String(projectTreeId) } : {}),
+          projectSortBy: col,
+          projectSortOrder: newOrder,
+        });
 
-    return '/admin/dashboard?' + params.toString();
-  }
+        return '/admin/dashboard?' + params.toString();
+      }
 
-  function projectSortArrow(col) {
-    if (projectCurrentSortBy !== col) {
-      return '<span style="font-size:15px; color:#000; margin-left:4px;">↕</span>';
-    }
+      function projectSortArrow(col) {
+        if (projectCurrentSortBy !== col) {
+          return '<span style="font-size:15px; color:#000; margin-left:4px;">↕</span>';
+        }
+        return projectCurrentSortOrder === 'asc'
+          ? '<span style="font-size:15px; color:#4caf50; margin-left:4px;">↑</span>'
+          : '<span style="font-size:15px; color:#4caf50; margin-left:4px;">↓</span>';
+      }
 
-    return projectCurrentSortOrder === 'asc'
-      ? '<span style="font-size:15px; color:#4caf50; margin-left:4px;">↑</span>'
-      : '<span style="font-size:15px; color:#4caf50; margin-left:4px;">↓</span>';
-  }
+      const displayedProjects = [...projects].sort((a, b) => {
+        if (projectCurrentSortBy !== 'stock') return 0;
+        const stockA = (a.trees || []).reduce((sum, ph) => sum + ph.stock, 0);
+        const stockB = (b.trees || []).reduce((sum, ph) => sum + ph.stock, 0);
+        return projectCurrentSortOrder === 'asc' ? stockA - stockB : stockB - stockA;
+      });
+    %>
 
-  const displayedProjects = [...projects].sort((a, b) => {
-    if (projectCurrentSortBy !== 'stock') return 0;
+    <section class="section <%= activeSection === 'projects' ? 'active' : '' %>" id="section-projects">
+      <div class="page-header" style="flex-wrap:wrap; gap:12px;">
+        <div style="display:flex; flex-direction:column; gap:8px; flex:1;">
+          <h2 class="page-title" style="margin:0;">
+            Projets <span>(<%= displayedProjects.length %>)</span>
+          </h2>
 
-    const stockA = (a.trees || []).reduce((sum, ph) => sum + ph.stock, 0);
-    const stockB = (b.trees || []).reduce((sum, ph) => sum + ph.stock, 0);
+          <form
+            method="GET"
+            action="/admin/dashboard"
+            id="form-project-search"
+            style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"
+          >
+            <input type="hidden" name="section" value="projects" />
+            <input type="hidden" name="projectSortBy" value="<%= projectCurrentSortBy %>" />
+            <input type="hidden" name="projectSortOrder" value="<%= projectCurrentSortOrder %>" />
 
-    return projectCurrentSortOrder === 'asc'
-      ? stockA - stockB
-      : stockB - stockA;
-  });
-%>
+            <input
+              type="text"
+              name="projectSearch"
+              value="<%= projectSearch %>"
+              placeholder="Rechercher un projet…"
+              style="padding:6px 10px; border:1px solid var(--border, #ddd); border-radius:6px; font-size:13px; width:180px;"
+              oninput="clearTimeout(window._projectSearchTimer); window._projectSearchTimer = setTimeout(() => document.getElementById('form-project-search').submit(), 400)"
+            />
 
-<section class="section <%= activeSection === 'projects' ? 'active' : '' %>" id="section-projects">
-  <div class="page-header" style="flex-wrap:wrap; gap:12px;">
-    <div style="display:flex; flex-direction:column; gap:8px; flex:1;">
-      <h2 class="page-title" style="margin:0;">
-        Projets <span>(<%= displayedProjects.length %>)</span>
-      </h2>
+            <select
+              name="projectTreeId"
+              style="padding:6px 10px; border:1px solid var(--border, #ddd); border-radius:6px; font-size:13px; max-width:200px;"
+              onchange="document.getElementById('form-project-search').submit()"
+            >
+              <option value="">Tous les arbres</option>
+              <% trees.forEach(tree => { %>
+                <option value="<%= tree.id %>" <%= String(projectTreeId) === String(tree.id) ? 'selected' : '' %>>
+                  <%= tree.commonName %>
+                </option>
+              <% }) %>
+            </select>
 
-      <!-- Barre de recherche / filtre projets -->
-      <form
-        method="GET"
-        action="/admin/dashboard"
-        id="form-project-search"
-        style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"
-      >
-        <input type="hidden" name="section" value="projects" />
-        <input type="hidden" name="projectSortBy" value="<%= projectCurrentSortBy %>" />
-        <input type="hidden" name="projectSortOrder" value="<%= projectCurrentSortOrder %>" />
+            <% if (projectSearch || projectTreeId) { %>
+              <a href="/admin/dashboard?section=projects" class="btn btn-secondary btn-sm">✕ Réinitialiser</a>
+            <% } %>
+          </form>
+        </div>
 
-        <input
-          type="text"
-          name="projectSearch"
-          value="<%= projectSearch %>"
-          placeholder="Rechercher un projet…"
-          style="padding:6px 10px; border:1px solid var(--border, #ddd); border-radius:6px; font-size:13px; width:180px;"
-          oninput="clearTimeout(window._projectSearchTimer); window._projectSearchTimer = setTimeout(() => document.getElementById('form-project-search').submit(), 400)"
-        />
+        <button class="btn btn-primary btn-sm" onclick="openCreateModal('project')">
+          + Nouveau projet
+        </button>
+      </div>
 
-        <select
-          name="projectTreeId"
-          style="padding:6px 10px; border:1px solid var(--border, #ddd); border-radius:6px; font-size:13px; max-width:200px;"
-          onchange="document.getElementById('form-project-search').submit()"
-        >
-          <option value="">Tous les arbres</option>
-          <% trees.forEach(tree => { %>
-            <option value="<%= tree.id %>" <%= String(projectTreeId) === String(tree.id) ? 'selected' : '' %>>
-              <%= tree.commonName %>
-            </option>
-          <% }) %>
-        </select>
-
-        <% if (projectSearch || projectTreeId) { %>
-          <a href="/admin/dashboard?section=projects" class="btn btn-secondary btn-sm">✕ Réinitialiser</a>
-        <% } %>
-      </form>
-    </div>
-
-    <button class="btn btn-primary btn-sm" onclick="openCreateModal('project')">
-      + Nouveau projet
-    </button>
-  </div>
-
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>
-            <a href="<%= projectSortUrl('name') %>" style="text-decoration:none; color:inherit; white-space:nowrap;">
-              Nom<%- projectSortArrow('name') %>
-            </a>
-          </th>
-          <th>
-            <a href="<%= projectSortUrl('localisation') %>" style="text-decoration:none; color:inherit; white-space:nowrap;">
-              Localisation<%- projectSortArrow('localisation') %>
-            </a>
-          </th>
-          <th>
-            <a href="<%= projectSortUrl('progress') %>" style="text-decoration:none; color:inherit; white-space:nowrap;">
-              Progression<%- projectSortArrow('progress') %>
-            </a>
-          </th>
-          <th>
-            <a href="<%= projectSortUrl('stock') %>" style="text-decoration:none; color:inherit; white-space:nowrap;">
-              Stock total<%- projectSortArrow('stock') %>
-            </a>
-          </th>
-          <th>Arbres associés</th>
-          <th>Créé le</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <% if (displayedProjects.length === 0) { %>
-          <tr>
-            <td colspan="7" class="td-muted" style="text-align:center; padding:32px;">
-              Aucun projet ne correspond aux filtres.
-            </td>
-          </tr>
-        <% } else { %>
-          <% displayedProjects.forEach(project => { %>
-            <% const projectTrees = project.trees || []; %>
-            <% const totalStock = projectTrees.reduce((sum, ph) => sum + ph.stock, 0); %>
-
+      <div class="table-wrapper">
+        <table>
+          <thead>
             <tr>
-              <td>
-                <strong><%= project.name %></strong>
-                <div class="td-muted"><%= project.slug %></div>
-              </td>
-
-              <td><%= project.localisation %></td>
-
-              <td>
-                <span class="badge <%= project.progress === 100 ? 'badge-green' : 'badge-muted' %>">
-                  <%= project.progress %>%
-                </span>
-              </td>
-
-              <td>
-                <span class="badge badge-muted"><%= totalStock %> plants</span>
-              </td>
-
-              <td>
-                <% if (projectTrees.length === 0) { %>
-                  <span class="td-muted">—</span>
-                <% } else { %>
-                  <% projectTrees.forEach(ph => { %>
-                    <div style="font-size:12px; margin-bottom:2px;">
-                      <strong><%= ph.tree.commonName %></strong>
-                      <span class="badge badge-muted" style="margin-left:4px;">
-                        <%= ph.stock %> plants
-                      </span>
-                    </div>
-                  <% }) %>
-                <% } %>
-              </td>
-
-              <td class="td-muted">
-                <%= new Date(project.createdAt).toLocaleDateString('fr-FR') %>
-              </td>
-
-              <td>
-                <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                 <a
-                   href="<%= frontendUrl %>/projets/<%= project.slug %>"
-                    target="_blank"
-                    class="btn btn-secondary btn-sm"
-                  >
-                  Voir
-                </a> 
-
-                  <button
-                    class="btn btn-secondary btn-sm"
-                    onclick="openEditModal('project', <%= JSON.stringify(project) %>)"
-                  >
-                    Éditer
-                  </button>
-
-                  <form
-                    action="/admin/projects/<%= project.id %>/delete"
-                    method="POST"
-                    onsubmit="return confirm('Supprimer ce projet ?')"
-                  >
-                    <button type="submit" class="btn btn-danger btn-sm">
-                      Supprimer
-                    </button>
-                  </form>
-                </div>
-              </td>
+              <th>
+                <a href="<%= projectSortUrl('name') %>" style="text-decoration:none; color:inherit; white-space:nowrap;">
+                  Nom<%- projectSortArrow('name') %>
+                </a>
+              </th>
+              <th>
+                <a href="<%= projectSortUrl('localisation') %>" style="text-decoration:none; color:inherit; white-space:nowrap;">
+                  Localisation<%- projectSortArrow('localisation') %>
+                </a>
+              </th>
+              <th>
+                <a href="<%= projectSortUrl('progress') %>" style="text-decoration:none; color:inherit; white-space:nowrap;">
+                  Progression<%- projectSortArrow('progress') %>
+                </a>
+              </th>
+              <th>
+                <a href="<%= projectSortUrl('stock') %>" style="text-decoration:none; color:inherit; white-space:nowrap;">
+                  Stock total<%- projectSortArrow('stock') %>
+                </a>
+              </th>
+              <th>Arbres associés</th>
+              <th>Créé le</th>
+              <th>Actions</th>
             </tr>
-          <% }) %>
-        <% } %>
-      </tbody>
-    </table>
-  </div>
-</section>
+          </thead>
+
+          <tbody>
+            <% if (displayedProjects.length === 0) { %>
+              <tr>
+                <td colspan="7" class="td-muted" style="text-align:center; padding:32px;">
+                  Aucun projet ne correspond aux filtres.
+                </td>
+              </tr>
+            <% } else { %>
+              <% displayedProjects.forEach(project => { %>
+                <% const projectTrees = project.trees || []; %>
+                <% const totalStock = projectTrees.reduce((sum, ph) => sum + ph.stock, 0); %>
+                <tr>
+                  <td>
+                    <strong><%= project.name %></strong>
+                    <div class="td-muted"><%= project.slug %></div>
+                  </td>
+                  <td><%= project.localisation %></td>
+                  <td>
+                    <span class="badge <%= project.progress === 100 ? 'badge-green' : 'badge-muted' %>">
+                      <%= project.progress %>%
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge badge-muted"><%= totalStock %> plants</span>
+                  </td>
+                  <td>
+                    <% if (projectTrees.length === 0) { %>
+                      <span class="td-muted">—</span>
+                    <% } else { %>
+                      <% projectTrees.forEach(ph => { %>
+                        <div style="font-size:12px; margin-bottom:2px;">
+                          <strong><%= ph.tree.commonName %></strong>
+                          <span class="badge badge-muted" style="margin-left:4px;">
+                            <%= ph.stock %> plants
+                          </span>
+                        </div>
+                      <% }) %>
+                    <% } %>
+                  </td>
+                  <td class="td-muted">
+                    <%= new Date(project.createdAt).toLocaleDateString('fr-FR') %>
+                  </td>
+                  <td>
+                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                      <a
+                        href="<%= frontendUrl %>/projets/<%= project.slug %>"
+                        target="_blank"
+                        class="btn btn-secondary btn-sm"
+                      >
+                        Voir
+                      </a>
+                      <button
+                        class="btn btn-secondary btn-sm"
+                        onclick="openEditModal('project', <%= JSON.stringify(project) %>)"
+                      >
+                        Éditer
+                      </button>
+                      <form
+                        action="/admin/projects/<%= project.id %>/delete"
+                        method="POST"
+                        onsubmit="return confirm('Supprimer ce projet ?')"
+                      >
+                        <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
     <!-- ====================================================
          SECTION — ARBRES
          ==================================================== -->
     <%
-      // Helpers tri arbres
       const sortBy    = treeSortBy    || 'commonName';
       const sortOrder = treeSortOrder || 'asc';
+
       function sortUrl(col) {
         const newOrder = (sortBy === col && sortOrder === 'asc') ? 'desc' : 'asc';
         const params = new URLSearchParams({
           section: 'trees',
-          ...(treeSearch     ? { treeSearch }     : {}),
-          ...(treeProjectId  ? { treeProjectId: String(treeProjectId) } : {}),
+          ...(treeSearch    ? { treeSearch }    : {}),
+          ...(treeProjectId ? { treeProjectId: String(treeProjectId) } : {}),
           treeSortBy: col,
           treeSortOrder: newOrder,
         });
         return '/admin/dashboard?' + params.toString();
       }
+
       function sortArrow(col) {
         if (sortBy !== col) return '<span style="font-size:15px; color:#000; margin-left:4px;">↕</span>';
         return sortOrder === 'asc'
@@ -265,12 +249,12 @@
           : '<span style="font-size:15px; color:#4caf50; margin-left:4px;">↓</span>';
       }
     %>
+
     <section class="section <%= activeSection === 'trees' ? 'active' : '' %>" id="section-trees">
       <div class="page-header" style="flex-wrap:wrap; gap:12px;">
         <div style="display:flex; flex-direction:column; gap:8px; flex:1;">
           <h2 class="page-title" style="margin:0;">Arbres <span>(<%= trees.length %>)</span></h2>
 
-          <!-- ── Barre de recherche / filtre ── -->
           <form
             method="GET"
             action="/admin/dashboard"
@@ -343,7 +327,11 @@
           </thead>
           <tbody>
             <% if (trees.length === 0) { %>
-              <tr><td colspan="7" class="td-muted" style="text-align:center; padding:32px;">Aucun arbre ne correspond aux filtres.</td></tr>
+              <tr>
+                <td colspan="7" class="td-muted" style="text-align:center; padding:32px;">
+                  Aucun arbre ne correspond aux filtres.
+                </td>
+              </tr>
             <% } else { %>
               <% trees.forEach(tree => { %>
                 <tr>
@@ -366,7 +354,7 @@
                           <span class="badge badge-muted" style="margin-left:4px;"><%= ph.stock %> plants</span>
                         </div>
                       <% }) %>
-                      <div style="font-size:11px; margin-top:4px; color: var(--color-text-muted, #888);">
+                      <div style="font-size:11px; margin-top:4px; color:var(--color-text-muted, #888);">
                         Total : <strong><%= totalStock %> plants</strong>
                       </div>
                     <% } %>
@@ -374,7 +362,13 @@
                   <td>
                     <div style="display:flex; gap:6px; flex-wrap:wrap;">
                       <a href="<%= frontendUrl %>/arbres/<%= tree.slug %>" target="_blank" class="btn btn-secondary btn-sm">Voir</a>
-                      <button class="btn btn-secondary btn-sm" onclick="openEditModal('tree', JSON.parse(this.dataset.tree))" data-tree="<%- JSON.stringify(tree).replace(/"/g, '&quot;') %>">Éditer</button>
+                      <button
+                        class="btn btn-secondary btn-sm"
+                        onclick="openEditModal('tree', JSON.parse(this.dataset.tree))"
+                        data-tree="<%- JSON.stringify(tree).replace(/"/g, '&quot;') %>"
+                      >
+                        Éditer
+                      </button>
                       <form action="/admin/trees/<%= tree.id %>/delete" method="POST" onsubmit="return confirm('Supprimer cet arbre ?')">
                         <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
                       </form>
@@ -402,16 +396,22 @@
               <th>#ID</th>
               <th>Utilisateur</th>
               <th>Montant</th>
-              <th>Statut</th>
+              <th>Statut commande</th>
+              <th>Compte client</th>
               <th>Date</th>
               <th>Détail</th>
             </tr>
           </thead>
           <tbody>
             <% if (orders.length === 0) { %>
-              <tr><td colspan="6" class="td-muted" style="text-align:center; padding:32px;">Aucune commande pour le moment.</td></tr>
+              <tr>
+                <td colspan="7" class="td-muted" style="text-align:center; padding:32px;">
+                  Aucune commande pour le moment.
+                </td>
+              </tr>
             <% } else { %>
               <% orders.forEach(order => { %>
+                <% const orderUserDeleted = !!order.user.deletedAt; %>
                 <tr>
                   <td class="td-muted">#<%= order.id %></td>
                   <td>
@@ -419,18 +419,29 @@
                     <div class="td-muted"><%= order.user.email %></div>
                   </td>
                   <td><strong><%= Number(order.amount).toFixed(2) %> €</strong></td>
+
+                  <%# Statut de la commande (validated / canceled) %>
                   <td>
                     <span class="badge <%= order.status === 'validated' ? 'badge-green' : 'badge-red' %>">
                       <%= order.status === 'validated' ? 'Validée' : 'Annulée' %>
                     </span>
                   </td>
+
+                  <%# Statut du compte client (actif / supprimé) %>
+                  <td>
+                    <span class="badge <%= orderUserDeleted ? 'badge-red' : 'badge-green' %>">
+                      <%= orderUserDeleted ? 'Compte supprimé' : 'Actif' %>
+                    </span>
+                  </td>
+
                   <td class="td-muted"><%= new Date(order.createdAt).toLocaleDateString('fr-FR') %></td>
                   <td>
                     <button class="btn btn-secondary btn-sm" onclick="toggleOrderDetail(<%= order.id %>)">Voir</button>
                   </td>
                 </tr>
+
                 <tr id="order-detail-<%= order.id %>" style="display:none;">
-                  <td colspan="6" style="background: var(--brand-bg); padding: 12px 16px;">
+                  <td colspan="7" style="background:var(--brand-bg); padding:12px 16px;">
                     <strong style="font-size:13px;">Détail de la commande :</strong>
                     <table style="margin-top:8px; width:auto;">
                       <thead>
@@ -476,16 +487,22 @@
               <th>Email</th>
               <th>Type</th>
               <th>Rôle</th>
+              <th>Statut</th>
               <th>Inscrit le</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             <% if (users.length === 0) { %>
-              <tr><td colspan="6" class="td-muted" style="text-align:center; padding:32px;">Aucun utilisateur pour le moment.</td></tr>
+              <tr>
+                <td colspan="7" class="td-muted" style="text-align:center; padding:32px;">
+                  Aucun utilisateur pour le moment.
+                </td>
+              </tr>
             <% } else { %>
               <% users.forEach(user => { %>
-                <tr>
+                <% const isDeleted = !!user.deletedAt; %>
+                <tr style="<%= isDeleted ? 'opacity:0.6;' : '' %>">
                   <td><strong><%= user.firstName %> <%= user.lastName %></strong></td>
                   <td class="td-muted"><%= user.email %></td>
                   <td><span class="badge badge-muted"><%= user.type %></span></td>
@@ -494,10 +511,23 @@
                       <%= user.role %>
                     </span>
                   </td>
+
+                  <%# Colonne statut : vert = actif, rouge = supprimé %>
+                  <td>
+                    <span class="badge <%= isDeleted ? 'badge-red' : 'badge-green' %>">
+                      <%= isDeleted ? 'Inactif' : 'Actif' %>
+                    </span>
+                  </td>
+
                   <td class="td-muted"><%= new Date(user.createdAt).toLocaleDateString('fr-FR') %></td>
                   <td>
-                    <% if (user.role !== 'admin') { %>
-                      <form action="/admin/users/<%= user.id %>/delete" method="POST" onsubmit="return confirm('Supprimer cet utilisateur ?')">
+                    <%# On n'affiche le bouton supprimer que si l'user est actif et non admin %>
+                    <% if (user.role !== 'admin' && !isDeleted) { %>
+                      <form
+                        action="/admin/users/<%= user.id %>/delete"
+                        method="POST"
+                        onsubmit="return confirm('Supprimer cet utilisateur ?')"
+                      >
                         <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
                       </form>
                     <% } else { %>
@@ -559,11 +589,26 @@
           <div id="cp-trees-list" style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
             <% trees.forEach(tree => { %>
               <div style="display:flex; align-items:center; gap:10px;">
-                <input type="checkbox" id="cp-tree-<%= tree.id %>" name="treeIds" value="<%= tree.id %>"
-                  onchange="toggleStockInput('cp-stock-<%= tree.id %>', this.checked)" />
-                <label for="cp-tree-<%= tree.id %>" style="margin:0; font-weight:normal; flex:1;"><%= tree.commonName %></label>
-                <input type="number" id="cp-stock-<%= tree.id %>" name="stocks[t<%= tree.id %>]"
-                  min="0" value="0" placeholder="Stock" disabled style="width:80px; opacity:0.4;" />
+                <input
+                  type="checkbox"
+                  id="cp-tree-<%= tree.id %>"
+                  name="treeIds"
+                  value="<%= tree.id %>"
+                  onchange="toggleStockInput('cp-stock-<%= tree.id %>', this.checked)"
+                />
+                <label for="cp-tree-<%= tree.id %>" style="margin:0; font-weight:normal; flex:1;">
+                  <%= tree.commonName %>
+                </label>
+                <input
+                  type="number"
+                  id="cp-stock-<%= tree.id %>"
+                  name="stocks[t<%= tree.id %>]"
+                  min="0"
+                  value="0"
+                  placeholder="Stock"
+                  disabled
+                  style="width:80px; opacity:0.4;"
+                />
               </div>
             <% }) %>
           </div>
@@ -626,11 +671,25 @@
           <div id="ep-trees-list" style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
             <% trees.forEach(tree => { %>
               <div style="display:flex; align-items:center; gap:10px;">
-                <input type="checkbox" id="ep-tree-<%= tree.id %>" name="treeIds" value="<%= tree.id %>"
-                  onchange="toggleStockInput('ep-stock-<%= tree.id %>', this.checked)" />
-                <label for="ep-tree-<%= tree.id %>" style="margin:0; font-weight:normal; flex:1;"><%= tree.commonName %></label>
-                <input type="number" id="ep-stock-<%= tree.id %>" name="stocks[t<%= tree.id %>]"
-                  min="0" value="0" disabled style="width:80px; opacity:0.4;" />
+                <input
+                  type="checkbox"
+                  id="ep-tree-<%= tree.id %>"
+                  name="treeIds"
+                  value="<%= tree.id %>"
+                  onchange="toggleStockInput('ep-stock-<%= tree.id %>', this.checked)"
+                />
+                <label for="ep-tree-<%= tree.id %>" style="margin:0; font-weight:normal; flex:1;">
+                  <%= tree.commonName %>
+                </label>
+                <input
+                  type="number"
+                  id="ep-stock-<%= tree.id %>"
+                  name="stocks[t<%= tree.id %>]"
+                  min="0"
+                  value="0"
+                  disabled
+                  style="width:80px; opacity:0.4;"
+                />
               </div>
             <% }) %>
           </div>
@@ -696,11 +755,26 @@
           <div id="ct-projects-list" style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
             <% projects.forEach(project => { %>
               <div style="display:flex; align-items:center; gap:10px;">
-                <input type="checkbox" id="ct-project-<%= project.id %>" name="projectIds" value="<%= project.id %>"
-                  onchange="toggleStockInput('ct-stock-<%= project.id %>', this.checked)" />
-                <label for="ct-project-<%= project.id %>" style="margin:0; font-weight:normal; flex:1;"><%= project.name %></label>
-                <input type="number" id="ct-stock-<%= project.id %>" name="stocks[p<%= project.id %>]"
-                  min="0" value="0" placeholder="Stock" disabled style="width:80px; opacity:0.4;" />
+                <input
+                  type="checkbox"
+                  id="ct-project-<%= project.id %>"
+                  name="projectIds"
+                  value="<%= project.id %>"
+                  onchange="toggleStockInput('ct-stock-<%= project.id %>', this.checked)"
+                />
+                <label for="ct-project-<%= project.id %>" style="margin:0; font-weight:normal; flex:1;">
+                  <%= project.name %>
+                </label>
+                <input
+                  type="number"
+                  id="ct-stock-<%= project.id %>"
+                  name="stocks[p<%= project.id %>]"
+                  min="0"
+                  value="0"
+                  placeholder="Stock"
+                  disabled
+                  style="width:80px; opacity:0.4;"
+                />
               </div>
             <% }) %>
           </div>
@@ -771,11 +845,26 @@
           <div id="et-projects-list" style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
             <% projects.forEach(project => { %>
               <div style="display:flex; align-items:center; gap:10px;">
-                <input type="checkbox" id="et-project-<%= project.id %>" name="projectIds" value="<%= project.id %>"
-                  onchange="toggleStockInput('et-stock-<%= project.id %>', this.checked)" />
-                <label for="et-project-<%= project.id %>" style="margin:0; font-weight:normal; flex:1;"><%= project.name %></label>
-                <input type="number" id="et-stock-<%= project.id %>" name="stocks[p<%= project.id %>]"
-                  min="0" value="0" placeholder="Stock" disabled style="width:80px; opacity:0.4;" />
+                <input
+                  type="checkbox"
+                  id="et-project-<%= project.id %>"
+                  name="projectIds"
+                  value="<%= project.id %>"
+                  onchange="toggleStockInput('et-stock-<%= project.id %>', this.checked)"
+                />
+                <label for="et-project-<%= project.id %>" style="margin:0; font-weight:normal; flex:1;">
+                  <%= project.name %>
+                </label>
+                <input
+                  type="number"
+                  id="et-stock-<%= project.id %>"
+                  name="stocks[p<%= project.id %>]"
+                  min="0"
+                  value="0"
+                  placeholder="Stock"
+                  disabled
+                  style="width:80px; opacity:0.4;"
+                />
               </div>
             <% }) %>
           </div>
@@ -842,18 +931,18 @@
     const modal = document.getElementById('modal-edit-' + type);
 
     if (type === 'project') {
-      document.getElementById('form-edit-project').action = '/admin/projects/' + data.id;
-      document.getElementById('ep-name').value             = data.name || '';
-      document.getElementById('ep-slug').value             = data.slug || '';
-      document.getElementById('ep-localisation').value     = data.localisation || '';
-      document.getElementById('ep-progress').value         = data.progress ?? 0;
-      document.getElementById('ep-shortDescription').value = data.shortDescription || '';
-      document.getElementById('ep-longDescription').value  = data.longDescription || '';
+      document.getElementById('form-edit-project').action     = '/admin/projects/' + data.id;
+      document.getElementById('ep-name').value                = data.name || '';
+      document.getElementById('ep-slug').value                = data.slug || '';
+      document.getElementById('ep-localisation').value        = data.localisation || '';
+      document.getElementById('ep-progress').value            = data.progress ?? 0;
+      document.getElementById('ep-shortDescription').value    = data.shortDescription || '';
+      document.getElementById('ep-longDescription').value     = data.longDescription || '';
 
-      const previewP = document.getElementById('ep-picture-preview');
+      const previewP    = document.getElementById('ep-picture-preview');
       const previewImgP = document.getElementById('ep-picture-img');
       if (data.picture) { previewImgP.src = '/uploads/' + data.picture; previewP.style.display = 'block'; }
-      else { previewP.style.display = 'none'; }
+      else              { previewP.style.display = 'none'; }
 
       const existingTrees = data.trees || [];
       document.querySelectorAll('#modal-edit-project input[type="checkbox"]').forEach(cb => {
@@ -861,28 +950,28 @@
         cb.checked = !!match;
         const stockInput = document.getElementById('ep-stock-' + cb.value);
         if (stockInput) {
-          stockInput.disabled = !match;
+          stockInput.disabled    = !match;
           stockInput.style.opacity = match ? '1' : '0.4';
-          stockInput.value = match ? match.stock : '0';
+          stockInput.value       = match ? match.stock : '0';
         }
       });
     }
 
     if (type === 'tree') {
-      document.getElementById('form-edit-tree').action       = '/admin/trees/' + data.id;
-      document.getElementById('et-commonName').value         = data.commonName || '';
-      document.getElementById('et-slug').value               = data.slug || '';
-      document.getElementById('et-scientificName').value     = data.scientificName || '';
-      document.getElementById('et-family').value             = data.family || '';
-      document.getElementById('et-price').value              = data.price || '';
-      document.getElementById('et-origin').value             = data.origin || '';
-      document.getElementById('et-shortDescription').value   = data.shortDescription || '';
-      document.getElementById('et-longDescription').value    = data.longDescription || '';
+      document.getElementById('form-edit-tree').action        = '/admin/trees/' + data.id;
+      document.getElementById('et-commonName').value          = data.commonName || '';
+      document.getElementById('et-slug').value                = data.slug || '';
+      document.getElementById('et-scientificName').value      = data.scientificName || '';
+      document.getElementById('et-family').value              = data.family || '';
+      document.getElementById('et-price').value               = data.price || '';
+      document.getElementById('et-origin').value              = data.origin || '';
+      document.getElementById('et-shortDescription').value    = data.shortDescription || '';
+      document.getElementById('et-longDescription').value     = data.longDescription || '';
 
-      const preview = document.getElementById('et-picture-preview');
+      const preview    = document.getElementById('et-picture-preview');
       const previewImg = document.getElementById('et-picture-img');
       if (data.picture) { previewImg.src = '/uploads/' + data.picture; preview.style.display = 'block'; }
-      else { preview.style.display = 'none'; }
+      else              { preview.style.display = 'none'; }
 
       const existingProjects = data.projects || [];
       document.querySelectorAll('#modal-edit-tree input[type="checkbox"]').forEach(cb => {
@@ -890,9 +979,9 @@
         cb.checked = !!match;
         const stockInput = document.getElementById('et-stock-' + cb.value);
         if (stockInput) {
-          stockInput.disabled = !match;
+          stockInput.disabled      = !match;
           stockInput.style.opacity = match ? '1' : '0.4';
-          stockInput.value = match ? match.stock : '0';
+          stockInput.value         = match ? match.stock : '0';
         }
       });
     }
