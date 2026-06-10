@@ -19,12 +19,12 @@ export default function ImpactSection() {
             Un achat, un impact réel
           </h2>
 
-          <p className="mt-8 leading-relaxed text-brand-muted">
+          <p className="mt-8 leading-relaxed text-brand-dark">
             Chaque arbre acheté contribue directement à un projet de
             reforestation sélectionné par GreenRoots.
           </p>
 
-          <p className="mt-6 leading-relaxed text-brand-muted">
+          <p className="mt-6 leading-relaxed text-brand-dark">
             Vous participez à la restauration des écosystèmes, au soutien de la
             biodiversité et à la plantation d&apos;arbres adaptés aux besoins de
             chaque territoire.

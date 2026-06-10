@@ -14,6 +14,7 @@ export const metadata: Metadata = {
     follow: false,
   },
 };
+import { getImageUrl } from '@/lib/images';
 
 export default async function CartPage() {
   const { data, meta } = await getCart();
@@ -40,7 +41,7 @@ export default async function CartPage() {
                 {/* Image : pleine largeur sur mobile, vignette fixe sur desktop */}
                 <div className="relative w-full h-40 shrink-0 sm:w-28 sm:h-20">
                   <Image
-                    src={item.tree.picture}
+                    src={getImageUrl(item.tree.picture)}
                     alt={item.tree.commonName}
                     fill
                     sizes="(min-width: 640px) 200px, 100vw"

@@ -29,77 +29,216 @@
     <%- include('partials/flash-message', { query }) %>
 
     <!-- ====================================================
-         SECTION — PROJETS
-         ==================================================== -->
-    <section class="section <%= activeSection === 'projects' ? 'active' : '' %>" id="section-projects">
-      <div class="page-header">
-        <h2 class="page-title">Projets <span>(<%= projects.length %>)</span></h2>
-        <button class="btn btn-primary btn-create" onclick="openCreateModal('project')">+ Nouveau projet</button>
-      </div>
+     SECTION — PROJETS
+     ==================================================== -->
+<%
+  const projectCurrentSortBy = projectSortBy || 'name';
+  const projectCurrentSortOrder = projectSortOrder || 'asc';
 
-      <div class="table-wrapper">
-        <table>
-          <thead>
+  function projectSortUrl(col) {
+    const newOrder =
+      projectCurrentSortBy === col && projectCurrentSortOrder === 'asc'
+        ? 'desc'
+        : 'asc';
+
+    const params = new URLSearchParams({
+      section: 'projects',
+      ...(projectSearch ? { projectSearch } : {}),
+      ...(projectTreeId ? { projectTreeId: String(projectTreeId) } : {}),
+      projectSortBy: col,
+      projectSortOrder: newOrder,
+    });
+
+    return '/admin/dashboard?' + params.toString();
+  }
+
+  function projectSortArrow(col) {
+    if (projectCurrentSortBy !== col) {
+      return '<span style="font-size:15px; color:#000; margin-left:4px;">↕</span>';
+    }
+
+    return projectCurrentSortOrder === 'asc'
+      ? '<span style="font-size:15px; color:#4caf50; margin-left:4px;">↑</span>'
+      : '<span style="font-size:15px; color:#4caf50; margin-left:4px;">↓</span>';
+  }
+
+  const displayedProjects = [...projects].sort((a, b) => {
+    if (projectCurrentSortBy !== 'stock') return 0;
+
+    const stockA = (a.trees || []).reduce((sum, ph) => sum + ph.stock, 0);
+    const stockB = (b.trees || []).reduce((sum, ph) => sum + ph.stock, 0);
+
+    return projectCurrentSortOrder === 'asc'
+      ? stockA - stockB
+      : stockB - stockA;
+  });
+%>
+
+<section class="section <%= activeSection === 'projects' ? 'active' : '' %>" id="section-projects">
+  <div class="page-header" style="flex-wrap:wrap; gap:12px;">
+    <div style="display:flex; flex-direction:column; gap:8px; flex:1;">
+      <h2 class="page-title" style="margin:0;">
+        Projets <span>(<%= displayedProjects.length %>)</span>
+      </h2>
+
+      <!-- Barre de recherche / filtre projets -->
+      <form
+        method="GET"
+        action="/admin/dashboard"
+        id="form-project-search"
+        style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"
+      >
+        <input type="hidden" name="section" value="projects" />
+        <input type="hidden" name="projectSortBy" value="<%= projectCurrentSortBy %>" />
+        <input type="hidden" name="projectSortOrder" value="<%= projectCurrentSortOrder %>" />
+
+        <input
+          type="text"
+          name="projectSearch"
+          value="<%= projectSearch %>"
+          placeholder="Rechercher un projet…"
+          style="padding:6px 10px; border:1px solid var(--border, #ddd); border-radius:6px; font-size:13px; width:180px;"
+          oninput="clearTimeout(window._projectSearchTimer); window._projectSearchTimer = setTimeout(() => document.getElementById('form-project-search').submit(), 400)"
+        />
+
+        <select
+          name="projectTreeId"
+          style="padding:6px 10px; border:1px solid var(--border, #ddd); border-radius:6px; font-size:13px; max-width:200px;"
+          onchange="document.getElementById('form-project-search').submit()"
+        >
+          <option value="">Tous les arbres</option>
+          <% trees.forEach(tree => { %>
+            <option value="<%= tree.id %>" <%= String(projectTreeId) === String(tree.id) ? 'selected' : '' %>>
+              <%= tree.commonName %>
+            </option>
+          <% }) %>
+        </select>
+
+        <% if (projectSearch || projectTreeId) { %>
+          <a href="/admin/dashboard?section=projects" class="btn btn-secondary btn-sm">✕ Réinitialiser</a>
+        <% } %>
+      </form>
+    </div>
+
+    <button class="btn btn-primary btn-sm" onclick="openCreateModal('project')">
+      + Nouveau projet
+    </button>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>
+            <a href="<%= projectSortUrl('name') %>" style="text-decoration:none; color:inherit; white-space:nowrap;">
+              Nom<%- projectSortArrow('name') %>
+            </a>
+          </th>
+          <th>
+            <a href="<%= projectSortUrl('localisation') %>" style="text-decoration:none; color:inherit; white-space:nowrap;">
+              Localisation<%- projectSortArrow('localisation') %>
+            </a>
+          </th>
+          <th>
+            <a href="<%= projectSortUrl('progress') %>" style="text-decoration:none; color:inherit; white-space:nowrap;">
+              Progression<%- projectSortArrow('progress') %>
+            </a>
+          </th>
+          <th>
+            <a href="<%= projectSortUrl('stock') %>" style="text-decoration:none; color:inherit; white-space:nowrap;">
+              Stock total<%- projectSortArrow('stock') %>
+            </a>
+          </th>
+          <th>Arbres associés</th>
+          <th>Créé le</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% if (displayedProjects.length === 0) { %>
+          <tr>
+            <td colspan="7" class="td-muted" style="text-align:center; padding:32px;">
+              Aucun projet ne correspond aux filtres.
+            </td>
+          </tr>
+        <% } else { %>
+          <% displayedProjects.forEach(project => { %>
+            <% const projectTrees = project.trees || []; %>
+            <% const totalStock = projectTrees.reduce((sum, ph) => sum + ph.stock, 0); %>
+
             <tr>
-              <th>Nom</th>
-              <th>Localisation</th>
-              <th>Progression</th>
-              <th>Stock total</th>
-              <th>Arbres associés</th>
-              <th>Créé le</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% if (projects.length === 0) { %>
-              <tr><td colspan="7" class="td-muted" style="text-align:center; padding:32px;">Aucun projet pour le moment.</td></tr>
-            <% } else { %>
-              <% projects.forEach(project => { %>
-                <% const projectTrees = project.trees || []; %>
-                <% const totalStock = projectTrees.reduce((sum, ph) => sum + ph.stock, 0); %>
-                <tr>
-                  <td>
-                    <strong><%= project.name %></strong>
-                    <div class="td-muted"><%= project.slug %></div>
-                  </td>
-                  <td><%= project.localisation %></td>
-                  <td>
-                    <span class="badge <%= project.progress === 100 ? 'badge-green' : 'badge-muted' %>">
-                      <%= project.progress %>%
-                    </span>
-                  </td>
-                  <td>
-                    <span class="badge badge-muted"><%= totalStock %> plants</span>
-                  </td>
-                  <td>
-                    <% if (projectTrees.length === 0) { %>
-                      <span class="td-muted">—</span>
-                    <% } else { %>
-                      <% projectTrees.forEach(ph => { %>
-                        <div style="font-size:12px; margin-bottom:2px;">
-                          <strong><%= ph.tree.commonName %></strong>
-                          <span class="badge badge-muted" style="margin-left:4px;"><%= ph.stock %> plants</span>
-                        </div>
-                      <% }) %>
-                    <% } %>
-                  </td>
-                  <td class="td-muted"><%= new Date(project.createdAt).toLocaleDateString('fr-FR') %></td>
-                  <td>
-                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                      <a href="http://localhost:3000/projets/<%= project.slug %>" target="_blank" class="btn btn-secondary btn-action">Voir</a>
-                      <button class="btn btn-secondary btn-action" onclick="openEditModal('project', <%= JSON.stringify(project) %>)">Éditer</button>
-                      <form action="/admin/projects/<%= project.id %>/delete" method="POST" onsubmit="return confirm('Supprimer ce projet ?')">
-                        <button type="submit" class="btn btn-danger btn-action">Supprimer</button>
-                      </form>
+              <td>
+                <strong><%= project.name %></strong>
+                <div class="td-muted"><%= project.slug %></div>
+              </td>
+
+              <td><%= project.localisation %></td>
+
+              <td>
+                <span class="badge <%= project.progress === 100 ? 'badge-green' : 'badge-muted' %>">
+                  <%= project.progress %>%
+                </span>
+              </td>
+
+              <td>
+                <span class="badge badge-muted"><%= totalStock %> plants</span>
+              </td>
+
+              <td>
+                <% if (projectTrees.length === 0) { %>
+                  <span class="td-muted">—</span>
+                <% } else { %>
+                  <% projectTrees.forEach(ph => { %>
+                    <div style="font-size:12px; margin-bottom:2px;">
+                      <strong><%= ph.tree.commonName %></strong>
+                      <span class="badge badge-muted" style="margin-left:4px;">
+                        <%= ph.stock %> plants
+                      </span>
                     </div>
-                  </td>
-                </tr>
-              <% }) %>
-            <% } %>
-          </tbody>
-        </table>
-      </div>
-    </section>
+                  <% }) %>
+                <% } %>
+              </td>
+
+              <td class="td-muted">
+                <%= new Date(project.createdAt).toLocaleDateString('fr-FR') %>
+              </td>
+
+              <td>
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                 <a
+                   href="<%= frontendUrl %>/projets/<%= project.slug %>"
+                    target="_blank"
+                    class="btn btn-secondary btn-sm"
+                  >
+                  Voir
+                </a> 
+
+                  <button
+                    class="btn btn-secondary btn-sm"
+                    onclick="openEditModal('project', <%= JSON.stringify(project) %>)"
+                  >
+                    Éditer
+                  </button>
+
+                  <form
+                    action="/admin/projects/<%= project.id %>/delete"
+                    method="POST"
+                    onsubmit="return confirm('Supprimer ce projet ?')"
+                  >
+                    <button type="submit" class="btn btn-danger btn-sm">
+                      Supprimer
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</section>
 
     <!-- ====================================================
          SECTION — ARBRES
@@ -713,7 +852,7 @@
 
       const previewP = document.getElementById('ep-picture-preview');
       const previewImgP = document.getElementById('ep-picture-img');
-      if (data.picture) { previewImgP.src = data.picture; previewP.style.display = 'block'; }
+      if (data.picture) { previewImgP.src = '/uploads/' + data.picture; previewP.style.display = 'block'; }
       else { previewP.style.display = 'none'; }
 
       const existingTrees = data.trees || [];
@@ -742,7 +881,7 @@
 
       const preview = document.getElementById('et-picture-preview');
       const previewImg = document.getElementById('et-picture-img');
-      if (data.picture) { previewImg.src = data.picture; preview.style.display = 'block'; }
+      if (data.picture) { previewImg.src = '/uploads/' + data.picture; preview.style.display = 'block'; }
       else { preview.style.display = 'none'; }
 
       const existingProjects = data.projects || [];

@@ -27,7 +27,7 @@ export default function MissionSection() {
             <div className="flex justify-start">
               <Image
                 src="/images/home/mission/mosaic-ter.jpg"
-                alt="Reforestation"
+                alt="Projet de reforestation montrant une mosaïque de zones plantées d'arbres et de végétation restaurée"
                 width={420}
                 height={270}
                 className="rounded-[28px]"
@@ -56,17 +56,17 @@ export default function MissionSection() {
         <div className="mt-28 grid gap-8 text-center md:grid-cols-3">
           <div>
             <p className="text-5xl font-bold text-brand-accent">12</p>
-            <p className="mt-2 text-brand-white/70">projets accompagnés</p>
+            <p className="mt-2 text-brand-white">projets accompagnés</p>
           </div>
 
           <div>
             <p className="text-5xl font-bold text-brand-accent">145 000</p>
-            <p className="mt-2 text-brand-white/70">arbres plantés</p>
+            <p className="mt-2 text-brand-white">arbres plantés</p>
           </div>
 
           <div>
             <p className="text-5xl font-bold text-brand-accent">8</p>
-            <p className="mt-2 text-brand-white/70">pays concernés</p>
+            <p className="mt-2 text-brand-white">pays concernés</p>
           </div>
         </div>
       </div>

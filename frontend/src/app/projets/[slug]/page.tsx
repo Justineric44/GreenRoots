@@ -27,6 +27,7 @@ export async function generateMetadata({
     description: project.shortDescription,
   };
 }
+import { getImageUrl } from '@/lib/images';
 
 type ProjectDetailPageProps = {
   params: Promise<{ slug: string }>;
@@ -110,7 +111,7 @@ export default async function ProjectDetailsPage({
             {/* IMAGE PROJET */}
             <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-gray-100 lg:w-1/2">
               <Image
-                src={picture}
+                src={getImageUrl(picture)}
                 alt={name}
                 fill
                 priority
@@ -149,7 +150,7 @@ export default async function ProjectDetailsPage({
 
                     <Image
                       src="/images/projects/details/tree-progress.svg"
-                      alt="Progression"
+                      alt={`Icone d'arbre indiquant la progression actuelle du projet à ${progress}%`}
                       width={40}
                       height={40}
                       className="absolute -top-2 -translate-x-1/2"
@@ -160,7 +161,7 @@ export default async function ProjectDetailsPage({
                   <div className="absolute right-5 -top-5">
                     <Image
                       src="/images/projects/details/forest-goal.svg"
-                      alt="Objectif forêt"
+                      alt="Objectif de forêt - Symbole représentant le but de reforestation du projet"
                       width={110}
                       height={70}
                       className="h-auto w-[110px]"

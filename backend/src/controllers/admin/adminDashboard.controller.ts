@@ -7,6 +7,11 @@ import type { ZodError } from 'zod';
 
 import { prisma } from '../../lib/prisma.js';
 
+type PrismaClient = typeof prisma;
+type TransactionClient = Parameters<
+  Parameters<PrismaClient['$transaction']>[0]
+>[0];
+
 import {
   createProjectSchema,
   updateProjectSchema,
@@ -63,6 +68,42 @@ export async function getDashboard(req: Request, res: Response): Promise<void> {
       ? Number(req.query.treeProjectId)
       : undefined;
 
+    const projectSearch = (
+      req.query.projectSearch as string | undefined
+    )?.trim();
+    const projectTreeId = req.query.projectTreeId
+      ? Number(req.query.projectTreeId)
+      : undefined;
+
+    const allowedProjectSortFields = [
+      'name',
+      'localisation',
+      'progress',
+      'stock',
+    ] as const;
+
+    type ProjectSortField = (typeof allowedProjectSortFields)[number];
+
+    const rawProjectSortBy = req.query.projectSortBy as string | undefined;
+
+    const projectSortBy: ProjectSortField = allowedProjectSortFields.includes(
+      rawProjectSortBy as ProjectSortField
+    )
+      ? (rawProjectSortBy as ProjectSortField)
+      : 'name';
+
+    const projectSortOrder =
+      req.query.projectSortOrder === 'desc' ? 'desc' : 'asc';
+
+    const projectWhere = {
+      ...(projectSearch && {
+        name: { contains: projectSearch, mode: 'insensitive' as const },
+      }),
+      ...(projectTreeId && {
+        trees: { some: { treeId: projectTreeId } },
+      }),
+    };
+
     const allowedSortFields = [
       'commonName',
       'scientificName',
@@ -87,9 +128,15 @@ export async function getDashboard(req: Request, res: Response): Promise<void> {
       }),
     };
 
+    const projectOrderBy =
+      projectSortBy === 'stock'
+        ? { createdAt: 'desc' as const }
+        : { [projectSortBy]: projectSortOrder };
+
     const [projects, trees, orders, users] = await Promise.all([
       prisma.project.findMany({
-        orderBy: { createdAt: 'desc' },
+        where: projectWhere,
+        orderBy: projectOrderBy,
         include: {
           trees: {
             include: {
@@ -149,6 +196,11 @@ export async function getDashboard(req: Request, res: Response): Promise<void> {
       treeProjectId: treeProjectId ?? '',
       treeSortBy,
       treeSortOrder,
+      projectSearch: projectSearch ?? '',
+      projectTreeId: projectTreeId ?? '',
+      projectSortBy,
+      projectSortOrder,
+      frontendUrl: process.env.FRONTEND_URL ?? 'http://localhost:3000',
     });
   } catch (error) {
     console.error('[adminDashboard] getDashboard error:', error);
@@ -180,7 +232,7 @@ export async function postCreateProject(
     : { treeIds: [], stocks: {} };
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: TransactionClient) => {
       const project = await tx.project.create({
         data: {
           ...result.data,
@@ -247,7 +299,7 @@ export async function postUpdateProject(
     : { treeIds: [], stocks: {} };
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: TransactionClient) => {
       await tx.project.update({
         where: { id },
         data: Object.fromEntries(
@@ -349,7 +401,7 @@ export async function postCreateTree(
     : { projectIds: [], stocks: {} };
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: TransactionClient) => {
       const tree = await tx.tree.create({
         data: {
           ...result.data,
@@ -415,7 +467,7 @@ export async function postUpdateTree(
     : { projectIds: [], stocks: {} };
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: TransactionClient) => {
       await tx.tree.update({
         where: { id },
         data: Object.fromEntries(
@@ -482,7 +534,7 @@ export async function postDeleteTree(
       return;
     }
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: TransactionClient) => {
       await tx.projectHasTree.deleteMany({ where: { treeId: id } });
       await tx.tree.delete({ where: { id } });
     });
@@ -534,9 +586,9 @@ export async function postDeleteUser(
       return;
     }
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: TransactionClient) => {
       const orders = await tx.order.findMany({ where: { userId: id } });
-      const orderIds = orders.map((o) => o.id);
+      const orderIds = orders.map((o: (typeof orders)[number]) => o.id);
 
       if (orderIds.length > 0) {
         await tx.orderItem.deleteMany({ where: { orderId: { in: orderIds } } });
