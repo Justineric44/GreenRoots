@@ -12,7 +12,7 @@ export const orderController = {
     );
 
     try {
-      sendOrderConfirmationEmail(
+      await sendOrderConfirmationEmail(
         order.user.email,
         order.user.firstName,
         String(order.id)
