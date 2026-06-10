@@ -12,7 +12,8 @@
     "db:studio": "prisma studio",
     "db:seed": "prisma db seed",
     "db:reset": "prisma migrate reset",
-    "build": "tsc",
+    "db:deploy": "prisma migrate deploy",
+    "build": "tsc && cp -r src/docs dist/docs",
     "start:prod": "node dist/server.js",
     "test": "node --import tsx --test --test-concurrency=1 tests/**/*.test.ts",
     "test:watch": "node --import tsx --test --watch tests/**/*.test.ts",
@@ -24,6 +25,7 @@
   "license": "ISC",
   "dependencies": {
     "@apidevtools/swagger-parser": "^12.1.0",
+    "@getbrevo/brevo": "^5.0.4",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "argon2": "^0.44.0",

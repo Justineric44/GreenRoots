@@ -166,12 +166,19 @@ export async function getDashboard(req: Request, res: Response): Promise<void> {
         orderBy: { createdAt: 'desc' },
         include: {
           user: {
-            select: { firstName: true, lastName: true, email: true },
+            select: {
+              firstName: true,
+              lastName: true,
+              email: true,
+              deletedAt: true,
+            },
           },
           items: true,
         },
       }),
 
+      // On exclut les utilisateurs hard-deleted (sans commandes) — ils ne sont
+      // plus en base. Les anonymisés (avec commandes) ont deletedAt non null.
       prisma.user.findMany({
         orderBy: { createdAt: 'desc' },
         select: {
@@ -182,6 +189,7 @@ export async function getDashboard(req: Request, res: Response): Promise<void> {
           type: true,
           role: true,
           createdAt: true,
+          deletedAt: true,
         },
       }),
     ]);
@@ -481,7 +489,6 @@ export async function postUpdateTree(
           data: projectIds.map((projectId) => ({
             treeId: id,
             projectId: Number(projectId),
-            // ✅ FIX : le EJS envoie stocks[p14], la clé est donc "p14"
             stock: stocks?.[`p${projectId}`] ?? 0,
           })),
         });
@@ -553,7 +560,23 @@ export async function postDeleteTree(
 }
 
 // ============================================================
-// POST /admin/users/:id/delete — Supprimer un utilisateur
+// POST /admin/users/:id/delete — Suppression RGPD utilisateur
+// ============================================================
+// Deux cas :
+//
+// 1. Aucune commande → hard delete (la ligne disparaît complètement de la BDD,
+//    le panier est supprimé via CASCADE, l'email est libéré → réinscription OK).
+//
+// 2. Commandes existantes → anonymisation RGPD :
+//    - Les données personnelles sont écrasées (nom, email, adresse…).
+//    - L'email devient `deleted-{id}@anonymized.local` (unique en base) ce qui
+//      libère l'adresse originale → l'utilisateur peut recréer un compte.
+//    - Le panier actif est supprimé (l'anonymisé ne peut plus se connecter).
+//    - Les commandes sont conservées pour la traçabilité comptable.
+//    - `deletedAt` est horodaté → le dashboard affiche "Inactif" + données masquées.
+//
+// Réponse JSON : { action: 'deleted' | 'anonymized' }
+// Le JS côté EJS met à jour le DOM sans rechargement de page.
 // ============================================================
 
 export async function postDeleteUser(
@@ -586,25 +609,51 @@ export async function postDeleteUser(
       return;
     }
 
-    await prisma.$transaction(async (tx: TransactionClient) => {
-      const orders = await tx.order.findMany({ where: { userId: id } });
-      const orderIds = orders.map((o: (typeof orders)[number]) => o.id);
+    if (user.deletedAt) {
+      res.redirect(
+        '/admin/dashboard?section=users&error=Utilisateur+d%C3%A9j%C3%A0+d%C3%A9sactiv%C3%A9'
+      );
+      return;
+    }
 
-      if (orderIds.length > 0) {
-        await tx.orderItem.deleteMany({ where: { orderId: { in: orderIds } } });
-      }
+    const orderCount = await prisma.order.count({ where: { userId: id } });
 
-      await tx.order.deleteMany({ where: { userId: id } });
-      await tx.user.delete({ where: { id } });
-    });
-
-    res.redirect(
-      '/admin/dashboard?section=users&success=Utilisateur+supprim%C3%A9'
-    );
+    if (orderCount === 0) {
+      // Cas 1 : aucune commande → suppression totale de la ligne.
+      // ON DELETE CASCADE supprime aussi le panier.
+      // L'email est libéré : l'utilisateur peut se réinscrire avec la même adresse.
+      await prisma.user.delete({ where: { id } });
+      res.json({ action: 'deleted' });
+    } else {
+      // Cas 2 : commandes existantes → anonymisation RGPD.
+      // L'email original est remplacé par un email technique unique :
+      //   deleted-{id}@anonymized.local
+      // → l'adresse originale est donc libérée pour une réinscription future.
+      await prisma.$transaction([
+        prisma.cart.deleteMany({
+          where: { userId: id, status: 'active' },
+        }),
+        prisma.user.update({
+          where: { id },
+          data: {
+            email: `deleted-${id}@anonymized.local`,
+            lastName: 'Anonyme',
+            firstName: 'Utilisateur',
+            address: '',
+            postalCode: '',
+            city: '',
+            phone: null,
+            siret: null,
+            companyName: null,
+            password: '',
+            deletedAt: new Date(),
+          },
+        }),
+      ]);
+      res.json({ action: 'anonymized' });
+    }
   } catch (error) {
     console.error('[adminDashboard] postDeleteUser error:', error);
-    res.redirect(
-      '/admin/dashboard?section=users&error=Erreur+lors+de+la+suppression'
-    );
+    res.status(500).json({ error: 'Erreur lors de la suppression' });
   }
 }
