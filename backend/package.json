@@ -12,6 +12,8 @@
     "db:studio": "prisma studio",
     "db:seed": "prisma db seed",
     "db:reset": "prisma migrate reset",
+    "build": "tsc",
+    "start:prod": "node dist/server.js",
     "test": "node --import tsx --test --test-concurrency=1 tests/**/*.test.ts",
     "test:watch": "node --import tsx --test --watch tests/**/*.test.ts",
     "lint": "eslint .",
