@@ -49,12 +49,7 @@ export function CartProvider({
       // Appel à l'API des paniers.
       // Le cookie de session doit être envoyé pour que le backend puisse
       // identifier l'utilisateur et renvoyer son panier actif.
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/carts`,
-        {
-          credentials: 'include',
-        }
-      );
+      const response = await fetch('/api/cart');
 
       // En cas d'erreur HTTP, on préfère afficher zéro plutôt que conserver
       // une donnée potentiellement obsolète ou incohérente.

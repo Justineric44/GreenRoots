@@ -112,7 +112,9 @@ export async function addToCartAction(
 export async function createOrderAction(): Promise<OrderActionResult> {
   try {
     const { data: order } = await createOrder();
-    revalidatePath('/panier');
+    // Pas de revalidatePath ici — il démonte le modal avant l'affichage
+    // de la confirmation. La page panier sera rafraîchie via router.refresh()
+    // au moment de la redirection vers l'espace client.
     return { ok: true, orderId: order.id };
   } catch (error) {
     if (error instanceof ApiError) {

@@ -73,12 +73,7 @@ export default function Header({ isLoggedIn }: { isLoggedIn: boolean }) {
         // La route /api/users/me renvoie les informations du compte courant.
         // Ici, on ne récupère que le prénom pour personnaliser le header.
         // Appel à l'API utilisateur afin de récupérer le prénom du compte courant.
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/users/me`,
-          {
-            credentials: 'include',
-          }
-        );
+        const response = await fetch('/api/user/me');
 
         if (!response.ok) {
           // Si le backend ne répond pas correctement, on retire le prénom affiché.
