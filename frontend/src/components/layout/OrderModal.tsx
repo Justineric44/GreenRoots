@@ -16,6 +16,7 @@ import {
 import { CartItem } from '@/types';
 import { formatPrice } from '@/lib/format';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface OrderModalProps {
   items: CartItem[];
@@ -26,6 +27,8 @@ export default function OrderModal({ items, total }: OrderModalProps) {
   const [isPending, startTransition] = useTransition();
   const [errMessage, setErrMessage] = useState('');
   const [orderId, setOrderId] = useState(0);
+  const router = useRouter();
+
   function handleConfirm() {
     startTransition(async () => {
       const data = await createOrderAction();
@@ -37,7 +40,15 @@ export default function OrderModal({ items, total }: OrderModalProps) {
   }
 
   return (
-    <Dialog>
+    <Dialog
+      onOpenChange={(open) => {
+        // Si le modal se ferme après une commande validée, on redirige
+        if (!open && orderId) {
+          router.push('/espace-client');
+          router.refresh();
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button className="w-full bg-brand-accent hover:bg-brand-accent/90 sm:w-auto">
           Valider la commande
