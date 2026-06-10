@@ -17,6 +17,7 @@ import { CartItem } from '@/types';
 import { formatPrice } from '@/lib/format';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useCart } from '@/components/cart/CartProvider';
 
 interface OrderModalProps {
   items: CartItem[];
@@ -28,6 +29,8 @@ export default function OrderModal({ items, total }: OrderModalProps) {
   const [errMessage, setErrMessage] = useState('');
   const [orderId, setOrderId] = useState(0);
   const router = useRouter();
+  // Permet de remettre à jour le badge du panier dans le header.
+  const { refreshCart } = useCart();
 
   function handleConfirm() {
     startTransition(async () => {
@@ -36,6 +39,8 @@ export default function OrderModal({ items, total }: OrderModalProps) {
         return setErrMessage(data.message);
       }
       setOrderId(data.orderId);
+      // Le panier a été converti en commande : on resynchronise le compteur.
+      await refreshCart();
     });
   }
 
