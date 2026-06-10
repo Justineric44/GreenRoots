@@ -63,7 +63,7 @@ export default function DesktopSearch() {
     const timeout = setTimeout(async () => {
       try {
         const res = await fetch(
-          `http://localhost:3001/api/search?q=${encodeURIComponent(query)}`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/search?q=${encodeURIComponent(query)}`
         );
 
         const data = await res.json();
