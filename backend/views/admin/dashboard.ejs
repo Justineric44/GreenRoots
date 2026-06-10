@@ -373,7 +373,7 @@
                   </td>
                   <td>
                     <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                      <a href="http://localhost:3000/arbres/<%= tree.slug %>" target="_blank" class="btn btn-secondary btn-sm">Voir</a>
+                      <a href="<%= frontendUrl %>/arbres/<%= tree.slug %>" target="_blank" class="btn btn-secondary btn-sm">Voir</a>
                       <button class="btn btn-secondary btn-sm" onclick="openEditModal('tree', JSON.parse(this.dataset.tree))" data-tree="<%- JSON.stringify(tree).replace(/"/g, '&quot;') %>">Éditer</button>
                       <form action="/admin/trees/<%= tree.id %>/delete" method="POST" onsubmit="return confirm('Supprimer cet arbre ?')">
                         <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
