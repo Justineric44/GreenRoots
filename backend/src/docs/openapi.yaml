@@ -12,6 +12,8 @@ tags:
     description: Routes liées à l'utilisateur connecté
   - name: Orders
     description: Création et gestion des commandes
+  - name: Arbres
+    description: Routes liées aux arbres
   - name: Projects
     description: Routes liées aux projets de reforestation
 
@@ -38,6 +40,17 @@ paths:
   # ============================================================
   /api/orders:
     $ref: './orders.openapi.yaml#/paths/~1api~1orders'
+  
+  # ============================================================
+  # TREES
+  # ============================================================
+  /api/trees:
+    get:
+      $ref: './trees.openapi.yaml#/paths/~1api~1trees/get'
+
+  /api/trees/{slug}:
+    get:
+      $ref: './trees.openapi.yaml#/paths/~1api~1trees~1{slug}/get'
 
   # ============================================================
   # PROJECTS — Routes importées de projects.openapi.yaml
