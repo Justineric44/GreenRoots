@@ -115,7 +115,7 @@ async function main() {
         'Le chêne sessile est apprécié pour sa longévité, sa résistance et son rôle important dans la biodiversité forestière.',
       origin: 'Europe',
       price: 12.9,
-      picture: '/images/trees/chene-sessile.webp',
+      picture: 'seed/chene-sessile.webp',
     },
   });
 
@@ -130,7 +130,7 @@ async function main() {
         'Le pin sylvestre est une essence pionnière capable de se développer dans des conditions difficiles.',
       origin: 'Europe et Asie',
       price: 8.9,
-      picture: '/images/trees/pin-sylvestre.webp',
+      picture: 'seed/pin-sylvestre.webp',
     },
   });
 
@@ -146,7 +146,7 @@ async function main() {
         'Le bouleau blanc favorise la régénération naturelle et s’adapte bien aux climats tempérés.',
       origin: 'Europe',
       price: 7.5,
-      picture: '/images/trees/bouleau-blanc.webp',
+      picture: 'seed/bouleau-blanc.webp',
     },
   });
 
@@ -162,7 +162,7 @@ async function main() {
         'L’acajou d’Afrique est utilisé dans certains projets de restauration écologique en zones chaudes.',
       origin: 'Afrique',
       price: 18,
-      picture: '/images/trees/acajou-afrique.webp',
+      picture: 'seed/acajou-afrique.webp',
     },
   });
 
@@ -178,7 +178,7 @@ async function main() {
         'Le séquoia géant est reconnu pour sa longévité exceptionnelle et sa capacité de stockage du carbone.',
       origin: 'Amérique du Nord',
       price: 25,
-      picture: '/images/trees/sequoia-geant.webp',
+      picture: 'seed/sequoia-geant.webp',
     },
   });
 
@@ -194,7 +194,7 @@ async function main() {
         'Le palétuvier rouge protège les littoraux, favorise la biodiversité et limite l’érosion côtière.',
       origin: 'Zones tropicales',
       price: 15,
-      picture: '/images/trees/paletuvier-rouge.webp',
+      picture: 'seed/paletuvier-rouge.webp',
     },
   });
 
@@ -211,7 +211,7 @@ async function main() {
         'Le hêtre commun forme des forêts denses et joue un rôle clé dans l’équilibre des écosystèmes forestiers européens.',
       origin: 'Europe',
       price: 11.5,
-      picture: '/images/trees/hetre-commun.webp',
+      picture: 'seed/hetre-commun.webp',
     },
   });
 
@@ -226,7 +226,7 @@ async function main() {
         'L’érable sycomore s’adapte à de nombreux sols et offre un excellent couvert forestier en milieu tempéré.',
       origin: 'Europe',
       price: 10.5,
-      picture: '/images/trees/erable-sycomore.webp',
+      picture: 'seed/erable-sycomore.webp',
     },
   });
 
@@ -241,7 +241,7 @@ async function main() {
         'Le frêne commun se développe rapidement et constitue une essence importante des forêts mixtes européennes.',
       origin: 'Europe',
       price: 9.5,
-      picture: '/images/trees/frene-commun.webp',
+      picture: 'seed/frene-commun.webp',
     },
   });
 
@@ -256,7 +256,7 @@ async function main() {
         'Le châtaignier produit des fruits comestibles et joue un rôle écologique et patrimonial fort en Europe du Sud.',
       origin: 'Europe méridionale',
       price: 11,
-      picture: '/images/trees/chataignier.webp',
+      picture: 'seed/chataignier.webp',
     },
   });
 
@@ -271,7 +271,7 @@ async function main() {
         'Le tilleul à grandes feuilles est très favorable aux pollinisateurs et offre un bel ombrage en zone tempérée.',
       origin: 'Europe',
       price: 10,
-      picture: '/images/trees/tilleul-grandes-feuilles.webp',
+      picture: 'seed/tilleul-grandes-feuilles.webp',
     },
   });
 
@@ -286,7 +286,7 @@ async function main() {
         'Le charme commun accompagne souvent les chênes et forme des sous-bois denses propices à la biodiversité.',
       origin: 'Europe',
       price: 8.5,
-      picture: '/images/trees/charme-commun.webp',
+      picture: 'seed/charme-commun.webp',
     },
   });
 
@@ -301,7 +301,7 @@ async function main() {
         'L’aulne glutineux fixe l’azote et stabilise les berges, ce qui en fait un allié des écosystèmes ripariens.',
       origin: 'Europe',
       price: 7,
-      picture: '/images/trees/aulne-glutineux.webp',
+      picture: 'seed/aulne-glutineux.webp',
     },
   });
 
@@ -316,7 +316,7 @@ async function main() {
         'Le peuplier noir est utilisé dans la restauration des zones alluviales et offre une croissance rapide.',
       origin: 'Europe',
       price: 6.9,
-      picture: '/images/trees/peuplier-noir.webp',
+      picture: 'seed/peuplier-noir.webp',
     },
   });
 
@@ -331,7 +331,7 @@ async function main() {
         'Le saule blanc se développe en bord de rivière et limite l’érosion grâce à son système racinaire dense.',
       origin: 'Europe',
       price: 6.5,
-      picture: '/images/trees/saule-blanc.webp',
+      picture: 'seed/saule-blanc.webp',
     },
   });
 
@@ -348,7 +348,7 @@ async function main() {
         'Le sapin pectiné est une essence emblématique des forêts de montagne européennes, à fort intérêt écologique.',
       origin: 'Europe',
       price: 13.5,
-      picture: '/images/trees/sapin-pectine.webp',
+      picture: 'seed/sapin-pectine.webp',
     },
   });
 
@@ -363,7 +363,7 @@ async function main() {
         'L’épicéa commun forme de vastes forêts boréales et constitue une essence importante pour la sylviculture.',
       origin: 'Europe du Nord',
       price: 9.9,
-      picture: '/images/trees/epicea-commun.webp',
+      picture: 'seed/epicea-commun.webp',
     },
   });
 
@@ -378,7 +378,7 @@ async function main() {
         'Le mélèze d’Europe est l’un des rares conifères à perdre ses aiguilles en hiver, adapté à la haute montagne.',
       origin: 'Alpes',
       price: 14,
-      picture: '/images/trees/meleze-europe.webp',
+      picture: 'seed/meleze-europe.webp',
     },
   });
 
@@ -393,7 +393,7 @@ async function main() {
         'Le cèdre du Liban est apprécié pour sa longévité et son adaptation aux climats secs méditerranéens.',
       origin: 'Méditerranée',
       price: 22,
-      picture: '/images/trees/cedre-liban.webp',
+      picture: 'seed/cedre-liban.webp',
     },
   });
 
@@ -410,7 +410,7 @@ async function main() {
         'L’olivier est cultivé depuis des millénaires et constitue un symbole fort des écosystèmes méditerranéens.',
       origin: 'Méditerranée',
       price: 16,
-      picture: '/images/trees/olivier.webp',
+      picture: 'seed/olivier.webp',
     },
   });
 
@@ -425,7 +425,7 @@ async function main() {
         'Le cyprès de Provence sert de brise-vent et marque les paysages méditerranéens depuis l’Antiquité.',
       origin: 'Méditerranée',
       price: 13,
-      picture: '/images/trees/cypres-provence.webp',
+      picture: 'seed/cypres-provence.webp',
     },
   });
 
@@ -442,7 +442,7 @@ async function main() {
         'L’eucalyptus bleu est utilisé dans plusieurs projets de reforestation pour sa rapidité de croissance.',
       origin: 'Australie',
       price: 14.5,
-      picture: '/images/trees/eucalyptus-bleu.webp',
+      picture: 'seed/eucalyptus-bleu.webp',
     },
   });
 
@@ -457,7 +457,7 @@ async function main() {
         'Le baobab africain est un arbre de longévité exceptionnelle, essentiel à la vie des communautés et de la faune locale.',
       origin: 'Afrique',
       price: 28,
-      picture: '/images/trees/baobab-africain.webp',
+      picture: 'seed/baobab-africain.webp',
     },
   });
 
@@ -472,7 +472,7 @@ async function main() {
         'Le teck est apprécié pour la qualité de son bois et fait l’objet de plantations dans plusieurs projets tropicaux.',
       origin: 'Asie du Sud-Est',
       price: 24,
-      picture: '/images/trees/teck.webp',
+      picture: 'seed/teck.webp',
     },
   });
 
@@ -487,7 +487,7 @@ async function main() {
         'Le bambou géant capte rapidement le CO₂ et est utilisé dans plusieurs projets de restauration en Asie.',
       origin: 'Asie',
       price: 9,
-      picture: '/images/trees/bambou-geant.webp',
+      picture: 'seed/bambou-geant.webp',
     },
   });
 
@@ -502,7 +502,7 @@ async function main() {
         'Le cocotier joue un rôle écologique et économique majeur dans les zones côtières tropicales.',
       origin: 'Zones tropicales',
       price: 17,
-      picture: '/images/trees/cocotier.webp',
+      picture: 'seed/cocotier.webp',
     },
   });
 
@@ -517,7 +517,7 @@ async function main() {
         'Le manguier offre une ombre précieuse et des fruits importants pour les populations des zones tropicales.',
       origin: 'Asie tropicale',
       price: 16.5,
-      picture: '/images/trees/manguier.webp',
+      picture: 'seed/manguier.webp',
     },
   });
 
@@ -536,8 +536,8 @@ async function main() {
       shortDescription: 'Projet de restauration forestière locale en Bretagne.',
       longDescription:
         'Ce projet vise à restaurer des zones forestières fragilisées en plantant des essences locales adaptées au climat breton.',
-      localisation: 'Bretagne, France',
-      picture: '/images/projects/reforestation-bretagne.webp',
+      localisation: 'Europe',
+      picture: 'seed/reforestation-bretagne.webp',
       progress: 45,
     },
   });
@@ -549,8 +549,8 @@ async function main() {
       shortDescription: 'Projet de reboisement en zone sèche.',
       longDescription:
         'Ce projet contribue à lutter contre la désertification grâce à la plantation d’essences adaptées aux zones arides.',
-      localisation: 'Sahel',
-      picture: '/images/projects/reboisement-sahel.webp',
+      localisation: 'Afrique',
+      picture: 'seed/reboisement-sahel.webp',
       progress: 30,
     },
   });
@@ -562,8 +562,8 @@ async function main() {
       shortDescription: 'Projet de reforestation en zone montagneuse.',
       longDescription:
         'Ce projet vise à renforcer les écosystèmes forestiers alpins et à protéger les sols contre l’érosion.',
-      localisation: 'Alpes, France',
-      picture: '/images/projects/restauration-alpes.webp',
+      localisation: 'Europe',
+      picture: 'seed/restauration-alpes.webp',
       progress: 60,
     },
   });
@@ -576,8 +576,8 @@ async function main() {
         'Projet de plantation et restauration en zone tropicale.',
       longDescription:
         'Ce projet contribue à la restauration d’espaces naturels dégradés et au maintien de la biodiversité amazonienne.',
-      localisation: 'Amazonie',
-      picture: '/images/projects/preservation-amazonie.webp',
+      localisation: 'Amérique du Sud',
+      picture: 'seed/preservation-amazonie.webp',
       progress: 25,
     },
   });
@@ -589,8 +589,8 @@ async function main() {
       shortDescription: 'Projet de restauration écologique des zones côtières.',
       longDescription:
         'Ce projet vise à restaurer les mangroves afin de protéger les littoraux et favoriser la biodiversité marine.',
-      localisation: 'Zones côtières tropicales',
-      picture: '/images/projects/restauration-mangroves.webp',
+      localisation: 'Asie',
+      picture: 'seed/restauration-mangroves.webp',
       progress: 70,
     },
   });
@@ -605,8 +605,8 @@ async function main() {
         'Projet de plantation d’essences méditerranéennes en Provence.',
       longDescription:
         'Ce projet renforce les écosystèmes méditerranéens en plantant des essences locales résistantes à la sécheresse.',
-      localisation: 'Provence, France',
-      picture: '/images/projects/foret-mediterraneenne-provence.webp',
+      localisation: 'Europe',
+      picture: 'seed/foret-mediterraneenne-provence.webp',
       progress: 55,
     },
   });
@@ -619,8 +619,8 @@ async function main() {
         'Projet de restauration des forêts feuillues auvergnates.',
       longDescription:
         'Ce projet vise à restaurer les forêts feuillues d’Auvergne en favorisant les essences locales et la biodiversité.',
-      localisation: 'Auvergne, France',
-      picture: '/images/projects/restauration-foret-auvergne.webp',
+      localisation: 'Europe',
+      picture: 'seed/restauration-foret-auvergne.webp',
       progress: 40,
     },
   });
@@ -633,8 +633,8 @@ async function main() {
         'Projet de reforestation en zone montagneuse pyrénéenne.',
       longDescription:
         'Ce projet contribue à la préservation des écosystèmes pyrénéens grâce à la plantation d’essences adaptées à l’altitude.',
-      localisation: 'Pyrénées, France',
-      picture: '/images/projects/reforestation-pyrenees.webp',
+      localisation: 'Europe',
+      picture: 'seed/reforestation-pyrenees.webp',
       progress: 35,
     },
   });
@@ -646,8 +646,8 @@ async function main() {
       shortDescription: 'Projet de restauration du massif forestier landais.',
       longDescription:
         'Ce projet vise à restaurer le massif landais après les épisodes climatiques en diversifiant les essences plantées.',
-      localisation: 'Landes, France',
-      picture: '/images/projects/restauration-foret-landaise.webp',
+      localisation: 'Europe',
+      picture: 'seed/restauration-foret-landaise.webp',
       progress: 50,
     },
   });
@@ -660,8 +660,8 @@ async function main() {
         'Projet de plantation pour renforcer les haies bocagères normandes.',
       longDescription:
         'Ce projet soutient la replantation de haies bocagères en Normandie pour favoriser la biodiversité locale.',
-      localisation: 'Normandie, France',
-      picture: '/images/projects/projet-ecologique-normandie.webp',
+      localisation: 'Europe',
+      picture: 'seed/projet-ecologique-normandie.webp',
       progress: 65,
     },
   });
@@ -674,8 +674,8 @@ async function main() {
         'Projet de reboisement des zones impactées par les incendies.',
       longDescription:
         'Ce projet contribue à la régénération des massifs corses touchés par les incendies grâce à des essences locales.',
-      localisation: 'Corse, France',
-      picture: '/images/projects/reboisement-corse.webp',
+      localisation: 'Europe',
+      picture: 'seed/reboisement-corse.webp',
       progress: 28,
     },
   });
@@ -687,8 +687,8 @@ async function main() {
       shortDescription: 'Projet de plantation d’une forêt mixte en Bourgogne.',
       longDescription:
         'Ce projet vise à créer une forêt mixte résiliente face au changement climatique sur les terres bourguignonnes.',
-      localisation: 'Bourgogne, France',
-      picture: '/images/projects/foret-mixte-bourgogne.webp',
+      localisation: 'Europe',
+      picture: 'seed/foret-mixte-bourgogne.webp',
       progress: 42,
     },
   });
@@ -701,8 +701,8 @@ async function main() {
         'Projet de restauration des forêts de conifères vosgiennes.',
       longDescription:
         'Ce projet soutient la restauration des forêts vosgiennes touchées par les scolytes et la sécheresse.',
-      localisation: 'Vosges, France',
-      picture: '/images/projects/projet-foret-vosgienne.webp',
+      localisation: 'Europe',
+      picture: 'seed/projet-foret-vosgienne.webp',
       progress: 38,
     },
   });
@@ -717,8 +717,8 @@ async function main() {
         'Projet de reforestation des zones dégradées de Madagascar.',
       longDescription:
         'Ce projet contribue à la restauration des forêts malgaches en collaboration avec les communautés locales.',
-      localisation: 'Madagascar',
-      picture: '/images/projects/reforestation-madagascar.webp',
+      localisation: 'Afrique',
+      picture: 'seed/reforestation-madagascar.webp',
       progress: 22,
     },
   });
@@ -731,8 +731,8 @@ async function main() {
         'Projet de restauration écologique des savanes kényanes.',
       longDescription:
         'Ce projet aide à restaurer les paysages dégradés du Kenya tout en soutenant la faune et les communautés.',
-      localisation: 'Kenya',
-      picture: '/images/projects/restauration-savanes-kenya.webp',
+      localisation: 'Afrique',
+      picture: 'seed/restauration-savanes-kenya.webp',
       progress: 33,
     },
   });
@@ -745,8 +745,8 @@ async function main() {
         'Projet de préservation des forêts tropicales de Bornéo.',
       longDescription:
         'Ce projet contribue à la protection des forêts primaires de Bornéo et à la replantation des zones déforestées.',
-      localisation: 'Bornéo, Indonésie',
-      picture: '/images/projects/preservation-borneo.webp',
+      localisation: 'Asie',
+      picture: 'seed/preservation-borneo.webp',
       progress: 18,
     },
   });
@@ -759,8 +759,8 @@ async function main() {
         'Projet de reboisement et de corridors écologiques au Costa Rica.',
       longDescription:
         'Ce projet recrée des corridors écologiques entre les parcs nationaux costariciens pour faciliter la migration des espèces.',
-      localisation: 'Costa Rica',
-      picture: '/images/projects/reboisement-costa-rica.webp',
+      localisation: 'Amérique Centrale',
+      picture: 'seed/reboisement-costa-rica.webp',
       progress: 75,
     },
   });
@@ -773,8 +773,8 @@ async function main() {
         'Projet de restauration de la forêt atlantique brésilienne.',
       longDescription:
         'Ce projet contribue à la restauration de la Mata Atlantica, l’une des forêts les plus menacées au monde.',
-      localisation: 'Brésil',
-      picture: '/images/projects/restauration-mata-atlantica.webp',
+      localisation: 'Amérique du Sud',
+      picture: 'seed/restauration-mata-atlantica.webp',
       progress: 47,
     },
   });

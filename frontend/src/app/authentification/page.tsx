@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { SubmitEventHandler } from 'react';
@@ -24,20 +25,27 @@ type AccountType = 'particulier' | 'entreprise';
 export default function AuthenticationPage() {
   const router = useRouter();
 
-  // Mode de la page : affiche le formulaire de connexion ou d'inscription.
+  // Mode de la page : indique si l'utilisateur est en train de se connecter
+  // ou de créer un compte. Cette valeur pilote l'affichage de l'interface.
   const [mode, setMode] = useState<AuthMode>('login');
 
-  // Type de compte choisi pour l'inscription : particulier ou entreprise.
+  // Type de compte choisi pour l'inscription.
+  // Le parcours est légèrement différent selon qu'il s'agit d'un particulier
+  // ou d'un professionnel, notamment pour les champs SIRET et raison sociale.
   const [accountType, setAccountType] = useState<AccountType>('particulier');
 
   // === CONNEXION (login) ===
-  // Données du formulaire de connexion.
-  // Stockées séparément pour simplifier la logique de soumission.
+  // Données du formulaire de connexion stockées dans des variables séparées.
+  // Cette séparation est volontaire : elle rend les validations et l'envoi de la requête
+  // plus lisibles que si tout était regroupé dans un objet unique, surtout pour une page
+  // qui gère aussi un second parcours d'inscription.
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   // === INSCRIPTION (register) ===
-  // Données du formulaire d'inscription combinées dans un seul objet.
+  // Données du formulaire d'inscription regroupées dans un objet unique.
+  // Ce choix facilite la mise à jour dynamique de plusieurs champs avec une seule fonction
+  // de mise à jour, et permet de construire facilement le payload envoyé au backend.
   const [registerData, setRegisterData] = useState({
     lastName: '',
     firstName: '',
@@ -51,16 +59,24 @@ export default function AuthenticationPage() {
     companyName: '',
   });
 
-  // Message d'erreur affiché à l'utilisateur en cas d'échec.
+  // Message d'erreur affiché à l'utilisateur si la validation locale
+  // ou la requête serveur échoue. Il est réinitialisé au démarrage de chaque action
+  // pour éviter qu'un ancien message reste visible alors que l'utilisateur tente autre chose.
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Indique si une requête réseau est en cours pour bloquer
-  // les actions supplémentaires et afficher un état de chargement.
+  // Indique si une requête réseau est en cours.
+  // Cette variable sert à désactiver les boutons et à afficher un état de chargement
+  // pendant la connexion ou l'inscription, pour éviter les actions multiples.
   const [isLoading, setIsLoading] = useState(false);
+
+  // État du consentement aux CGU et politique de confidentialité.
+  // La case doit être cochée avant toute création de compte, sinon l'inscription est bloquée.
+  const [acceptTerms, setAcceptTerms] = useState(false);
 
   /**
    * Met à jour un champ du formulaire d'inscription.
-   * Le state est immuable : on clone l'objet existant puis on modifie un champ.
+   * On travaille sur une copie de l'objet pour conserver l'immuabilité du state React.
+   * Cela permet de garder un rendu propre et prévisible lors des saisies utilisateur.
    */
   function updateRegisterField(
     field: keyof typeof registerData,
@@ -73,8 +89,9 @@ export default function AuthenticationPage() {
   }
 
   /**
-   * Change le mode d'affichage entre login et register.
-   * Le message d'erreur est réinitialisé pour éviter qu'il persiste.
+   * Bascule entre l'écran de connexion et l'écran d'inscription.
+   * On réinitialise également le message d'erreur pour éviter qu'un ancien message
+   * reste affiché quand l'utilisateur change de mode.
    */
   function switchMode(nextMode: AuthMode) {
     setMode(nextMode);
@@ -83,8 +100,9 @@ export default function AuthenticationPage() {
 
   // === LOGIQUE: CONNEXION ===
   /**
-   * Envoi du formulaire de connexion.
-   * La requête est traitée par la route interne Next.js /api/auth/login.
+   * Gère la soumission du formulaire de connexion.
+   * La page envoie une requête à l'API interne Next.js /api/auth/login,
+   * qui elle-même délègue la vérification des identifiants au backend.
    */
   const handleLogin: SubmitEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
@@ -92,6 +110,9 @@ export default function AuthenticationPage() {
     setErrorMessage('');
     setIsLoading(true);
 
+    // Validation côté navigateur du format de l'adresse email.
+    // Elle évite d'envoyer une requête inutile si l'utilisateur a déjà saisi
+    // une valeur manifestement invalide.
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(email)) {
@@ -101,6 +122,9 @@ export default function AuthenticationPage() {
     }
 
     try {
+      // Requête vers l'API interne Next.js qui sert de passerelle au backend.
+      // Cette étape est essentielle pour que le navigateur puisse gérer les cookies
+      // d'authentification lors de la connexion.
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -111,11 +135,15 @@ export default function AuthenticationPage() {
       });
 
       if (!response.ok) {
+        // Si l'API répond avec une erreur, on affiche un message générique
+        // sans révéler de détails techniques sur le fonctionnement du backend.
         setErrorMessage('Email ou mot de passe incorrect.');
         return;
       }
 
-      // Si la connexion réussit, redirection vers l'espace client.
+      // Si la connexion réussit, on redirige l'utilisateur vers son espace client.
+      // La méthode refresh force Next.js à remettre à jour les données de navigation
+      // après une connexion qui a pu modifier l'état de l'application.
       router.push('/espace-client');
       router.refresh();
     } catch {
@@ -127,9 +155,10 @@ export default function AuthenticationPage() {
 
   // === LOGIQUE: INSCRIPTION ===
   /**
-   * Envoi du formulaire d'inscription.
-   * Vérifie la correspondance des mots de passe, construit le payload
-   * et appelle le backend pour créer le compte.
+   * Gère la soumission du formulaire d'inscription.
+   * Cette fonction effectue d'abord une validation locale (champs obligatoires,
+   * format email, mot de passe, SIRET si professionnel, etc.), puis envoie
+   * les données au backend pour créer le compte utilisateur.
    */
   const handleRegister: SubmitEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
@@ -137,6 +166,9 @@ export default function AuthenticationPage() {
     setErrorMessage('');
     setIsLoading(true);
 
+    // Validation des champs obligatoires avant d'appeler le backend.
+    // Cette étape évite les requêtes inutiles et donne un retour immédiat
+    // à l'utilisateur lorsqu'un champ essentiel est manquant.
     if (!registerData.lastName.trim()) {
       setErrorMessage('Le nom est obligatoire.');
       setIsLoading(false);
@@ -187,6 +219,8 @@ export default function AuthenticationPage() {
       return;
     }
 
+    // Validation spécifique aux comptes professionnels.
+    // Le SIRET est obligatoire pour les entreprises et doit respecter un format précis.
     if (accountType === 'entreprise' && !/^\d{14}$/.test(registerData.siret)) {
       setErrorMessage('Le numéro de SIRET doit contenir 14 chiffres.');
       setIsLoading(false);
@@ -194,11 +228,24 @@ export default function AuthenticationPage() {
     }
 
     if (accountType === 'entreprise' && !registerData.companyName.trim()) {
+      // Pour un compte entreprise, la raison sociale est essentielle pour identifier la structure.
       setErrorMessage('La raison sociale est obligatoire.');
       setIsLoading(false);
       return;
     }
 
+    if (!acceptTerms) {
+      // La validation des mentions légales est obligatoire avant toute création de compte.
+      setErrorMessage(
+        "Vous devez accepter les Conditions d'utilisation et la Politique de confidentialité."
+      );
+      setIsLoading(false);
+      return;
+    }
+
+    // Construction du payload envoyé au backend.
+    // On distingue les champs communs et les champs spécifiques aux professionnels
+    // pour respecter le format attendu par l'API d'inscription.
     const payload = {
       lastName: registerData.lastName,
       firstName: registerData.firstName,
@@ -212,9 +259,12 @@ export default function AuthenticationPage() {
         siret: registerData.siret,
         companyName: registerData.companyName,
       }),
+      acceptedTerms: true,
     };
 
     try {
+      // Appel au backend d'inscription, avec l'URL publique définie côté Next.js.
+      // Cette requête est distincte de la connexion car elle crée le compte avant de l'authentifier.
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`,
         {
@@ -225,6 +275,8 @@ export default function AuthenticationPage() {
       );
 
       if (!response.ok) {
+        // Si le backend signale un conflit, cela veut souvent dire qu'un compte
+        // existe déjà avec la même adresse email ou le même SIRET.
         if (response.status === 409) {
           setErrorMessage('Un compte existe déjà avec cet email ou ce SIRET.');
           return;
@@ -236,7 +288,8 @@ export default function AuthenticationPage() {
         return;
       }
 
-      // Après inscription, retour au mode connexion et pré-remplissage de l'email.
+      // Après inscription, on revient au mode connexion et on pré-remplit
+      // l'email pour faciliter la connexion immédiate de l'utilisateur.
       setMode('login');
       setEmail(registerData.email);
       setPassword('');
@@ -467,9 +520,42 @@ export default function AuthenticationPage() {
                     )}
                   </div>
 
+                  <div className="rounded-md border border-gray-200 p-3">
+                    {/* Bloc de validation légale obligatoire pour l'inscription. */}
+                    <label className="flex items-start gap-3 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={acceptTerms}
+                        onChange={(e) => setAcceptTerms(e.target.checked)}
+                        className="mt-1"
+                      />
+
+                      <span>
+                        J&apos;ai lu et j&apos;accepte les{' '}
+                        <a
+                          href="/conditions-generales-utilisations"
+                          target="_blank"
+                          className="font-medium underline"
+                        >
+                          Conditions Générales d&apos;Utilisation
+                        </a>{' '}
+                        ainsi que la{' '}
+                        <a
+                          href="/politique-confidentialite"
+                          target="_blank"
+                          className="font-medium underline"
+                        >
+                          Politique de confidentialité
+                        </a>
+                        .
+                      </span>
+                    </label>
+                  </div>
+
                   {errorMessage && <ErrorMessage message={errorMessage} />}
 
                   <div className="flex items-center justify-between gap-4 pt-1">
+                    {/* Lien retour vers le mode connexion et bouton de validation de l'inscription. */}
                     <button
                       type="button"
                       onClick={() => switchMode('login')}
@@ -513,21 +599,42 @@ function FormField({
 }: FormFieldProps) {
   // Composant utilitaire réutilisable pour chaque champ de saisie.
   // Il garantit un rendu homogène du label et de l'input partout dans la page.
+  const [showPassword, setShowPassword] = useState(false);
+
+  const isPasswordField = type === 'password';
+
   return (
     <div className="space-y-1.5">
       <label htmlFor={id} className="block text-sm text-brand-dark">
         {label}
       </label>
 
-      <Input
-        id={id}
-        name={id}
-        type={type}
-        required
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="h-11 rounded-md bg-brand-white"
-      />
+      <div className="relative">
+        <Input
+          id={id}
+          name={id}
+          type={isPasswordField ? (showPassword ? 'text' : 'password') : type}
+          required
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="h-11 rounded-md bg-brand-white pr-10"
+        />
+
+        {isPasswordField && (
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-brand-accent"
+            aria-label={
+              showPassword
+                ? 'Masquer le mot de passe'
+                : 'Afficher le mot de passe'
+            }
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

@@ -17,6 +17,7 @@ export default function ContactPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [acceptPrivacy, setAcceptPrivacy] = useState(false);
 
   function updateField(field: keyof typeof form, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -47,6 +48,14 @@ export default function ContactPage() {
       return;
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(form.email)) {
+      setErrorMessage('Veuillez saisir une adresse email valide.');
+      setIsLoading(false);
+      return;
+    }
+
     if (!form.object.trim()) {
       setErrorMessage("L'objet est obligatoire.");
       setIsLoading(false);
@@ -59,19 +68,27 @@ export default function ContactPage() {
       return;
     }
 
+    if (!acceptPrivacy) {
+      setErrorMessage(
+        'Vous devez accepter que vos données soient utilisées pour répondre à votre demande.'
+      );
+      setIsLoading(false);
+      return;
+    }
+
     const emailjs = (await import('@emailjs/browser')).default;
 
     emailjs
       .send(
-        'service_rq000bb',
-        'template_7avtwn9',
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
         {
           from_name: `${form.firstName} ${form.lastName}`,
           from_email: form.email,
           subject: form.object,
           message: form.message,
         },
-        'dwcxnpBQEakoaHAVw'
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
       )
       .then(() => {
         setSuccessMessage('Votre message a bien été envoyé 🌱');
@@ -82,6 +99,7 @@ export default function ContactPage() {
           object: '',
           message: '',
         });
+        setAcceptPrivacy(false);
       })
       .catch(() => setErrorMessage("Erreur lors de l'envoi du message."))
       .finally(() => setIsLoading(false));
@@ -93,7 +111,7 @@ export default function ContactPage() {
         {/* IMAGE DE FOND */}
         <Image
           src="/images/background-image-main.jpg"
-          alt="Forêt"
+          alt="Forêt luxuriante servant de fond à la page de contact GreenRoots"
           fill
           priority
           className="object-cover object-center"
@@ -103,11 +121,11 @@ export default function ContactPage() {
         <div className="absolute inset-0 bg-black/40" />
 
         {/* CONTENT */}
-        <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-20">
-          <div className="w-full max-w-2xl rounded-[28px] bg-brand-white/95 p-8 shadow-sm backdrop-blur-sm">
-            <h1 className="text-3xl font-bold mb-6">Contact</h1>
+        <div className="relative z-10 flex min-h-screen items-center justify-center px-4 pt-36 pb-20">
+          <div className="w-full max-w-2xl rounded-[28px] bg-brand-white/95 p-6 shadow-sm backdrop-blur-sm md:p-7">
+            <h1 className="mb-4 text-3xl font-bold">Contact</h1>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {/* NOM / PRÉNOM */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Field
@@ -142,11 +160,14 @@ export default function ContactPage() {
 
               {/* MESSAGE */}
               <div className="space-y-1.5">
-                <label className="text-sm text-brand-dark">Message</label>
+                <label htmlFor="message" className="text-sm text-brand-dark">
+                  Message
+                </label>
                 <textarea
+                  id="message"
                   value={form.message}
                   onChange={(e) => updateField('message', e.target.value)}
-                  className="w-full min-h-[140px] rounded-md border border-gray-200 p-3 text-sm bg-white"
+                  className="min-h-[110px] w-full rounded-md border border-gray-200 bg-white p-3 text-sm"
                   placeholder="Écrivez votre message..."
                 />
               </div>
@@ -164,6 +185,32 @@ export default function ContactPage() {
                   {successMessage}
                 </p>
               )}
+
+              <div className="rounded-md border border-gray-200 p-3">
+                <label className="flex items-start gap-3 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={acceptPrivacy}
+                    onChange={(event) => setAcceptPrivacy(event.target.checked)}
+                    className="mt-1"
+                    required
+                  />
+
+                  <span>
+                    J&apos;accepte que les informations saisies dans ce
+                    formulaire soient utilisées pour me recontacter dans le
+                    cadre de ma demande, conformément à la{' '}
+                    <a
+                      href="/politique-confidentialite"
+                      target="_blank"
+                      className="font-medium underline"
+                    >
+                      Politique de confidentialité
+                    </a>
+                    .
+                  </span>
+                </label>
+              </div>
 
               {/* BUTTON */}
               <div className="flex justify-end">

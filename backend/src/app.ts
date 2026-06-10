@@ -9,7 +9,7 @@ import { errorHandler } from './middlewares/errorHandler.js';
 import { router } from './routers/index.router.js';
 import searchRouter from './routers/search.router.js';
 import { adminRouter } from './routers/admin.router.js';
-import { router as stripeWebhookRouter } from './routers/stripe-webhook.router.js';
+// import { router as stripeWebhookRouter } from './routers/stripe-webhook.router.js';
 
 import swaggerUi from 'swagger-ui-express';
 import SwaggerParser from '@apidevtools/swagger-parser';
@@ -46,7 +46,7 @@ app.use(
 // Route dédiée aux webhooks Stripe.
 // Elle reçoit les événements envoyés par Stripe après un paiement,
 // sans passer par les routes API classiques, pour valider la commande.
-app.use('/api/webhooks', stripeWebhookRouter);
+// app.use('/api/webhooks', stripeWebhookRouter);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -65,7 +65,7 @@ app.use(
 // ---- Fichiers statiques uploads ----
 app.use(
   '/uploads',
-  express.static(path.join(process.cwd(), '../public/uploads'), {
+  express.static(path.join(__dirname, '../public/uploads'), {
     setHeaders: (res) => {
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
