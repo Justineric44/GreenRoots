@@ -99,7 +99,9 @@ export async function addToCartAction(
 ): Promise<ActionResult> {
   try {
     await addToCart(treeId, projectId, quantity);
-    revalidatePath('/panier');
+    // Pas de revalidatePath ici — il démonte le modal avant l'affichage
+    // de la confirmation. La page panier sera rafraîchie via router.refresh()
+    // au moment de la redirection vers l'espace client.
     return { ok: true };
   } catch (error) {
     if (error instanceof ApiError) {
