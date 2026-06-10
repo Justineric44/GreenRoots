@@ -11,6 +11,15 @@ import LogoutButton from '@/components/layout/LogoutButton';
 import { getMe, getMyOrders } from '@/lib/api';
 import type { Order, User } from '@/types';
 import { redirect } from 'next/dist/client/components/navigation';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Mon espace client',
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 // ============================================================
 //  Espace client — données récupérées via /api/users/me

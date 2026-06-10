@@ -10,6 +10,30 @@ export async function createOrderFromActiveCart(
   userId: number,
   cartId?: number
 ) {
+  if (cartId) {
+    const existingOrder = await tx.order.findUnique({
+      where: {
+        cartId,
+      },
+      include: {
+        user: true,
+        items: {
+          include: {
+            project: {
+              select: {
+                name: true,
+                slug: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (existingOrder) {
+      return existingOrder;
+    }
+  }
   const cart = await tx.cart.findFirst({
     where: {
       userId,
@@ -73,6 +97,7 @@ export async function createOrderFromActiveCart(
       },
     },
     include: {
+      user: true,
       items: {
         include: {
           project: {

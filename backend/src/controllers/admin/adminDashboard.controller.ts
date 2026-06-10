@@ -7,9 +7,15 @@ import type { ZodError } from 'zod';
 
 import { prisma } from '../../lib/prisma.js';
 
+type PrismaClient = typeof prisma;
+type TransactionClient = Parameters<
+  Parameters<PrismaClient['$transaction']>[0]
+>[0];
+
 import {
   createProjectSchema,
   updateProjectSchema,
+  projectTreesSchema,
 } from '../../validators/admin/adminProject.validator.js';
 
 import {
@@ -19,7 +25,6 @@ import {
 } from '../../validators/admin/adminTree.validator.js';
 
 import { deleteUserSchema } from '../../validators/admin/adminUser.validator.js';
-import { UPLOADS_BASE_URL } from '../../middlewares/upload.middleware.js';
 
 // ============================================================
 // Helpers
@@ -47,7 +52,7 @@ function hasPrismaCode(error: unknown, code: string): boolean {
 
 function resolvePicture(req: Request): string | undefined {
   if (req.file) {
-    return `${UPLOADS_BASE_URL}/uploads/${req.file.filename}`;
+    return req.file.filename;
   }
   return req.body.picture || undefined;
 }
@@ -58,13 +63,94 @@ function resolvePicture(req: Request): string | undefined {
 
 export async function getDashboard(req: Request, res: Response): Promise<void> {
   try {
+    const treeSearch = (req.query.treeSearch as string | undefined)?.trim();
+    const treeProjectId = req.query.treeProjectId
+      ? Number(req.query.treeProjectId)
+      : undefined;
+
+    const projectSearch = (
+      req.query.projectSearch as string | undefined
+    )?.trim();
+    const projectTreeId = req.query.projectTreeId
+      ? Number(req.query.projectTreeId)
+      : undefined;
+
+    const allowedProjectSortFields = [
+      'name',
+      'localisation',
+      'progress',
+      'stock',
+    ] as const;
+
+    type ProjectSortField = (typeof allowedProjectSortFields)[number];
+
+    const rawProjectSortBy = req.query.projectSortBy as string | undefined;
+
+    const projectSortBy: ProjectSortField = allowedProjectSortFields.includes(
+      rawProjectSortBy as ProjectSortField
+    )
+      ? (rawProjectSortBy as ProjectSortField)
+      : 'name';
+
+    const projectSortOrder =
+      req.query.projectSortOrder === 'desc' ? 'desc' : 'asc';
+
+    const projectWhere = {
+      ...(projectSearch && {
+        name: { contains: projectSearch, mode: 'insensitive' as const },
+      }),
+      ...(projectTreeId && {
+        trees: { some: { treeId: projectTreeId } },
+      }),
+    };
+
+    const allowedSortFields = [
+      'commonName',
+      'scientificName',
+      'family',
+      'price',
+    ] as const;
+    type SortField = (typeof allowedSortFields)[number];
+    const rawSortBy = req.query.treeSortBy as string | undefined;
+    const treeSortBy: SortField = allowedSortFields.includes(
+      rawSortBy as SortField
+    )
+      ? (rawSortBy as SortField)
+      : 'commonName';
+    const treeSortOrder = req.query.treeSortOrder === 'desc' ? 'desc' : 'asc';
+
+    const treeWhere = {
+      ...(treeSearch && {
+        commonName: { contains: treeSearch, mode: 'insensitive' as const },
+      }),
+      ...(treeProjectId && {
+        projects: { some: { projectId: treeProjectId } },
+      }),
+    };
+
+    const projectOrderBy =
+      projectSortBy === 'stock'
+        ? { createdAt: 'desc' as const }
+        : { [projectSortBy]: projectSortOrder };
+
     const [projects, trees, orders, users] = await Promise.all([
       prisma.project.findMany({
-        orderBy: { createdAt: 'desc' },
+        where: projectWhere,
+        orderBy: projectOrderBy,
+        include: {
+          trees: {
+            include: {
+              tree: {
+                select: { id: true, commonName: true, slug: true },
+              },
+            },
+          },
+        },
       }),
 
       prisma.tree.findMany({
-        orderBy: { createdAt: 'desc' },
+        where: treeWhere,
+        orderBy: { [treeSortBy]: treeSortOrder },
         include: {
           projects: {
             include: {
@@ -80,11 +166,7 @@ export async function getDashboard(req: Request, res: Response): Promise<void> {
         orderBy: { createdAt: 'desc' },
         include: {
           user: {
-            select: {
-              firstName: true,
-              lastName: true,
-              email: true,
-            },
+            select: { firstName: true, lastName: true, email: true },
           },
           items: true,
         },
@@ -110,6 +192,15 @@ export async function getDashboard(req: Request, res: Response): Promise<void> {
       orders,
       users,
       query: req.query,
+      treeSearch: treeSearch ?? '',
+      treeProjectId: treeProjectId ?? '',
+      treeSortBy,
+      treeSortOrder,
+      projectSearch: projectSearch ?? '',
+      projectTreeId: projectTreeId ?? '',
+      projectSortBy,
+      projectSortOrder,
+      frontendUrl: process.env.FRONTEND_URL ?? 'http://localhost:3000',
     });
   } catch (error) {
     console.error('[adminDashboard] getDashboard error:', error);
@@ -135,14 +226,31 @@ export async function postCreateProject(
     return;
   }
 
+  const treesResult = projectTreesSchema.safeParse(req.body);
+  const { treeIds, stocks } = treesResult.success
+    ? treesResult.data
+    : { treeIds: [], stocks: {} };
+
   try {
-    const { longDescription, ...rest } = result.data;
-    await prisma.project.create({
-      data: {
-        ...rest,
-        ...(longDescription != null && { longDescription }),
-      },
+    await prisma.$transaction(async (tx: TransactionClient) => {
+      const project = await tx.project.create({
+        data: {
+          ...result.data,
+          longDescription: result.data.longDescription ?? null,
+        },
+      });
+
+      if (treeIds && treeIds.length > 0) {
+        await tx.projectHasTree.createMany({
+          data: treeIds.map((treeId) => ({
+            projectId: project.id,
+            treeId: Number(treeId),
+            stock: stocks?.[`t${treeId}`] ?? 0,
+          })),
+        });
+      }
     });
+
     res.redirect(
       '/admin/dashboard?section=projects&success=Projet+cr%C3%A9%C3%A9+avec+succ%C3%A8s'
     );
@@ -185,13 +293,33 @@ export async function postUpdateProject(
     return;
   }
 
+  const treesResult = projectTreesSchema.safeParse(req.body);
+  const { treeIds, stocks } = treesResult.success
+    ? treesResult.data
+    : { treeIds: [], stocks: {} };
+
   try {
-    await prisma.project.update({
-      where: { id },
-      data: Object.fromEntries(
-        Object.entries(result.data).filter(([, v]) => v !== undefined)
-      ),
+    await prisma.$transaction(async (tx: TransactionClient) => {
+      await tx.project.update({
+        where: { id },
+        data: Object.fromEntries(
+          Object.entries(result.data).filter(([, value]) => value !== undefined)
+        ),
+      });
+
+      await tx.projectHasTree.deleteMany({ where: { projectId: id } });
+
+      if (treeIds && treeIds.length > 0) {
+        await tx.projectHasTree.createMany({
+          data: treeIds.map((treeId) => ({
+            projectId: id,
+            treeId: Number(treeId),
+            stock: stocks?.[`t${treeId}`] ?? 0,
+          })),
+        });
+      }
     });
+
     res.redirect(
       '/admin/dashboard?section=projects&success=Projet+mis+%C3%A0+jour'
     );
@@ -268,32 +396,17 @@ export async function postCreateTree(
   }
 
   const projectsResult = treeProjectsSchema.safeParse(req.body);
-
-  // 🔍 DEBUG — à supprimer une fois le problème résolu
-  console.log('--- [postCreateTree] DEBUG ---');
-  console.log('req.body.projectIds:', req.body.projectIds);
-  console.log('req.body.stocks:', req.body.stocks);
-  console.log('projectsResult.success:', projectsResult.success);
-  console.log(
-    'projectsResult.data:',
-    JSON.stringify(
-      projectsResult.success ? projectsResult.data : projectsResult.error
-    )
-  );
-  console.log('-----------------------------');
-
   const { projectIds, stocks } = projectsResult.success
     ? projectsResult.data
     : { projectIds: [], stocks: {} };
 
   try {
-    await prisma.$transaction(async (tx) => {
-      const { longDescription, origin, ...rest } = result.data;
+    await prisma.$transaction(async (tx: TransactionClient) => {
       const tree = await tx.tree.create({
         data: {
-          ...rest,
-          ...(longDescription != null && { longDescription }),
-          ...(origin != null && { origin }),
+          ...result.data,
+          longDescription: result.data.longDescription ?? null,
+          origin: result.data.origin ?? null,
         },
       });
 
@@ -302,7 +415,7 @@ export async function postCreateTree(
           data: projectIds.map((projectId) => ({
             treeId: tree.id,
             projectId: Number(projectId),
-            stock: stocks?.[projectId] ?? 0,
+            stock: stocks?.[`p${projectId}`] ?? 0,
           })),
         });
       }
@@ -349,30 +462,16 @@ export async function postUpdateTree(
   }
 
   const projectsResult = treeProjectsSchema.safeParse(req.body);
-
-  // 🔍 DEBUG — à supprimer une fois le problème résolu
-  console.log('--- [postUpdateTree] DEBUG ---');
-  console.log('req.body.projectIds:', req.body.projectIds);
-  console.log('req.body.stocks:', req.body.stocks);
-  console.log('projectsResult.success:', projectsResult.success);
-  console.log(
-    'projectsResult.data:',
-    JSON.stringify(
-      projectsResult.success ? projectsResult.data : projectsResult.error
-    )
-  );
-  console.log('-----------------------------');
-
   const { projectIds, stocks } = projectsResult.success
     ? projectsResult.data
     : { projectIds: [], stocks: {} };
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: TransactionClient) => {
       await tx.tree.update({
         where: { id },
         data: Object.fromEntries(
-          Object.entries(result.data).filter(([, v]) => v !== undefined)
+          Object.entries(result.data).filter(([, value]) => value !== undefined)
         ),
       });
       await tx.projectHasTree.deleteMany({ where: { treeId: id } });
@@ -382,7 +481,8 @@ export async function postUpdateTree(
           data: projectIds.map((projectId) => ({
             treeId: id,
             projectId: Number(projectId),
-            stock: stocks?.[projectId] ?? 0,
+            // ✅ FIX : le EJS envoie stocks[p14], la clé est donc "p14"
+            stock: stocks?.[`p${projectId}`] ?? 0,
           })),
         });
       }
@@ -425,16 +525,23 @@ export async function postDeleteTree(
   }
 
   try {
-    await prisma.tree.delete({ where: { id } });
-    res.redirect('/admin/dashboard?section=trees&success=Arbre+supprim%C3%A9');
-  } catch (error) {
-    console.error('[adminDashboard] postDeleteTree error:', error);
-    if (hasPrismaCode(error, 'P2003')) {
+    const ordersCount = await prisma.orderItem.count({ where: { treeId: id } });
+
+    if (ordersCount > 0) {
       res.redirect(
-        '/admin/dashboard?section=trees&error=Impossible+de+supprimer+cet+arbre+car+il+est+utilis%C3%A9'
+        '/admin/dashboard?section=trees&error=Impossible+de+supprimer+cet+arbre+car+il+est+utilis%C3%A9+dans+des+commandes'
       );
       return;
     }
+
+    await prisma.$transaction(async (tx: TransactionClient) => {
+      await tx.projectHasTree.deleteMany({ where: { treeId: id } });
+      await tx.tree.delete({ where: { id } });
+    });
+
+    res.redirect('/admin/dashboard?section=trees&success=Arbre+supprim%C3%A9');
+  } catch (error) {
+    console.error('[adminDashboard] postDeleteTree error:', error);
     if (hasPrismaCode(error, 'P2025')) {
       res.redirect('/admin/dashboard?section=trees&error=Arbre+introuvable');
       return;
@@ -479,7 +586,18 @@ export async function postDeleteUser(
       return;
     }
 
-    await prisma.user.delete({ where: { id } });
+    await prisma.$transaction(async (tx: TransactionClient) => {
+      const orders = await tx.order.findMany({ where: { userId: id } });
+      const orderIds = orders.map((o: (typeof orders)[number]) => o.id);
+
+      if (orderIds.length > 0) {
+        await tx.orderItem.deleteMany({ where: { orderId: { in: orderIds } } });
+      }
+
+      await tx.order.deleteMany({ where: { userId: id } });
+      await tx.user.delete({ where: { id } });
+    });
+
     res.redirect(
       '/admin/dashboard?section=users&success=Utilisateur+supprim%C3%A9'
     );

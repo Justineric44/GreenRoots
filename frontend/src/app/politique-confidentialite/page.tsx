@@ -1,4 +1,11 @@
 import Title from '@/components/layout/Title';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Politique de confidentialité',
+  description:
+    'Découvrez notre politique de confidentialité et participez activement à des projets de reforestation.',
+};
 
 export default function PrivacyPolicyPage() {
   return (

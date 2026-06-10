@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { addToCartAction } from '@/lib/actions/cart';
+import { useCart } from '@/components/cart/CartProvider';
 
 // Type d'un projet auquel cet arbre peut être planté.
 type ProjectOption = {
@@ -37,6 +38,7 @@ export default function TreeQuantity({
   const [quantity, setQuantity] = useState(1);
   const [message, setMessage] = useState('');
   const [isPending, setIsPending] = useState(false);
+  const { refreshCart } = useCart();
 
   const selectedProject = projects.find((p) => p.id === selectedProjectId);
 
@@ -64,13 +66,14 @@ export default function TreeQuantity({
       setMessage(response.message);
       return;
     }
+    await refreshCart();
     setMessage('Arbre ajouté au panier ✅');
   }
 
   return (
     <div className="flex flex-col gap-3 mt-2">
       {/* Sélecteur de projet */}
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1 w-full min-w-0">
         <label htmlFor="project-select" className="text-sm">
           Choisir le projet
         </label>
@@ -82,7 +85,7 @@ export default function TreeQuantity({
             setQuantity(1);
             setMessage('');
           }}
-          className="bg-brand-bg text-brand-dark px-2 py-1 text-sm rounded-md border-0 w-75"
+          className="bg-brand-bg text-brand-dark px-2 py-1 text-sm rounded-md border-0 w-full max-w-full min-w-0 truncate"
         >
           {projects.map((p) => (
             <option key={p.id} value={p.id}>
@@ -97,6 +100,7 @@ export default function TreeQuantity({
         <div className="flex items-center gap-2">
           <button
             type="button"
+            aria-label="Diminuer la quantité"
             disabled={!isLoggedIn || isPending}
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
             className="w-8 h-8 rounded-full bg-brand-accent text-white flex items-center justify-center hover:opacity-80 disabled:opacity-50"
@@ -108,6 +112,7 @@ export default function TreeQuantity({
           </span>
           <button
             type="button"
+            aria-label="Augmenter la quantité"
             disabled={
               !isLoggedIn ||
               isPending ||
