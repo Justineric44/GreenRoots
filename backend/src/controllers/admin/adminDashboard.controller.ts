@@ -68,6 +68,42 @@ export async function getDashboard(req: Request, res: Response): Promise<void> {
       ? Number(req.query.treeProjectId)
       : undefined;
 
+    const projectSearch = (
+      req.query.projectSearch as string | undefined
+    )?.trim();
+    const projectTreeId = req.query.projectTreeId
+      ? Number(req.query.projectTreeId)
+      : undefined;
+
+    const allowedProjectSortFields = [
+      'name',
+      'localisation',
+      'progress',
+      'stock',
+    ] as const;
+
+    type ProjectSortField = (typeof allowedProjectSortFields)[number];
+
+    const rawProjectSortBy = req.query.projectSortBy as string | undefined;
+
+    const projectSortBy: ProjectSortField = allowedProjectSortFields.includes(
+      rawProjectSortBy as ProjectSortField
+    )
+      ? (rawProjectSortBy as ProjectSortField)
+      : 'name';
+
+    const projectSortOrder =
+      req.query.projectSortOrder === 'desc' ? 'desc' : 'asc';
+
+    const projectWhere = {
+      ...(projectSearch && {
+        name: { contains: projectSearch, mode: 'insensitive' as const },
+      }),
+      ...(projectTreeId && {
+        trees: { some: { treeId: projectTreeId } },
+      }),
+    };
+
     const allowedSortFields = [
       'commonName',
       'scientificName',
@@ -92,9 +128,15 @@ export async function getDashboard(req: Request, res: Response): Promise<void> {
       }),
     };
 
+    const projectOrderBy =
+      projectSortBy === 'stock'
+        ? { createdAt: 'desc' as const }
+        : { [projectSortBy]: projectSortOrder };
+
     const [projects, trees, orders, users] = await Promise.all([
       prisma.project.findMany({
-        orderBy: { createdAt: 'desc' },
+        where: projectWhere,
+        orderBy: projectOrderBy,
         include: {
           trees: {
             include: {
@@ -154,6 +196,10 @@ export async function getDashboard(req: Request, res: Response): Promise<void> {
       treeProjectId: treeProjectId ?? '',
       treeSortBy,
       treeSortOrder,
+      projectSearch: projectSearch ?? '',
+      projectTreeId: projectTreeId ?? '',
+      projectSortBy,
+      projectSortOrder,
     });
   } catch (error) {
     console.error('[adminDashboard] getDashboard error:', error);
