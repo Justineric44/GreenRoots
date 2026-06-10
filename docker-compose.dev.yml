@@ -49,13 +49,12 @@ services:
     environment:
       DATABASE_URL: '${DATABASE_URL}?schema=public'
       PORT: 3001
+      FRONTEND_URL: ${FRONTEND_URL}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
-      MAIL_HOST: ${MAIL_HOST}
-      MAIL_PORT: ${MAIL_PORT}
-      MAIL_USER: ${MAIL_USER}
-      MAIL_PASSWORD: ${MAIL_PASSWORD}
-      MAIL_FROM: ${MAIL_FROM}
+      BREVO_API_KEY: ${BREVO_API_KEY}
+      MAIL_FROM_EMAIL: ${MAIL_FROM_EMAIL}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME}
     ports:
       - '3001:3001'
       - '5555:5555' # Port pour prisma studio
@@ -73,13 +72,12 @@ services:
     environment:
       DATABASE_URL: '${TEST_DATABASE_URL}'
       PORT: 3002
+      FRONTEND_URL: ${FRONTEND_URL}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
-      MAIL_HOST: ${MAIL_HOST}
-      MAIL_PORT: ${MAIL_PORT}
-      MAIL_USER: ${MAIL_USER}
-      MAIL_PASSWORD: ${MAIL_PASSWORD}
-      MAIL_FROM: ${MAIL_FROM}
+      BREVO_API_KEY: ${BREVO_API_KEY}
+      MAIL_FROM_EMAIL: ${MAIL_FROM_EMAIL}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME}
     ports:
       - '3002:3002'
       - '5556:5556'
