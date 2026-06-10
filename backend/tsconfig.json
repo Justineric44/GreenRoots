@@ -12,6 +12,8 @@
     "sourceMap": true,
     "declaration": false,
     "declarationMap": false,
+
+    // Stricter Typechecking Options
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     "strict": true,

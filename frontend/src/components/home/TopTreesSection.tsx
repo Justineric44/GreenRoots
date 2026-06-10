@@ -57,7 +57,7 @@ export default async function TopTreesSection() {
           {/* Carte fixe dédiée aux entreprises */}
           <div className="relative flex h-[470px] w-72 flex-col justify-between overflow-hidden rounded-xl bg-brand-dark p-6 text-brand-white shadow-lg transition-shadow hover:shadow-xl">
             <Image
-              src="/images/home/impact/impact-6.jpg"
+              src="/images/impact/impact-6.jpg"
               alt="Forêt illustrant la section dédiée aux offres d'entreprise de reforestation"
               fill
               className="object-cover opacity-30"
@@ -85,7 +85,7 @@ export default async function TopTreesSection() {
               asChild
               className="relative z-10 w-full bg-brand-accent text-brand-dark hover:bg-brand-accent/90"
             >
-              <Link href="/trees" className="!text-brand-white/80">
+              <Link href="/arbres" className="!text-brand-white/80">
                 Voir tous les arbres
               </Link>
             </Button>
