@@ -415,8 +415,14 @@
                 <tr>
                   <td class="td-muted">#<%= order.id %></td>
                   <td>
-                    <strong><%= order.user.firstName %> <%= order.user.lastName %></strong>
-                    <div class="td-muted"><%= order.user.email %></div>
+                    <%# Si le compte est anonymisé, on masque nom et email %>
+                    <% if (orderUserDeleted) { %>
+                      <strong style="color: var(--color-text-muted, #888);">Utilisateur anonyme</strong>
+                      <div class="td-muted">—</div>
+                    <% } else { %>
+                      <strong><%= order.user.firstName %> <%= order.user.lastName %></strong>
+                      <div class="td-muted"><%= order.user.email %></div>
+                    <% } %>
                   </td>
                   <td><strong><%= Number(order.amount).toFixed(2) %> €</strong></td>
 
@@ -501,10 +507,31 @@
               </tr>
             <% } else { %>
               <% users.forEach(user => { %>
-                <% const isDeleted = !!user.deletedAt; %>
-                <tr style="<%= isDeleted ? 'opacity:0.6;' : '' %>">
-                  <td><strong><%= user.firstName %> <%= user.lastName %></strong></td>
-                  <td class="td-muted"><%= user.email %></td>
+                <%
+                  // deletedAt non null = anonymisé (avait des commandes).
+                  // Les hard-deleted (sans commandes) ne sont plus en base du tout.
+                  const isAnonymized = !!user.deletedAt;
+                %>
+                <tr style="<%= isAnonymized ? 'opacity:0.6;' : '' %>">
+
+                  <%# Nom : "Utilisateur Anonyme" si anonymisé, vrai nom sinon %>
+                  <td>
+                    <% if (isAnonymized) { %>
+                      <strong style="color:var(--color-text-muted,#888);">Utilisateur Anonyme</strong>
+                    <% } else { %>
+                      <strong><%= user.firstName %> <%= user.lastName %></strong>
+                    <% } %>
+                  </td>
+
+                  <%# Email : masqué si anonymisé (l'email technique ne doit pas être exposé) %>
+                  <td class="td-muted">
+                    <% if (isAnonymized) { %>
+                      <span style="font-style:italic;">—</span>
+                    <% } else { %>
+                      <%= user.email %>
+                    <% } %>
+                  </td>
+
                   <td><span class="badge badge-muted"><%= user.type %></span></td>
                   <td>
                     <span class="badge <%= user.role === 'admin' ? 'badge-green' : 'badge-muted' %>">
@@ -512,24 +539,24 @@
                     </span>
                   </td>
 
-                  <%# Colonne statut : vert = actif, rouge = supprimé %>
+                  <%# Statut : Inactif si anonymisé, Actif sinon %>
                   <td>
-                    <span class="badge <%= isDeleted ? 'badge-red' : 'badge-green' %>">
-                      <%= isDeleted ? 'Inactif' : 'Actif' %>
+                    <span class="badge <%= isAnonymized ? 'badge-red' : 'badge-green' %>">
+                      <%= isAnonymized ? 'Inactif' : 'Actif' %>
                     </span>
                   </td>
 
                   <td class="td-muted"><%= new Date(user.createdAt).toLocaleDateString('fr-FR') %></td>
+
                   <td>
-                    <%# On n'affiche le bouton supprimer que si l'user est actif et non admin %>
-                    <% if (user.role !== 'admin' && !isDeleted) { %>
-                      <form
-                        action="/admin/users/<%= user.id %>/delete"
-                        method="POST"
-                        onsubmit="return confirm('Supprimer cet utilisateur ?')"
+                    <%# Bouton supprimer : uniquement pour les users actifs non admin %>
+                    <% if (!isAnonymized && user.role !== 'admin') { %>
+                      <button
+                        class="btn btn-danger btn-sm"
+                        onclick="deleteUser(<%= user.id %>, this)"
                       >
-                        <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
-                      </form>
+                        Supprimer
+                      </button>
                     <% } else { %>
                       <span class="td-muted" style="font-size:12px;">—</span>
                     <% } %>
@@ -998,6 +1025,61 @@
       if (e.target === overlay) overlay.classList.remove('open');
     });
   });
+
+  // ---- Suppression utilisateur (sans rechargement de page) ----
+  //
+  // Deux comportements selon la réponse du controller :
+  //
+  // { action: 'deleted' }    → aucune commande, hard delete en BDD
+  //                            → on retire la ligne du DOM
+  //
+  // { action: 'anonymized' } → commandes existantes, anonymisation RGPD
+  //                            → on met à jour la ligne visuellement :
+  //                              nom  → "Utilisateur Anonyme"
+  //                              email → "—" (l'email technique n'est jamais affiché)
+  //                              statut → badge "Inactif"
+  //                              bouton → "—"
+  // ----------------------------------------------------------------
+  async function deleteUser(userId, btn) {
+    if (!confirm('Supprimer cet utilisateur ?')) return;
+
+    btn.disabled = true;
+    btn.textContent = '…';
+
+    try {
+      const res = await fetch('/admin/users/' + userId + '/delete', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+      });
+
+      const data = await res.json();
+      const row = btn.closest('tr');
+
+      if (data.action === 'deleted') {
+        // Aucune commande → suppression complète en BDD → on retire la ligne
+        if (row) row.remove();
+
+      } else if (data.action === 'anonymized') {
+        // Commandes existantes → anonymisation RGPD → mise à jour visuelle
+        // L'email technique (deleted-X@anonymized.local) ne doit jamais apparaître
+        const cells = row.querySelectorAll('td');
+        cells[0].innerHTML = '<strong style="color:var(--color-text-muted,#888);">Utilisateur Anonyme</strong>';
+        cells[1].innerHTML = '<span style="font-style:italic;">—</span>';
+        cells[4].innerHTML = '<span class="badge badge-red">Inactif</span>';
+        cells[6].innerHTML = '<span class="td-muted" style="font-size:12px;">—</span>';
+        row.style.opacity  = '0.6';
+
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Supprimer';
+        alert('Erreur lors de la suppression');
+      }
+    } catch {
+      btn.disabled = false;
+      btn.textContent = 'Supprimer';
+      alert('Erreur réseau lors de la suppression');
+    }
+  }
 
   // ---- Détail commande ----
   function toggleOrderDetail(orderId) {
