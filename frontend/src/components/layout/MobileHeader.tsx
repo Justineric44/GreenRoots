@@ -56,12 +56,8 @@ export default function MobileHeader({
           </button>
         </Link>
 
-        <Link href="/panier">
-          <button
-            type="button"
-            className="p-2 text-white hover:text-[#88B75D]"
-            aria-label="Panier"
-          >
+        <Link href="/panier" className="relative" aria-label="Panier">
+          <button type="button" className="p-2 text-white hover:text-[#88B75D]">
             <ShoppingCart size={25} />
           </button>
 

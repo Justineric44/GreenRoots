@@ -92,16 +92,12 @@ export default function DesktopHeader({
         </Link>
 
         {/* Panier */}
-        <Link href="/panier">
-          <button
-            className="text-white hover:text-[#88B75D] p-2"
-            aria-label="Panier"
-          >
+        {/* Panier */}
+        <Link href="/panier" className="relative" aria-label="Panier">
+          <button className="text-white hover:text-[#88B75D] p-2">
             <ShoppingCart size={25} />
           </button>
 
-          {/* Badge affiché uniquement lorsqu'il y a au moins un article dans le panier.
-              Le nombre représenté correspond au total des quantités, pas au nombre de lignes. */}
           {cartCount > 0 && (
             <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-accent px-1 text-xs font-bold text-white">
               {cartCount}
