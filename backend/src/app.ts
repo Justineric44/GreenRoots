@@ -26,11 +26,17 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // Activation de CORS pour autoriser les appels du front-end vers l'API.
 // FRONTEND_URL permet d'adapter l'origine autorisée selon l'environnement.
 // credentials: true est indispensable pour envoyer les cookies d'authentification.
+const allowedOrigins: string[] = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+];
+
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.push(process.env.FRONTEND_URL);
+}
+
 const corsOptions = {
-  origin: [
-    process.env.FRONTEND_URL ?? 'http://localhost:3000',
-    'http://localhost:3001',
-  ],
+  origin: allowedOrigins,
   credentials: true,
 };
 
