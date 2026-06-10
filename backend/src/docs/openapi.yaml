@@ -8,6 +8,8 @@ info:
     dans son propre fichier YAML et combiné ici via $ref.
 
 tags:
+  - name: Auth
+    description: Routes d'inscription, connexion et déconnexion
   - name: Users
     description: Routes liées à l'utilisateur connecté
   - name: Orders
@@ -26,6 +28,18 @@ components:
 
 paths:
   # ============================================================
+  # AUTH — Routes importées de users.openapi.yaml
+  # ============================================================
+  /api/auth/register:
+    $ref: './users.openapi.yaml#/paths/~1api~1auth~1register'
+
+  /api/auth/login:
+    $ref: './users.openapi.yaml#/paths/~1api~1auth~1login'
+
+  /api/auth/logout:
+    $ref: './users.openapi.yaml#/paths/~1api~1auth~1logout'
+
+  # ============================================================
   # USERS — Routes importées de users.openapi.yaml
   # ============================================================
   /api/users/me:
@@ -40,7 +54,7 @@ paths:
   # ============================================================
   /api/orders:
     $ref: './orders.openapi.yaml#/paths/~1api~1orders'
-  
+
   # ============================================================
   # TREES
   # ============================================================
@@ -64,8 +78,7 @@ paths:
   /api/projects/{slug}/trees:
     $ref: './projects.openapi.yaml#/paths/~1api~1projects~1{slug}~1trees'
 
-
- # ============================================================
+  # ============================================================
   # CARTS
   # ============================================================
   /api/carts:
@@ -74,4 +87,3 @@ paths:
     $ref: './carts.openapi.yaml#/paths/~1api~1carts~1items'
   /api/carts/items/{id}:
     $ref: './carts.openapi.yaml#/paths/~1api~1carts~1items~1{id}'
-
