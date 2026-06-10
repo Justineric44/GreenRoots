@@ -1,4 +1,11 @@
 import Title from '@/components/layout/Title';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Conditions générales d'utilisation",
+  description:
+    "Découvrez les conditions générales d'utilisation du site GreenRoots et participez activement à des projets de reforestation.",
+};
 
 export default function TermsOfUsePage() {
   return (

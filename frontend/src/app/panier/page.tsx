@@ -5,6 +5,15 @@ import CartEmpty from '@/components/layout/CartEmpty';
 import CartDeleteItem from '@/components/layout/CartDeleteItem';
 import OrderModal from '@/components/layout/OrderModal';
 import { formatPrice } from '@/lib/format';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Mon panier',
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 import { getImageUrl } from '@/lib/images';
 
 export default async function CartPage() {

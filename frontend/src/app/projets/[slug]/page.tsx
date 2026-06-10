@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import type { Tree } from '@/types/index';
+import type { Project, Tree } from '@/types/index';
 import Title from '@/components/layout/Title';
 import { getOneProject, getProjectTrees } from '@/lib/api';
 import TreesCarousel from '@/components/layout/TreesCarousel';
@@ -7,6 +7,26 @@ import ProjectTreePurchase from '@/components/layout/ProjectTreePurchase';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { ApiError } from '@/lib/errors';
+import { Metadata } from 'next';
+
+// NOTE SEO — déduplication possible (évolution)
+// voir détail arbre
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const project: Project = await getOneProject(slug);
+
+  if (!project) return { title: 'Projet introuvable' };
+
+  return {
+    title: project.name,
+    // Optimisation post MVP : meta descriptions dédiées et optimisées, distinctes du contenu de page
+    description: project.shortDescription,
+  };
+}
 import { getImageUrl } from '@/lib/images';
 
 type ProjectDetailPageProps = {

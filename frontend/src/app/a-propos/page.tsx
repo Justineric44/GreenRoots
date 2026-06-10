@@ -6,7 +6,7 @@ import Title from '@/components/layout/Title';
 import { Button } from '@/components/ui/button';
 
 export const metadata = {
-  title: 'À propos — GreenRoots',
+  title: 'À propos',
   description:
     'GreenRoots — notre mission : replanter la planète en rendant la reforestation accessible à tous.',
 };

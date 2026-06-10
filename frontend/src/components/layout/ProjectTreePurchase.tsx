@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { addToCartAction } from '@/lib/actions/cart';
+import Link from 'next/link';
 import { useCart } from '@/components/cart/CartProvider';
 
 // Type local décrivant les arbres disponibles à l'achat pour un projet.
@@ -217,12 +218,12 @@ export default function ProjectTreePurchase({
 
       {/* Lien vers la fiche détaillée de l’arbre sélectionné. */}
       {selectedTree && (
-        <a
+        <Link
           href={`/arbres/${selectedTree.slug}`}
           className="text-sm text-brand-accent underline-offset-4 hover:underline"
         >
           Voir la fiche complète →
-        </a>
+        </Link>
       )}
     </div>
   );

@@ -6,16 +6,10 @@ import ProjectsSkeleton from '@/components/layout/ProjectsSkeleton';
 import type { ProjectsSearchParams } from '@/types/index';
 
 export const metadata: Metadata = {
-  title: 'Projets de reforestation - GreenRoots',
+  title: 'Nos projets de reforestation',
   description:
     "Découvrez nos projets de reforestation à travers le monde. Participez à la lutte contre le changement climatique en soutenant nos initiatives de plantation d'arbres.",
 };
-
-const paragraph1 =
-  "GreenRoots s'engage aux côtés de partenaires locaux pour financer et suivre des projets de reforestation à travers l'Europe et au-delà. Chaque projet est rigoureusement sélectionné selon des critères environnementaux stricts : choix d'essences indigènes adaptées au territoire, engagement des communautés locales, et suivi de la croissance des arbres sur le long terme. Nous croyons que la reforestation est l'un des leviers les plus puissants pour restaurer la biodiversité, protéger les sols et lutter efficacement contre le dérèglement climatique.";
-
-const paragraph2 =
-  "En choisissant de soutenir un projet sur notre plateforme, vous participez concrètement à la restauration d'écosystèmes fragilisés par la déforestation, les incendies ou l'agriculture intensive. Que ce soit en Bourgogne, en Provence ou dans les Vosges, chaque arbre planté contribue à reconstituer un couvert forestier essentiel pour la faune, la flore et les populations locales. Transparence, traçabilité et impact mesurable : GreenRoots vous donne les outils pour agir en toute confiance pour la planète.";
 
 export default function ProjectsPage({
   searchParams,
@@ -27,8 +21,27 @@ export default function ProjectsPage({
       <Title title="Nos projets" />
       <section className="bg-brand-bg px-4 py-4 sm:px-4 lg:px-4 lg:py-2">
         <div className="mx-auto max-w-7xl p-8 text-brand-dark">
-          <p className="pb-4">{paragraph1}</p>
-          <p className="pb-4">{paragraph2}</p>
+          <p className="pb-4">
+            Chez GreenRoots, chaque projet de reforestation naît d&apos;un
+            partenariat avec des acteurs locaux engagés : associations,
+            coopératives agricoles et communautés qui connaissent leur
+            territoire mieux que quiconque. Nous sélectionnons des essences
+            indigènes, adaptées au climat et aux sols de chaque région, pour
+            garantir des plantations durables qui renforcent les écosystèmes
+            existants plutôt que de les fragiliser. De la pépinière à la mise en
+            terre, chaque arbre est suivi pour maximiser ses chances de
+            croissance et son impact réel sur la biodiversité.
+          </p>
+          <p className="pb-4">
+            Au-delà de la plantation, nos projets soutiennent les populations
+            qui en prennent soin au quotidien. Restaurer une forêt, c&apos;est
+            aussi créer des emplois locaux, protéger les ressources en eau,
+            stabiliser les sols agricoles et capter durablement du carbone. En
+            finançant un projet GreenRoots, vous ne plantez pas seulement un
+            arbre : vous participez à une démarche concrète de régénération
+            environnementale et sociale, dont vous pouvez suivre
+            l&apos;avancement en toute transparence.
+          </p>
         </div>
       </section>
       <section className="bg-brand-bg px-4 pt-4 pb-16 sm:px-6 lg:px-8 lg:pt-4 lg:pb-20">
