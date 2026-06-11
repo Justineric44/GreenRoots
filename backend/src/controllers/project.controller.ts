@@ -49,7 +49,12 @@ export async function getAllProjects(req: Request, res: Response) {
     );
 
     return {
-      ...project,
+      id: project.id,
+      name: project.name,
+      shortDescription: project.shortDescription,
+      slug: project.slug,
+      localisation: project.localisation,
+      picture: project.picture,
       progress: computeProgress(orderedQuantity, requiredQuantity),
     };
   };
