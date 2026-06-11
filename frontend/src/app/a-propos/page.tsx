@@ -98,41 +98,34 @@ export default function AboutPage() {
               </ol>
             </div>
 
-            <div
-              className="grid grid-cols-1 gap-3"
-              role="list"
-              aria-label="Photos de projets de reforestation"
-            >
-              <div
-                role="listitem"
-                className="relative h-40 w-full overflow-hidden rounded-2xl"
-              >
+            {/* Colonne droite : 3 images empilées et alignées */}
+            <div className="grid grid-cols-1 gap-3">
+              <div className="relative h-40 w-full overflow-hidden rounded-2xl">
                 <Image
                   src="/images/a-propos/aditya-sethia-kRtRPB3v9Ts-unsplash.jpg"
                   alt="Vue aérienne d'une forêt dense avec canopée verdoyante"
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover"
                 />
               </div>
-              <div
-                role="listitem"
-                className="relative h-40 w-full overflow-hidden rounded-2xl"
-              >
+
+              <div className="relative h-40 w-full overflow-hidden rounded-2xl">
                 <Image
                   src="/images/a-propos/alexey-demidov-Z-5ctVlACa4-unsplash.jpg"
                   alt="Équipe de bénévoles plantant de jeunes arbres en terre"
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover"
                 />
               </div>
-              <div
-                role="listitem"
-                className="relative h-40 w-full overflow-hidden rounded-2xl"
-              >
+
+              <div className="relative h-40 w-full overflow-hidden rounded-2xl">
                 <Image
                   src="/images/a-propos/gregor-scheithauer-0uO6qhd6Bi8-unsplash.jpg"
                   alt="Jeunes plants d'arbres en pépinière prêts à être transplantés"
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover"
                 />
               </div>
