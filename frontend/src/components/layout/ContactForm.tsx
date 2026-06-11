@@ -119,7 +119,7 @@ export default function ContactForm() {
         />
 
         {/* OVERLAY */}
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0" />
 
         {/* CONTENT */}
         <div className="relative z-10 flex min-h-screen items-center justify-center px-4 pt-36 pb-20">
