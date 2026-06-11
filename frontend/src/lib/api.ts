@@ -92,7 +92,7 @@ export async function getProjects(
   search?: string,
   sortBy?: string,
   sortOrder?: string
-): Promise<{ projects: Project[]; total: number; limit: number }> {
+): Promise<{ projects: Project[]; total?: number; limit?: number }> {
   if (!currentPage) {
     return apiFetch(`/api/projects`);
   }
