@@ -60,6 +60,7 @@ export default async function TopTreesSection() {
               src="/images/home/impact/impact-6.jpg"
               alt="Forêt illustrant la section dédiée aux offres d'entreprise de reforestation"
               fill
+              sizes="288px"
               className="object-cover opacity-30"
             />
             <div className="relative z-10">
